@@ -573,7 +573,7 @@ const getContractLatestPeriodTimestamp = (contract) => {
 };
 
 export const getCustomerPrimaryContract = (customer, date = getTodayIso()) => {
-    if (!Array.isArray(customer.contracts)) return null;
+    if (!Array.isArray(customer?.contracts)) return null;
 
     const contracts = [...customer.contracts].filter(contract => !(contract?.deletedAt ?? contract?.deleted_at));
     return contracts.find(contract => isDateInPeriod(contract, date))
@@ -583,7 +583,7 @@ export const getCustomerPrimaryContract = (customer, date = getTodayIso()) => {
 };
 
 export const getCustomerInitialContract = (customer) => (
-    Array.isArray(customer.contracts)
+    Array.isArray(customer?.contracts)
         ? [...customer.contracts].sort((left, right) => getDateValue(left.startDate ?? left.start_date) - getDateValue(right.startDate ?? right.start_date))[0]
         : null
 );
@@ -599,8 +599,6 @@ export const getCustomerSharedCoreRatio = (customer) => {
         ?? latestVersion?.shared_core_ratio
         ?? contract?.sharingRatio
         ?? contract?.sharing_ratio
-        ?? customer.contractSharingRatio
-        ?? customer.contract_sharing_ratio
         ?? null;
 };
 
@@ -616,7 +614,6 @@ export const resolveCustomerPackageInfo = (customer) => {
             ?? latestVersion?.coreType
             ?? contract?.core_type
             ?? contract?.coreType
-            ?? customer.paket
             ?? "",
     ).toLowerCase();
     const isSharingPackage = rawPackage.includes("shar") || rawPackage === "shared";
@@ -632,8 +629,7 @@ export const resolveCustomerPackageInfo = (customer) => {
                     ?? latestVersion?.shared_core_ratio
                     ?? latestVersion?.sharedCoreRatio
                     ?? contract?.sharing_ratio
-                    ?? contract?.sharingRatio
-                    ?? customer.jumlah,
+                    ?? contract?.sharingRatio,
             ),
         };
     }
@@ -647,14 +643,13 @@ export const resolveCustomerPackageInfo = (customer) => {
                 ?? latestVersion?.coreTotal
                 ?? contract?.core_total
                 ?? contract?.coreTotal
-                ?? customer.jumlah
                 ?? null,
         };
     }
 
     return {
-        paket: customer.paket ?? null,
-        jumlah: customer.jumlah ?? null,
+        paket: null,
+        jumlah: null,
     };
 };
 
@@ -665,14 +660,9 @@ export const resolveCustomerContractPeriodInfo = (customer) => {
     const latestVersion = getLatestContractVersion(contract);
 
     return {
-        contractStartDate: customer.contractStartDate
-            ?? customer.contract_start_date
-            ?? initialContract?.contract_start_date
-            ?? initialContract?.contractStartDate
+        contractStartDate: customer?.contract_start_date
             ?? initialContract?.start_date
             ?? initialContract?.startDate
-            ?? contract?.contract_start_date
-            ?? contract?.contractStartDate
             ?? contract?.start_date
             ?? contract?.startDate
             ?? effectiveVersion?.start_date
@@ -686,8 +676,6 @@ export const resolveCustomerContractPeriodInfo = (customer) => {
             ?? latestVersion?.startDate
             ?? contract?.start_date
             ?? contract?.startDate
-            ?? customer.contractPeriodStart
-            ?? customer.contract_period_start
             ?? null,
         contractPeriodEnd: effectiveVersion?.end_date
             ?? effectiveVersion?.endDate
@@ -695,8 +683,6 @@ export const resolveCustomerContractPeriodInfo = (customer) => {
             ?? latestVersion?.endDate
             ?? contract?.end_date
             ?? contract?.endDate
-            ?? customer.contractPeriodEnd
-            ?? customer.contract_period_end
             ?? null,
     };
 };
@@ -707,14 +693,10 @@ export const resolveCustomerOperationalStatus = (customer, todayIso = getTodayIs
     const contractPeriodInfo = resolveCustomerContractPeriodInfo(customer);
     const periodStart = String(
         contractPeriodInfo.contractPeriodStart
-            ?? customer?.contractPeriodStart
-            ?? customer?.contract_period_start
             ?? "",
     ).slice(0, 10);
     const periodEnd = String(
         contractPeriodInfo.contractPeriodEnd
-            ?? customer?.contractPeriodEnd
-            ?? customer?.contract_period_end
             ?? "",
     ).slice(0, 10);
 
@@ -746,9 +728,7 @@ export const resolveCustomerContractNumber = (customer) => {
             ?? latestVersion?.contractNumber
             ?? latestVersion?.contract_number
             ?? contract?.contractNumber
-            ?? contract?.contract_number
-            ?? customer.contractNumber
-            ?? customer.contract_number,
+            ?? contract?.contract_number,
     );
 };
 

@@ -31,6 +31,7 @@ import {
   resolveInvoiceDueMonthIsoDate,
   toTitleCase,
 } from "../../app/utils";
+import { getTenantProviderDisplayName } from "./utils";
 import { useUpload } from "../../components/UploadProgressProvider";
 
 const ROUTE_OPERATION_LABEL_MAP = {
@@ -1026,6 +1027,7 @@ function TenantDetailPage({
   const packageInfo = resolveCustomerPackageInfo(detail ?? customer);
   const contractPeriodInfo = resolveCustomerContractPeriodInfo(detail ?? customer);
   const isps = useMemo(() => (Array.isArray(detail?.isps) ? detail.isps : []), [detail?.isps]);
+  const providerDisplayName = getTenantProviderDisplayName(detail ?? customer);
   const availableIspEntryPoints = useMemo(
     () => isps.flatMap((isp) => (
       Array.isArray(isp?.entryPoints)
@@ -5100,11 +5102,11 @@ function TenantDetailPage({
                   </h1>
                   <div className="flex items-center justify-center gap-1.5 md:gap-2 text-[8px] md:text-[9px] font-bold text-white/60 w-full">
                     <span className="rounded bg-primary/20 px-1 py-0.5 text-primary border border-primary/30 uppercase tracking-tighter shrink-0">
-                      {(detail?.paket || customer?.paket || "CORE")}
+                      {packageInfo.paket === "sharing_core" ? "SHARING CORE" : "CORE"}
                     </span>
                     <span className="w-1 h-1 rounded-full bg-white/20 backdrop-blur-md shrink-0"></span>
                     <span className="uppercase tracking-widest truncate">
-                      {isps.length > 0 ? isps.map((item) => item.name).join(", ") : "-"}
+                      {providerDisplayName}
                     </span>
                   </div>
                 </header>
@@ -5443,7 +5445,7 @@ function TenantDetailPage({
                       <div className="flex items-center gap-3 pt-3">
                         <span className="material-symbols-outlined text-[15px] text-gold-accent/50">corporate_fare</span>
                         <span className="text-[10px] font-black uppercase tracking-widest text-white/50">
-                          {isps.length > 0 ? isps.map((i) => i.name).join(", ") : "Provider Mandiri"}
+                          {providerDisplayName}
                         </span>
                       </div>
                     )}

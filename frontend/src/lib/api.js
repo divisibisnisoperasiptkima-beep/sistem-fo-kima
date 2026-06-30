@@ -407,6 +407,22 @@ const getEntityDisplayName = (row, fallback = 'Data') => {
 };
 
 const getNotificationSeverityRank = (severity) => ({ critical: 0, warning: 1, info: 2 }[severity] ?? 3);
+const isCustomerOperationalForDashboard = (customer, todayIso = getTodayIso()) => {
+  const rawStatus = String(customer?.status ?? customer?.rawStatus ?? '').trim().toLowerCase();
+  if (rawStatus === 'belum_diperpanjang' || rawStatus === 'belum diperpanjang') {
+    return true;
+  }
+  const status = resolveCustomerOperationalStatus(customer, todayIso);
+  return status === 'aktif' || status === 'belum_beroperasi';
+};
+const getNotificationDueTimestamp = (notification) => {
+  const dueTimestamp = getDateValue(notification?.dueDate);
+  return dueTimestamp > 0 ? dueTimestamp : Number.MAX_SAFE_INTEGER;
+};
+const getNotificationCreatedTimestamp = (notification) => {
+  const createdTimestamp = getDateValue(notification?.createdAt);
+  return createdTimestamp > 0 ? createdTimestamp : Number.MAX_SAFE_INTEGER;
+};
 
 const mapAlertToNotification = (alert, index) => {
   const alertCode = alert.code || alert.type || 'notification';
@@ -593,24 +609,29 @@ const getIsoDateValue = (dateValue) => {
   return Number.isFinite(timestamp) ? timestamp : 0;
 };
 
-const getLatestRouteVersionByCustomerId = async () => {
-  const { data, error } = await supabase
-    .from('customer_route_versions')
-    .select('customer_id,version_number,flow_status,created_at,customer:customers(id,name,status)')
-    .order('customer_id', { ascending: true })
-    .order('version_number', { ascending: false })
-    .order('created_at', { ascending: false });
+export const getLatestRouteVersionByCustomerId = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('customer_route_versions')
+      .select('customer_id,version_number,flow_status,created_at')
+      .order('customer_id', { ascending: true })
+      .order('version_number', { ascending: false })
+      .order('created_at', { ascending: false });
 
-  if (error) throw error;
+    if (error) throw error;
 
-  const latestByCustomerId = new Map();
-  (data || []).forEach((routeVersion) => {
-    const customerId = Number(routeVersion.customer_id);
-    if (Number.isFinite(customerId) && !latestByCustomerId.has(customerId)) {
-      latestByCustomerId.set(customerId, routeVersion);
-    }
-  });
-  return latestByCustomerId;
+    const latestByCustomerId = new Map();
+    (data || []).forEach((routeVersion) => {
+      const customerId = Number(routeVersion.customer_id);
+      if (Number.isFinite(customerId) && !latestByCustomerId.has(customerId)) {
+        latestByCustomerId.set(customerId, routeVersion);
+      }
+    });
+    return latestByCustomerId;
+  } catch (error) {
+    console.warn('Gagal memuat versi jalur terbaru per customer; lanjut tanpa data jalur.', error);
+    return new Map();
+  }
 };
 
 const createDerivedNotification = ({ code, type, severity = 'warning', title, message, customerId, customerName, actionLabel = 'Buka Detail', targetTab = 'overview', dueDate = null }) => ({
@@ -1189,6 +1210,10 @@ const notificationsApi = {
             if (unreadDiff !== 0) return unreadDiff;
             const severityDiff = getNotificationSeverityRank(left.severity) - getNotificationSeverityRank(right.severity);
             if (severityDiff !== 0) return severityDiff;
+            const dueDateDiff = getNotificationDueTimestamp(left) - getNotificationDueTimestamp(right);
+            if (dueDateDiff !== 0) return dueDateDiff;
+            const createdAtDiff = getNotificationCreatedTimestamp(left) - getNotificationCreatedTimestamp(right);
+            if (createdAtDiff !== 0) return createdAtDiff;
             return String(left.customerName || '').localeCompare(String(right.customerName || ''));
           })
           .slice(0, cappedLimit);
@@ -1750,9 +1775,9 @@ const mapCustomerDetail = (customer) => {
     customerId: customer.customerId ?? customer.customer_code ?? `CUST-${customer.id}`,
     activationFeeAmount: customer.activationFeeAmount ?? customer.activation_fee_amount ?? 0,
     activationFeePaidAt: customer.activationFeePaidAt ?? customer.activation_fee_paid_at ?? null,
-    contractStartDate: customer.contractStartDate ?? customer.contract_start_date ?? initialContract?.startDate ?? null,
-    contractPeriodStart: customer.contractPeriodStart ?? customer.contract_period_start ?? effectiveContractVersion?.startDate ?? latestContractVersion?.startDate ?? activeContract?.startDate ?? null,
-    contractPeriodEnd: customer.contractPeriodEnd ?? customer.contract_period_end ?? effectiveContractVersion?.endDate ?? latestContractVersion?.endDate ?? activeContract?.endDate ?? null,
+    contractStartDate: customer.contract_start_date ?? initialContract?.startDate ?? null,
+    contractPeriodStart: effectiveContractVersion?.startDate ?? latestContractVersion?.startDate ?? activeContract?.startDate ?? null,
+    contractPeriodEnd: effectiveContractVersion?.endDate ?? latestContractVersion?.endDate ?? activeContract?.endDate ?? null,
     isps: Array.isArray(customer.ispMemberships)
       ? customer.ispMemberships.map(membership => mapIsp(membership.isp)).filter(Boolean)
       : [],
@@ -3984,6 +4009,9 @@ export const monitoringApi = {
           invoice_number,
           period_year,
           period_month,
+          period_start_date,
+          period_end_date,
+          due_date,
           amount,
           status,
           customer:customers(id, name, status)
@@ -4002,6 +4030,10 @@ export const monitoringApi = {
     const alerts = [];
 
     (contractsResult.data || []).forEach(contract => {
+      if (!isCustomerOperationalForDashboard(contract.customer, today)) {
+        return;
+      }
+
       const activePeriod = resolveActiveContractPeriodForAlert(contract, today);
       if (!activePeriod.endDate || activePeriod.endDate < today || activePeriod.endDate > warningDateIso) {
         return;
@@ -4016,11 +4048,21 @@ export const monitoringApi = {
         title: 'Kontrak akan berakhir',
         message: `${contract.customer?.name || 'Customer'} ${contractLabel} berakhir pada ${activePeriod.endDate}`,
         severity: 'warning',
+        dueDate: activePeriod.endDate,
       });
     });
 
     (invoicesResult.data || []).forEach(invoice => {
+      if (!isCustomerOperationalForDashboard(invoice.customer, today)) {
+        return;
+      }
+
       const isOverdue = invoice.status === 'terlambat';
+      const dueDate = invoice.due_date
+        || (invoice.period_start_date ? resolveInvoiceDueMonthIsoDate(invoice.period_start_date) : null)
+        || invoice.period_end_date
+        || null;
+
       alerts.push({
         code: isOverdue ? 'payment_overdue' : 'invoice_not_uploaded',
         type: 'invoice_attention',
@@ -4029,12 +4071,13 @@ export const monitoringApi = {
         title: 'Invoice perlu perhatian',
         message: `${invoice.customer?.name || 'Customer'} invoice ${invoice.invoice_number || '-'} ${invoice.status}`,
         severity: isOverdue ? 'critical' : 'warning',
+        dueDate,
       });
     });
 
     routeByCustomerId.forEach((latestRoute) => {
       const routeStatus = String(latestRoute?.flow_status || 'aktif').trim().toLowerCase();
-      const customerStatus = String(latestRoute?.customer?.status || '').trim().toLowerCase();
+      const customerStatus = resolveCustomerOperationalStatus(latestRoute?.customer, today);
       if (customerStatus === 'aktif' && ['gangguan', 'perbaikan', 'maintenance'].includes(routeStatus)) {
         const customerId = Number(latestRoute.customer_id);
         const customerName = latestRoute.customer?.name || 'Customer';

@@ -28,3 +28,18 @@ export const getOperationalLabel = (status) => {
 };
 
 export const isOperationallyActive = (status) => normalizeOperationalStatus(status) === "aktif";
+
+export const getTenantProviderDisplayName = (tenant) => {
+    const providerNames = Array.isArray(tenant?.isps)
+        ? tenant.isps
+            .map((isp) => String(isp?.name ?? "").trim())
+            .filter(Boolean)
+        : [];
+
+    if (providerNames.length > 0) {
+        return providerNames.join(", ");
+    }
+
+    const fallbackName = String(tenant?.isp_name ?? tenant?.ispName ?? "").trim();
+    return fallbackName || "Provider Mandiri";
+};

@@ -5,7 +5,11 @@ import {
     buildInvoiceScheduleRows,
     formatMonthYear,
     getIspContractRowCoverage,
+    getCustomerSharedCoreRatio,
     getMonthStatusClass,
+    resolveCustomerContractNumber,
+    resolveCustomerContractPeriodInfo,
+    resolveCustomerPackageInfo,
     resolveCustomerOperationalStatus,
     resolveInvoiceDueMonthIsoDate,
 } from "../utils";
@@ -261,5 +265,42 @@ describe("resolveCustomerOperationalStatus", () => {
                 },
             ],
         }, "2026-06-12")).toBe("aktif");
+    });
+
+    it("does not crash when customer data is missing", () => {
+        expect(resolveCustomerOperationalStatus(undefined, "2026-06-12")).toBe("aktif");
+    });
+});
+
+describe("customer contract helpers", () => {
+    it("ignores stale package fields on raw customer objects", () => {
+        expect(resolveCustomerPackageInfo({
+            paket: "sharing_core",
+            jumlah: 32,
+        })).toEqual({
+            paket: "core",
+            jumlah: null,
+        });
+    });
+
+    it("ignores stale contract period fields on raw customer objects", () => {
+        expect(resolveCustomerContractPeriodInfo({
+            contract_start_date: "2026-02-03",
+            contractPeriodStart: "2026-01-01",
+            contractPeriodEnd: "2026-12-31",
+        })).toEqual({
+            contractStartDate: "2026-02-03",
+            contractPeriodStart: null,
+            contractPeriodEnd: null,
+        });
+    });
+
+    it("ignores stale contract number and shared ratio fields on raw customer objects", () => {
+        expect(resolveCustomerContractNumber({
+            contractNumber: "BAK-001",
+        })).toBe("-");
+        expect(getCustomerSharedCoreRatio({
+            contractSharingRatio: "1/32",
+        })).toBe(null);
     });
 });
