@@ -1,39 +1,6 @@
 {
-  "name": "sistem-fo-kima",
-  "version": "1.0.0",
-  "description": "Sistem arsip dokumen dan monitoring tenant berbasis web untuk pengelolaan ISP, pelanggan, kontrak, invoice, dan jalur fiber optik KIMA.",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "scripts": {
-    "test": "npm --prefix frontend test --",
-    "mcp:pathfinder": "pathfinder serve --config pathfinder.yaml",
-    "lint": "npm --prefix frontend run lint",
-    "build": "npm --prefix frontend run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/project-kima/sistem-fo-kima.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/project-kima/sistem-fo-kima/issues"
-  },
-  "homepage": "https://github.com/project-kima/sistem-fo-kima#readme",
-  "dependencies": {
-    "pg": "^8.20.0"
-  },
   "devDependencies": {
-    "@copilotkit/pathfinder": "^1.13.3",
-    "@modelcontextprotocol/server-sequential-thinking": "^2025.12.18",
-    "@playwright/mcp": "^0.0.75",
-    "@upstash/context7-mcp": "^3.1.0",
-    "@xenova/transformers": "^2.17.2",
-    "depwire-cli": "^1.6.1",
-    "supabase-mcp": "^1.5.0"
+    "@playwright/mcp": "^0.0.78",
+    "@playwright/test": "^1.61.1"
   }
 }

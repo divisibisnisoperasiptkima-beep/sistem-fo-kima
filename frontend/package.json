@@ -1,43 +1,35 @@
 {
-  "name": "sistem-arsip-kima",
+  "name": "sistem-fo-kima-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "node ./node_modules/vite/bin/vite.js",
-    "build": "node ./node_modules/vite/bin/vite.js build",
+    "dev": "vite",
+    "build": "vite build",
     "lint": "eslint .",
-    "preview": "node ./node_modules/vite/bin/vite.js preview",
-    "test": "node ./scripts/run-vitest.js",
-    "test:watch": "vitest"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.105.4",
-    "exceljs": "^4.4.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^1.25.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "^5.0.0",
-    "recharts": "^3.8.1"
+    "recharts": "^3.9.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@playwright/mcp": "^0.0.78",
     "@tailwindcss/postcss": "^4.2.2",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
-    "jsdom": "^29.1.1",
+    "playwright": "^1.61.1",
     "postcss": "^8.5.9",
     "tailwindcss": "^4.2.2",
-    "vite": "^8.0.4",
-    "vitest": "^4.1.7"
+    "vite": "^8.0.4"
   }
 }

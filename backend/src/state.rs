@@ -1,0 +1,47 @@
+use std::{
+    collections::HashMap,
+    sync::Arc,
+    time::Instant,
+};
+
+use sqlx::MySqlPool;
+use tokio::sync::RwLock;
+
+use crate::drive::DriveClient;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub database: MySqlPool,
+    pub jwt_secret: Arc<str>,
+    pub drive: DriveClient,
+    pub rate_limiter: Arc<RwLock<HashMap<String, Vec<Instant>>>>,
+    pub core_capacity: u64,
+    pub max_upload_bytes: usize,
+    pub max_string_length: usize,
+    pub token_expiry_seconds: u64,
+    pub login_rate_limit: usize,
+    pub login_rate_window_secs: u64,
+    pub login_max_failed_attempts: u32,
+    pub login_lockout_minutes: u32,
+}
+
+impl AppState {
+    pub fn rate_limit_check(&self, ip: &str) -> bool {
+        tokio::task::block_in_place(|| {
+            let rt = tokio::runtime::Handle::current();
+            rt.block_on(async {
+                let mut guard = self.rate_limiter.write().await;
+                let entries = guard.entry(ip.to_string()).or_default();
+                let cutoff = Instant::now()
+                    .checked_sub(std::time::Duration::from_secs(self.login_rate_window_secs))
+                    .unwrap_or(Instant::now());
+                entries.retain(|t| *t > cutoff);
+                if entries.len() >= self.login_rate_limit {
+                    return false;
+                }
+                entries.push(Instant::now());
+                true
+            })
+        })
+    }
+}

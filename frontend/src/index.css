@@ -491,10 +491,6 @@ td {
   color: rgba(255, 255, 255, 0.88);
 }
 
-tr:hover td {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
 /* Ring focus → gold */
 .focus\:ring-gold-accent\/5:focus {
   --tw-ring-color: rgba(212, 169, 55, 0.1);
@@ -514,7 +510,7 @@ tr:hover td {
 .text-amber-700,
 .text-yellow-600,
 .text-yellow-700 {
-  color: #f0c040 !important;
+  color: #d4a937 !important;
 }
 
 /* Divider */
@@ -593,3 +589,66 @@ a.bg-white:hover {
   display: none !important;
   -webkit-appearance: none !important;
 }
+
+/* Custom Leaflet Map Popup Styling */
+.custom-map-popup .leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 14px !important;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3) !important;
+  padding: 4px !important;
+}
+
+.custom-map-popup .leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+.custom-map-popup .leaflet-popup-close-button {
+  color: #64748b !important;
+  padding: 6px !important;
+}
+
+.custom-map-popup .leaflet-popup-close-button:hover {
+  color: #0f172a !important;
+}
+
+.custom-leaflet-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Fix Leaflet z-index stacking hierarchy so floating components & dropdowns sit on top */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.leaflet-pane {
+  z-index: 10 !important;
+}
+
+.leaflet-tile-pane {
+  z-index: 2 !important;
+}
+
+.leaflet-overlay-pane {
+  z-index: 15 !important;
+}
+
+.leaflet-marker-pane {
+  z-index: 20 !important;
+}
+
+.leaflet-tooltip-pane {
+  z-index: 25 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 30 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 40 !important;
+}
+
+
