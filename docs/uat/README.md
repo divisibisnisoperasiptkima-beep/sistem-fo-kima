@@ -4,6 +4,9 @@ Folder ini berisi dokumen dan bukti pengujian penerimaan pengguna untuk Sistem F
 
 ## Dokumen
 
+- [Alur UAT User Manual](Alur_UAT_User_Manual.md) — panduan eksekusi manual dan daftar screenshot yang harus dikumpulkan.
+- [Laporan UAT Desktop 24 Juli 2026](Laporan_UAT_Desktop_2026-07-24.md) — eksekusi UAT desktop dengan screenshot dan temuan upgrade kontrak.
+- [PDF Laporan UAT User Manual 24 Juli 2026](Laporan_UAT_User_Manual_2026-07-24.pdf) — versi cetak A4 dengan screenshot yang disematkan.
 - [Rencana UAT](Rencana_UAT.md) — ruang lingkup, peran, lingkungan, dan aturan pengujian.
 - [Matriks Skenario UAT](Matriks_Skenario_UAT.md) — daftar skenario dan kriteria lulus/gagal.
 - [Template Laporan UAT](Template_Laporan_UAT.md) — format pencatatan hasil, bukti, temuan, dan keputusan.

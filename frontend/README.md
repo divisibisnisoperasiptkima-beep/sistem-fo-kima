@@ -1,19 +1,5 @@
 # Frontend Sistem FO KIMA
 
-Frontend React/Vite untuk backend Rust dan MySQL.
+Panduan setup end-to-end, konfigurasi environment, menjalankan backend/frontend, verifikasi, dan troubleshooting tersedia di [Panduan Setup dan Menjalankan](../docs/Panduan_Setup_dan_Menjalankan.md).
 
-## Menjalankan
-
-```bash
-npm install
-npm run dev
-```
-
-Secara default aplikasi mengakses backend di `http://127.0.0.1:8080`.
-Ubah `VITE_API_BASE_URL` pada file `.env.development` bila alamat backend berbeda.
-
-## Perintah
-
-- `npm run dev` — server pengembangan.
-- `npm run build` — membuat build produksi.
-- `npm run lint` — memeriksa kualitas kode.
+Frontend lokal berjalan di `http://localhost:5173` dan secara default mengakses API di `http://127.0.0.1:8080`.

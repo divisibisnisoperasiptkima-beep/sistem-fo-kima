@@ -1,0 +1,3 @@
+Dokumen uji untuk UAT Sistem FO KIMA.
+
+File ini dibuat khusus untuk memverifikasi proses upload dan penghapusan dokumen.

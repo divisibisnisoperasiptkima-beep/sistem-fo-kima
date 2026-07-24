@@ -6,6 +6,14 @@ const CORE_OPTIONS = ["1 Core", "2 Core", "4 Core", "8 Core", "16 Core", "32 Cor
 const SHARING_CORE_OPTIONS = ["1/2", "1/4", "1/8", "1/16", "1/32"];
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
+function nextDateInput(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value || "");
+  if (!match) return "";
+
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 /**
  * Upgrade Kontrak Modal
  * Upgrades capacity package of an active contract with live prorated billing preview
@@ -44,6 +52,7 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
   });
 
   const [errors, setErrors] = useState({});
+  const minUpgradeDate = useMemo(() => nextDateInput(contract?.periode_awal), [contract?.periode_awal]);
 
   useEffect(() => {
     if (contract && isOpen) {
@@ -52,10 +61,11 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
       setCoreMode(isSharing ? "sharing" : "direct");
 
       const today = new Date().toISOString().split("T")[0];
+      const defaultUpgradeDate = minUpgradeDate && today < minUpgradeDate ? minUpgradeDate : today;
       setFormData({
         kode_kontrak: "",
         no_kontrak: contract.nomor_kontrak || "",
-        tanggal_mulai_upgrade: today,
+        tanggal_mulai_upgrade: defaultUpgradeDate,
         core: isSharing ? "" : contract.core || "4 Core",
         sharing_core: isSharing ? contract.sharing_core || "1/4" : "",
         durasi_kontrak_bulan: contract.durasi_kontrak_bulan?.toString() || "12",
@@ -67,7 +77,7 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contract, isOpen]);
+  }, [contract, isOpen, minUpgradeDate]);
 
   const fetchNextCode = async () => {
     setFetchingCode(true);
@@ -155,6 +165,8 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
     }
     if (!formData.tanggal_mulai_upgrade) {
       newErrors.tanggal_mulai_upgrade = "Tanggal mulai upgrade wajib diisi";
+    } else if (minUpgradeDate && formData.tanggal_mulai_upgrade < minUpgradeDate) {
+      newErrors.tanggal_mulai_upgrade = "Tanggal upgrade harus setelah tanggal mulai kontrak. Gunakan edit kontrak untuk perubahan pada hari pertama.";
     }
     if (uploadFile && !kategori) {
       setFolderError("Folder tujuan wajib dipilih");
@@ -296,8 +308,10 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
                     value={formData.tanggal_mulai_upgrade}
                     onChange={handleChange}
                     disabled={loading}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-600 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    min={minUpgradeDate || undefined}
+                    className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${errors.tanggal_mulai_upgrade ? "border-red-500" : "border-slate-600"}`}
                   />
+                  {errors.tanggal_mulai_upgrade && <p className="text-xs text-red-400">{errors.tanggal_mulai_upgrade}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-slate-300">Kode Kontrak Baru *</label>

@@ -10,11 +10,20 @@ use sqlx::Row;
 
 use crate::{
     access::assert_pelanggan_access,
-    drive::{delete_kontrak_tree, ensure_kontrak_tree, ensure_pelanggan_tree, parse_drive_folder_id},
+    drive::{
+        delete_kontrak_tree, ensure_kontrak_tree, ensure_pelanggan_tree, parse_drive_folder_id,
+    },
     error::ApiError,
-    models::{AuthUser, ContractRow, CreateContractRequest, ExtendContractRequest, NextKontrakCodeResponse, Page, Pagination, StatusResponse, UpdateContractRequest, UpgradeContractRequest},
+    models::{
+        AuthUser, ContractRow, CreateContractRequest, ExtendContractRequest,
+        NextKontrakCodeResponse, Page, Pagination, StatusResponse, UpdateContractRequest,
+        UpgradeContractRequest,
+    },
     state::AppState,
-    util::{optional_trim_or_keep, pagination, parse_date, require_admin, require_business_read, trim_opt, validate_opt_string_length, validate_string_length},
+    util::{
+        optional_trim_or_keep, pagination, parse_date, require_admin, require_business_read,
+        trim_opt, validate_opt_string_length, validate_string_length,
+    },
 };
 
 const VALID_STATUS: &[&str] = &[
@@ -158,19 +167,19 @@ pub async fn list_contracts(
                         l.nama_lokasi LIKE ? OR \
                         l.kode_kontrak LIKE ? \
                        ) AND {} {}",
-                     status_in_clause, active_clause
-                 );
-                 let mut q = sqlx::query_scalar(&sql)
-                     .bind(&auth.role)
-                     .bind(auth.id)
-                     .bind(&search_pattern)
-                     .bind(&search_pattern)
-                     .bind(&search_pattern)
-                     .bind(&search_pattern);
-                 for s in &status_list {
-                     q = q.bind(s);
-                 }
-                 q.fetch_one(&state.database).await
+                    status_in_clause, active_clause
+                );
+                let mut q = sqlx::query_scalar(&sql)
+                    .bind(&auth.role)
+                    .bind(auth.id)
+                    .bind(&search_pattern)
+                    .bind(&search_pattern)
+                    .bind(&search_pattern)
+                    .bind(&search_pattern);
+                for s in &status_list {
+                    q = q.bind(s);
+                }
+                q.fetch_one(&state.database).await
             }
         } else {
             let sql = format!(
@@ -188,14 +197,14 @@ pub async fn list_contracts(
                 active_clause
             );
             sqlx::query_scalar(&sql)
-            .bind(&auth.role)
-            .bind(auth.id)
-            .bind(&search_pattern)
-            .bind(&search_pattern)
-            .bind(&search_pattern)
-            .bind(&search_pattern)
-            .fetch_one(&state.database)
-            .await
+                .bind(&auth.role)
+                .bind(auth.id)
+                .bind(&search_pattern)
+                .bind(&search_pattern)
+                .bind(&search_pattern)
+                .bind(&search_pattern)
+                .fetch_one(&state.database)
+                .await
         }
     } else if has_status {
         let sql = format!(
@@ -205,15 +214,13 @@ pub async fn list_contracts(
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
               )) AND {} {}",
-             status_in_clause, active_clause
-         );
-         let mut q = sqlx::query_scalar(&sql)
-             .bind(&auth.role)
-             .bind(auth.id);
-         for s in &status_list {
-             q = q.bind(s);
-         }
-         q.fetch_one(&state.database).await
+            status_in_clause, active_clause
+        );
+        let mut q = sqlx::query_scalar(&sql).bind(&auth.role).bind(auth.id);
+        for s in &status_list {
+            q = q.bind(s);
+        }
+        q.fetch_one(&state.database).await
     } else {
         let sql = format!(
             "SELECT COUNT(*) FROM lokasi l \
@@ -224,10 +231,10 @@ pub async fn list_contracts(
             active_clause
         );
         sqlx::query_scalar(&sql)
-        .bind(&auth.role)
-        .bind(auth.id)
-        .fetch_one(&state.database)
-        .await
+            .bind(&auth.role)
+            .bind(auth.id)
+            .fetch_one(&state.database)
+            .await
     }
     .map_err(ApiError::database)?;
 
@@ -301,16 +308,16 @@ pub async fn list_contracts(
                 active_clause, order_clause
             );
             sqlx::query(&sql)
-            .bind(&auth.role)
-            .bind(auth.id)
-            .bind(&search_pattern)
-            .bind(&search_pattern)
-            .bind(&search_pattern)
-            .bind(&search_pattern)
-            .bind(page_size)
-            .bind(offset)
-            .fetch_all(&state.database)
-            .await
+                .bind(&auth.role)
+                .bind(auth.id)
+                .bind(&search_pattern)
+                .bind(&search_pattern)
+                .bind(&search_pattern)
+                .bind(&search_pattern)
+                .bind(page_size)
+                .bind(offset)
+                .fetch_all(&state.database)
+                .await
         }
     } else if has_status {
         let sql = format!(
@@ -331,18 +338,16 @@ pub async fn list_contracts(
               )) AND {} {} \
               ORDER BY {} \
               LIMIT ? OFFSET ?",
-             status_in_clause, active_clause, order_clause
-         );
-         let mut q = sqlx::query(&sql)
-             .bind(&auth.role)
-             .bind(auth.id);
-         for s in &status_list {
-             q = q.bind(s);
-         }
-         q.bind(page_size)
-             .bind(offset)
-             .fetch_all(&state.database)
-             .await
+            status_in_clause, active_clause, order_clause
+        );
+        let mut q = sqlx::query(&sql).bind(&auth.role).bind(auth.id);
+        for s in &status_list {
+            q = q.bind(s);
+        }
+        q.bind(page_size)
+            .bind(offset)
+            .fetch_all(&state.database)
+            .await
     } else {
         let sql = format!(
             "SELECT l.id, l.kode_kontrak, l.no_kontrak AS nomor_kontrak, l.pelanggan_id, \
@@ -365,12 +370,12 @@ pub async fn list_contracts(
             active_clause, order_clause
         );
         sqlx::query(&sql)
-        .bind(&auth.role)
-        .bind(auth.id)
-        .bind(page_size)
-        .bind(offset)
-        .fetch_all(&state.database)
-        .await
+            .bind(&auth.role)
+            .bind(auth.id)
+            .bind(page_size)
+            .bind(offset)
+            .fetch_all(&state.database)
+            .await
     }
     .map_err(ApiError::database)?;
     let data = rows.into_iter().map(map_contract_row).collect();
@@ -532,12 +537,11 @@ pub async fn create_contract(
         }
     };
 
-    let exists: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM lokasi WHERE kode_kontrak = ?")
-            .bind(&kode_kontrak)
-            .fetch_one(&state.database)
-            .await
-            .map_err(ApiError::database)?;
+    let exists: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM lokasi WHERE kode_kontrak = ?")
+        .bind(&kode_kontrak)
+        .fetch_one(&state.database)
+        .await
+        .map_err(ApiError::database)?;
     if exists > 0 {
         return Err(ApiError::conflict("Kode kontrak sudah digunakan."));
     }
@@ -621,7 +625,6 @@ pub async fn create_contract(
     ))
 }
 
-
 pub async fn update_contract(
     State(state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthUser>,
@@ -643,7 +646,8 @@ pub async fn update_contract(
     let existing_pelanggan_id: u64 = existing.try_get("pelanggan_id").unwrap_or_default();
     let existing_nama_lokasi: String = existing.try_get("nama_lokasi").unwrap_or_default();
     let existing_periode_awal: String = existing.try_get("periode_awal").unwrap_or_default();
-    let existing_periode_berakhir: String = existing.try_get("periode_berakhir").unwrap_or_default();
+    let existing_periode_berakhir: String =
+        existing.try_get("periode_berakhir").unwrap_or_default();
     let existing_status: String = existing.try_get("status_kontrak").unwrap_or_default();
     let existing_kategori: String = existing.try_get("kategori").unwrap_or_default();
     let existing_core: Option<String> = existing.try_get("core").unwrap_or(None);
@@ -653,7 +657,8 @@ pub async fn update_contract(
     let existing_nilai: Option<f64> = existing.try_get::<f64, _>("nilai_kontrak").ok();
     let existing_biaya: Option<f64> = existing.try_get::<f64, _>("biaya_aktivasi").ok();
     let existing_perbulan: Option<f64> = existing.try_get::<f64, _>("perbulan").ok();
-    let existing_nilai_periode: Option<f64> = existing.try_get::<f64, _>("nilai_periode_aktif").ok();
+    let existing_nilai_periode: Option<f64> =
+        existing.try_get::<f64, _>("nilai_periode_aktif").ok();
     let existing_keterangan: Option<String> = existing.try_get("keterangan").unwrap_or(None);
 
     // Validate and prepare kode_kontrak
@@ -709,15 +714,18 @@ pub async fn update_contract(
     let start = parse_date(&periode_awal)?;
     let end = parse_date(&periode_berakhir)?;
     if end < start {
-        return Err(ApiError::bad_request("Tanggal berakhir harus setelah tanggal mulai"));
+        return Err(ApiError::bad_request(
+            "Tanggal berakhir harus setelah tanggal mulai",
+        ));
     }
 
     // Validate status
     let status = if let Some(ref s) = input.status_kontrak {
         if !VALID_STATUS.contains(&s.as_str()) {
-            return Err(ApiError::bad_request(
-                format!("Status tidak valid. Pilih: {}", VALID_STATUS.join(", "))
-            ));
+            return Err(ApiError::bad_request(format!(
+                "Status tidak valid. Pilih: {}",
+                VALID_STATUS.join(", ")
+            )));
         }
         s.to_owned()
     } else {
@@ -734,7 +742,9 @@ pub async fn update_contract(
     // Validate core and sharing_core (mutually exclusive)
     let (core, sharing_core) = match (&input.core, &input.sharing_core) {
         (Some(c), Some(s)) if !c.is_empty() && !s.is_empty() => {
-            return Err(ApiError::bad_request("Core dan Sharing Core tidak boleh bersamaan"));
+            return Err(ApiError::bad_request(
+                "Core dan Sharing Core tidak boleh bersamaan",
+            ));
         }
         (Some(c), _) => {
             let c = c.trim();
@@ -746,9 +756,10 @@ pub async fn update_contract(
         (_, Some(s)) => {
             let s = s.trim();
             if !s.is_empty() && !VALID_SHARING.contains(&s) {
-                return Err(ApiError::bad_request(
-                    format!("Sharing Core tidak valid. Pilih: {}", VALID_SHARING.join(", "))
-                ));
+                return Err(ApiError::bad_request(format!(
+                    "Sharing Core tidak valid. Pilih: {}",
+                    VALID_SHARING.join(", ")
+                )));
             }
             (None, Some(s.to_owned()))
         }
@@ -856,8 +867,12 @@ pub async fn extend_contract(
     .map_err(ApiError::database)?
     .ok_or_else(|| ApiError::not_found("Kontrak lama tidak ditemukan"))?;
 
-    let pelanggan_id: u64 = old_row.try_get("pelanggan_id").map_err(ApiError::database)?;
-    let nama_pelanggan: String = old_row.try_get("nama_pelanggan").map_err(ApiError::database)?;
+    let pelanggan_id: u64 = old_row
+        .try_get("pelanggan_id")
+        .map_err(ApiError::database)?;
+    let nama_pelanggan: String = old_row
+        .try_get("nama_pelanggan")
+        .map_err(ApiError::database)?;
     let nama_lokasi: String = old_row.try_get("nama_lokasi").map_err(ApiError::database)?;
     let kategori: Option<String> = old_row.try_get("kategori").ok();
     let old_core: Option<String> = old_row.try_get("core").ok();
@@ -868,7 +883,9 @@ pub async fn extend_contract(
     let core = optional_trim_or_keep(input.core.clone(), old_core);
     let sharing_core = optional_trim_or_keep(input.sharing_core.clone(), old_sharing);
     if core.is_some() && sharing_core.is_some() {
-        return Err(ApiError::bad_request("Core dan Sharing Core tidak boleh diisi bersamaan."));
+        return Err(ApiError::bad_request(
+            "Core dan Sharing Core tidak boleh diisi bersamaan.",
+        ));
     }
 
     assert_pelanggan_access(&state.database, auth.id, &auth.role, pelanggan_id).await?;
@@ -884,8 +901,12 @@ pub async fn extend_contract(
         format!("CTR-{}-EXT-{}", chrono::Utc::now().format("%Y"), id)
     };
 
-    let periode_awal = parse_date(&input.periode_awal)?.format("%Y-%m-%d").to_string();
-    let periode_berakhir = parse_date(&input.periode_berakhir)?.format("%Y-%m-%d").to_string();
+    let periode_awal = parse_date(&input.periode_awal)?
+        .format("%Y-%m-%d")
+        .to_string();
+    let periode_berakhir = parse_date(&input.periode_berakhir)?
+        .format("%Y-%m-%d")
+        .to_string();
     let start = parse_date(&periode_awal)?;
     let end = parse_date(&periode_berakhir)?;
     let today = chrono::Local::now().naive_local().date();
@@ -1001,7 +1022,8 @@ pub async fn upgrade_contract(
     require_admin(&auth.role)?;
 
     let old_row = sqlx::query(
-        "SELECT l.*, p.nama_pelanggan, p.kode_pelanggan, p.link_folder_berkas as pelanggan_link \
+        "SELECT l.*, DATE_FORMAT(l.periode_awal, '%Y-%m-%d') AS periode_awal_text, \
+         p.nama_pelanggan, p.kode_pelanggan, p.link_folder_berkas as pelanggan_link \
          FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id WHERE l.id = ?",
     )
     .bind(id)
@@ -1010,29 +1032,42 @@ pub async fn upgrade_contract(
     .map_err(ApiError::database)?
     .ok_or_else(|| ApiError::not_found("Kontrak lama tidak ditemukan"))?;
 
-    let pelanggan_id: u64 = old_row.try_get("pelanggan_id").map_err(ApiError::database)?;
-    let nama_pelanggan: String = old_row.try_get("nama_pelanggan").map_err(ApiError::database)?;
+    let pelanggan_id: u64 = old_row
+        .try_get("pelanggan_id")
+        .map_err(ApiError::database)?;
+    let nama_pelanggan: String = old_row
+        .try_get("nama_pelanggan")
+        .map_err(ApiError::database)?;
     let nama_lokasi: String = old_row.try_get("nama_lokasi").map_err(ApiError::database)?;
     let kode_pelanggan: Option<String> = old_row.try_get("kode_pelanggan").unwrap_or(None);
     let pelanggan_link: Option<String> = old_row.try_get("pelanggan_link").unwrap_or(None);
 
     assert_pelanggan_access(&state.database, auth.id, &auth.role, pelanggan_id).await?;
 
+    let contract_start: String = old_row
+        .try_get("periode_awal_text")
+        .map_err(ApiError::database)?;
+    let contract_start = parse_date(&contract_start)?;
     let upgrade_date = parse_date(&input.tanggal_mulai_upgrade)?;
+    validate_upgrade_date(contract_start, upgrade_date)?;
     let truncated_end = upgrade_date.pred_opt().unwrap_or(upgrade_date);
     let truncated_end_str = truncated_end.format("%Y-%m-%d").to_string();
     let start_date_str = upgrade_date.format("%Y-%m-%d").to_string();
 
     let durasi = input.durasi_kontrak_bulan.unwrap_or(12);
-    let end_date = upgrade_date.checked_add_signed(chrono::Duration::days((durasi * 30) as i64)).unwrap_or(upgrade_date);
+    let end_date = upgrade_date
+        .checked_add_signed(chrono::Duration::days((durasi * 30) as i64))
+        .unwrap_or(upgrade_date);
     let end_date_str = end_date.format("%Y-%m-%d").to_string();
 
-    sqlx::query("UPDATE lokasi SET periode_berakhir = ?, status_kontrak = 'Di-upgrade' WHERE id = ?")
-        .bind(&truncated_end_str)
-        .bind(id)
-        .execute(&state.database)
-        .await
-        .map_err(ApiError::database)?;
+    sqlx::query(
+        "UPDATE lokasi SET periode_berakhir = ?, status_kontrak = 'Di-upgrade' WHERE id = ?",
+    )
+    .bind(&truncated_end_str)
+    .bind(id)
+    .execute(&state.database)
+    .await
+    .map_err(ApiError::database)?;
 
     let kode_kontrak = if let Some(ref kode) = input.kode_kontrak {
         let trimmed = kode.trim();
@@ -1145,4 +1180,41 @@ pub async fn upgrade_contract(
     .map_err(ApiError::database)?;
 
     Ok((StatusCode::CREATED, Json(map_contract_row(new_row))))
+}
+
+fn validate_upgrade_date(
+    contract_start: chrono::NaiveDate,
+    upgrade_date: chrono::NaiveDate,
+) -> Result<(), ApiError> {
+    if upgrade_date <= contract_start {
+        return Err(ApiError::bad_request(
+            "Tanggal upgrade harus setelah tanggal mulai kontrak. Gunakan edit kontrak untuk perubahan pada hari pertama.",
+        ));
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_upgrade_date;
+
+    fn date(value: &str) -> chrono::NaiveDate {
+        chrono::NaiveDate::parse_from_str(value, "%Y-%m-%d").expect("tanggal pengujian valid")
+    }
+
+    #[test]
+    fn rejects_upgrade_on_contract_start_date() {
+        assert!(validate_upgrade_date(date("2026-07-24"), date("2026-07-24")).is_err());
+    }
+
+    #[test]
+    fn rejects_upgrade_before_contract_start_date() {
+        assert!(validate_upgrade_date(date("2026-07-24"), date("2026-07-23")).is_err());
+    }
+
+    #[test]
+    fn accepts_upgrade_after_contract_start_date() {
+        assert!(validate_upgrade_date(date("2026-07-24"), date("2026-07-25")).is_ok());
+    }
 }

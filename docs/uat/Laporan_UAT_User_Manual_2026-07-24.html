@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laporan UAT User Manual — Sistem FO KIMA</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm 18mm; }
+    * { box-sizing: border-box; }
+    body { color: #162033; font: 10.5pt/1.5 Arial, Helvetica, sans-serif; margin: 0; }
+    h1, h2, h3 { color: #0f2745; line-height: 1.2; }
+    h1 { font-size: 25pt; margin: 0 0 8pt; }
+    h2 { font-size: 17pt; border-bottom: 2px solid #d4a937; margin: 28pt 0 12pt; padding-bottom: 5pt; }
+    h3 { font-size: 13pt; margin: 22pt 0 8pt; }
+    p { margin: 7pt 0; }
+    .cover { align-items: center; background: linear-gradient(135deg, #061525, #173653); color: #fff; display: flex; min-height: 245mm; padding: 22mm; }
+    .cover h1, .cover h2 { color: #fff; border: 0; }
+    .cover h1 { font-size: 31pt; }
+    .cover .gold { color: #e7bd4f; font-weight: bold; }
+    .cover .meta { border-left: 3px solid #d4a937; margin-top: 28pt; padding-left: 14pt; }
+    .page-break { break-before: page; }
+    table { border-collapse: collapse; margin: 10pt 0 16pt; width: 100%; }
+    th, td { border: 1px solid #c8d1dc; padding: 6pt; text-align: left; vertical-align: top; }
+    th { background: #e9eff5; color: #0f2745; }
+    .metric { max-width: 360pt; }
+    .success { color: #116a42; font-weight: bold; }
+    .fail { color: #b42318; font-weight: bold; }
+    .note { background: #fff8e3; border-left: 4px solid #d4a937; padding: 9pt 12pt; }
+    figure { break-inside: avoid; margin: 15pt 0 21pt; }
+    figure img { border: 1px solid #b8c4d0; box-shadow: 0 1pt 4pt #9ba8b555; display: block; height: auto; max-height: 220mm; max-width: 100%; width: auto; }
+    figcaption { color: #425466; font-size: 9pt; font-style: italic; margin-top: 5pt; }
+    ul { margin: 7pt 0; padding-left: 18pt; }
+    .small { color: #526173; font-size: 9pt; }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div>
+      <p class="gold">PT KAWASAN INDUSTRI MAKASSAR</p>
+      <h1>Laporan UAT<br>User Manual</h1>
+      <h2>Sistem FO KIMA</h2>
+      <div class="meta">
+        <p><strong>Tanggal eksekusi:</strong> 24 Juli 2026</p>
+        <p><strong>Metode:</strong> pengujian manual melalui browser desktop</p>
+        <p><strong>Resolusi bukti:</strong> 1440 × 900 piksel</p>
+        <p><strong>Environment:</strong> UAT yang disetujui</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>1. Informasi dan Ruang Lingkup</h2>
+    <table class="metric"><tbody>
+      <tr><th>Tanggal</th><td>24 Juli 2026</td></tr>
+      <tr><th>Role diuji</th><td>Admin dan Teknisi</td></tr>
+      <tr><th>Data uji</th><td><code>UAT_DESKTOP_20260724</code></td></tr>
+      <tr><th>Browser</th><td>Desktop browser, viewport 1440 × 900</td></tr>
+    </tbody></table>
+    <p>Pengujian mencakup login/role, Dashboard, pelanggan, kontrak, perpanjangan, upload dan hapus dokumen, peta, serta pengelolaan pengguna.</p>
+
+    <h2>2. Ringkasan Hasil</h2>
+    <table class="metric"><thead><tr><th>Status</th><th>Jumlah</th></tr></thead><tbody>
+      <tr><td class="success">Lulus</td><td>13</td></tr>
+      <tr><td class="fail">Gagal</td><td>0</td></tr>
+      <tr><td>Bukti tampilan/observasi</td><td>4</td></tr>
+    </tbody></table>
+    <div class="note"><strong>Kesimpulan:</strong> seluruh alur yang diuji lulus setelah retest perbaikan upgrade kontrak. Tanggal upgrade harus setelah tanggal mulai kontrak.</div>
+
+    <h2>3. Login, Role, dan Dashboard</h2>
+    <h3>AUTH-00 — Halaman login</h3>
+    <p>Penguji membuka aplikasi dan menggunakan akun uji sesuai role.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/AUTH-00-halaman-login-desktop.png" alt="Halaman login"><figcaption>Gambar 1. Halaman login desktop.</figcaption></figure>
+
+    <h3>AUTH-01 dan DASH-02 — Admin dan rincian Core</h3>
+    <p class="success">Hasil: Lulus.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/AUTH-01-dashboard-admin-desktop.png" alt="Dashboard Admin"><figcaption>Gambar 2. Dashboard setelah login sebagai Admin.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/DASH-02-rincian-core-desktop.png" alt="Rincian Core"><figcaption>Gambar 3. Modal rincian Core Tersewa.</figcaption></figure>
+
+    <h3>AUTH-02 — Pembatasan menu Teknisi</h3>
+    <p class="success">Hasil: Lulus. Teknisi hanya melihat menu Titik Peta.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/AUTH-02-menu-teknisi-titik-peta-desktop.png" alt="Menu Teknisi"><figcaption>Gambar 4. Tampilan role Teknisi.</figcaption></figure>
+
+    <h2>4. Pelanggan dan Kontrak</h2>
+    <h3>CUST-01 — Buat pelanggan UAT</h3>
+    <p class="success">Hasil: Lulus. Pelanggan <code>UAT_DESKTOP_20260724</code> dibuat, diverifikasi melalui pencarian, lalu dibersihkan setelah kontraknya dihapus.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CUST-01-form-pelanggan-terisi-desktop.png" alt="Form pelanggan UAT"><figcaption>Gambar 5. Form pelanggan dengan data UAT.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CUST-01-pelanggan-berhasil-tersimpan-desktop.png" alt="Pelanggan tersimpan"><figcaption>Gambar 6. Verifikasi pelanggan UAT pada tabel pencarian.</figcaption></figure>
+
+    <h3>CONTRACT-01 — Buat kontrak dan upload dokumen</h3>
+    <p class="success">Hasil: Lulus. Kontrak lokasi UAT dibuat dan file uji diunggah ke folder kontrak.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-01-form-kontrak-uat-terisi-desktop.png" alt="Form kontrak UAT"><figcaption>Gambar 7. Form kontrak dengan data UAT dan file yang dipilih.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/DOC-01-dokumen-kontrak-uat-terunggah-desktop.png" alt="Dokumen terunggah"><figcaption>Gambar 8. Dokumen UAT terunggah pada detail kontrak.</figcaption></figure>
+
+    <h3>CONTRACT-03 — Perpanjangan kontrak</h3>
+    <p class="success">Hasil: Lulus. Record induk menjadi <em>Diperpanjang</em>; periode baru dibuat sebagai record terpisah.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-03-form-perpanjangan-uat-desktop.png" alt="Form perpanjangan"><figcaption>Gambar 9. Form perpanjangan kontrak UAT.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-03-hasil-perpanjangan-uat-desktop.png" alt="Hasil perpanjangan"><figcaption>Gambar 10. Record lama dan record perpanjangan pada tabel.</figcaption></figure>
+
+    <h2>5. Temuan UAT: Upgrade Kontrak</h2>
+    <h3>CONTRACT-04 — Upgrade paket dari 1 Core ke 2 Core</h3>
+    <p class="success">Hasil retest: Lulus.</p>
+    <p>Temuan awal berupa HTTP 500 saat tanggal upgrade sama dengan awal kontrak telah diperbaiki. Form kini menetapkan tanggal minimum satu hari setelah periode awal; backend juga menolak request yang tidak valid dengan HTTP 400 dan pesan yang jelas, tanpa mengubah data kontrak.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-04-form-upgrade-uat-desktop.png" alt="Form upgrade"><figcaption>Gambar 11. Form upgrade beserta estimasi billing prorata.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-04-upgrade-gagal-database-desktop.png" alt="Error upgrade"><figcaption>Gambar 12. Bukti kegagalan upgrade database.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-04-validasi-tanggal-upgrade-desktop.png" alt="Validasi tanggal upgrade"><figcaption>Gambar 13. Retest: validasi tanggal upgrade yang aman dan dapat ditindaklanjuti.</figcaption></figure>
+
+    <h3>CONTRACT-06 — Upgrade Sharing Core dari 1/16 ke 1/8</h3>
+    <p class="success">Hasil: Lulus.</p>
+    <p>Kontrak induk dipotong sampai 23 Juli 2026 dan berubah menjadi <em>Di-upgrade</em>. Record baru terbentuk mulai 24 Juli 2026 dengan kapasitas <em>Sharing 1/8</em>, berstatus <em>Beroperasi</em>, dan nilai per bulan Rp2.400.000.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-06-form-upgrade-sharing-core-desktop.png" alt="Form upgrade Sharing Core"><figcaption>Gambar 14. Form upgrade rasio Sharing Core.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/CONTRACT-06-hasil-upgrade-sharing-core-desktop.png" alt="Hasil upgrade Sharing Core"><figcaption>Gambar 15. Kontrak induk dan record baru hasil upgrade Sharing Core.</figcaption></figure>
+
+    <h2>6. Dokumen, Peta, dan Pengguna</h2>
+    <h3>DOC-02 — Hapus dokumen UAT</h3>
+    <p class="success">Hasil: Lulus. Penghapusan dokumen mengembalikan HTTP 204 dan daftar dokumen kosong.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/DOC-02-dokumen-uat-terhapus-desktop.png" alt="Dokumen terhapus"><figcaption>Gambar 16. Dokumen UAT telah dihapus.</figcaption></figure>
+
+    <h3>MAP-03 — Tambah dan hapus titik lokasi</h3>
+    <p class="success">Hasil: Lulus. Titik dibuat melalui klik peta, diberi label, disimpan, lalu dihapus pada tahap cleanup.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/MAP-03-form-titik-lokasi-uat-desktop.png" alt="Form titik lokasi"><figcaption>Gambar 17. Pengisian label titik lokasi UAT.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/MAP-03-titik-lokasi-uat-tersimpan-desktop.png" alt="Titik lokasi tersimpan"><figcaption>Gambar 18. Titik lokasi UAT setelah tersimpan.</figcaption></figure>
+
+    <h3>USER-01 dan USER-03 — Buat dan nonaktifkan pengguna</h3>
+    <p class="success">Hasil: Lulus. Akun Teknisi UAT dibuat, dinonaktifkan, dan login berikutnya ditolak.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/USER-01-form-pengguna-uat-terisi-desktop.png" alt="Form pengguna UAT"><figcaption>Gambar 19. Pembuatan akun Teknisi UAT.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/USER-03-konfirmasi-nonaktifkan-uat-desktop.png" alt="Konfirmasi nonaktifkan"><figcaption>Gambar 20. Konfirmasi penonaktifan pengguna UAT.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/AUTH-03-login-akun-nonaktif-uat-desktop.png" alt="Login ditolak"><figcaption>Gambar 21. Login akun nonaktif ditolak.</figcaption></figure>
+
+    <h3>DRIVE-01 sampai DRIVE-03 — Verifikasi integrasi Google Drive</h3>
+    <p class="success">Hasil: Lulus.</p>
+    <p>Folder pelanggan dan periode kontrak berhasil dibuat. Dokumen uji kategori Kontrak dapat dibuka langsung di Google Drive. Setelah dihapus melalui aplikasi (HTTP 204), tautan file mengembalikan halaman tidak ditemukan (HTTP 404), sehingga penghapusan pada Drive terverifikasi.</p>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/DRIVE-01-file-uji-terbuka-google-drive-desktop.png" alt="File uji terbuka di Google Drive"><figcaption>Gambar 22. Dokumen uji terbuka langsung di Google Drive.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/DRIVE-02-folder-kontrak-google-drive-desktop.png" alt="Folder periode kontrak di Google Drive"><figcaption>Gambar 23. Folder periode kontrak pada Google Drive.</figcaption></figure>
+    <figure><img src="bukti-screenshot-desktop-2026-07-24/DRIVE-03-file-uji-terhapus-google-drive-desktop.png" alt="File uji terhapus dari Google Drive"><figcaption>Gambar 24. URL file setelah penghapusan mengembalikan halaman tidak ditemukan.</figcaption></figure>
+
+    <h2>7. Cleanup dan Keputusan</h2>
+    <ul>
+      <li>Dokumen UAT dihapus dari Drive dan database.</li>
+      <li>Titik lokasi UAT dihapus.</li>
+      <li>Kontrak UAT, hasil perpanjangan, hasil upgrade Sharing Core, dokumen/folder Drive, dan pelanggan UAT dihapus. Pencarian akhir tidak menemukan data UAT.</li>
+      <li>Akun Teknisi UAT dipertahankan dalam status nonaktif sesuai audit trail aplikasi.</li>
+    </ul>
+    <table><thead><tr><th>Keputusan</th><th>Status</th></tr></thead><tbody>
+      <tr><td>Fitur selain upgrade kontrak</td><td class="success">Dapat diterima berdasarkan skenario yang lulus</td></tr>
+      <tr><td>Upgrade kontrak</td><td class="success">Diterima dengan catatan: tanggal efektif harus setelah awal kontrak</td></tr>
+    </tbody></table>
+    <p class="small">Dokumen ini dibuat dari hasil eksekusi UAT manual dan bukti screenshot desktop pada 24 Juli 2026.</p>
+  </section>
+</body>
+</html>

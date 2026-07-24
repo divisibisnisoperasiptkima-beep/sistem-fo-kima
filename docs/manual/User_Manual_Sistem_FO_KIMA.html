@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><title>User Manual Sistem FO KIMA</title><style>
+@page { size: A4; margin: 16mm; }
+body { font-family: Arial, sans-serif; color:#1e293b; font-size:10.5pt; line-height:1.5; }
+h1 { color:#0f766e; font-size:24pt; margin:0 0 4px; } h2 { color:#0f766e; border-bottom:2px solid #99f6e4; padding-bottom:4px; margin-top:25px; } h3 { color:#334155; margin-top:18px; }
+p, li { text-align:justify; } table { width:100%; border-collapse:collapse; margin:10px 0; } th { background:#0f766e; color:white; } th,td { border:1px solid #cbd5e1; padding:7px; vertical-align:top; }
+figure { margin:15px auto; page-break-inside:avoid; text-align:center; } img { max-width:100%; max-height:162mm; border:1px solid #cbd5e1; } figcaption { color:#64748b; font-size:9pt; margin-top:4px; }
+.lead { color:#475569; margin-top:0; } .note { background:#ecfeff; border-left:4px solid #0f766e; padding:10px 12px; } code { background:#f1f5f9; padding:1px 3px; }
+</style></head><body>
+<h1>User Manual Sistem FO KIMA</h1><p class="lead">Panduan operasional untuk Admin dan Teknisi. Versi dokumen: 24 Juli 2026.</p>
+<div class="note">Dokumen ini menjelaskan cara memakai aplikasi sehari-hari. Untuk prosedur pengujian, gunakan dokumen UAT; untuk instalasi, gunakan panduan setup.</div>
+
+<h2>1. Akses dan role</h2><ol><li>Buka URL aplikasi yang diberikan administrator.</li><li>Masukkan email dan password, lalu klik <b>Masuk</b>.</li><li>Halaman yang tersedia mengikuti role akun.</li></ol>
+<table><tr><th>Role</th><th>Akses</th></tr><tr><td>Admin</td><td>Dashboard, Pelanggan, Kontrak Lengkap, Monitoring Kontrak, Kelola Pengguna, dan Titik Peta.</td></tr><tr><td>Teknisi</td><td>Titik Peta.</td></tr><tr><td>ISP</td><td>Sesuai penugasan pelanggan yang diaktifkan administrator.</td></tr></table>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/AUTH-00-halaman-login-desktop.png"><figcaption>Halaman login.</figcaption></figure>
+
+<h2>2. Dashboard</h2><p>Admin membuka <b>Dashboard</b> untuk melihat ringkasan pelanggan, kontrak aktif, kapasitas Core, tren, dan status kontrak. Klik <b>Rincian</b> pada kartu Core Tersewa untuk melihat Direct Core dan Sharing Core per pelanggan.</p>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/AUTH-01-dashboard-admin-desktop.png"><figcaption>Dashboard Admin.</figcaption></figure>
+
+<h2>3. Pelanggan</h2><ol><li>Buka <b>Pelanggan</b> dan klik <b>Tambah Pelanggan</b>.</li><li>Isi minimal Nama Pelanggan; lengkapi PIC, telepon, email, dan keterangan bila tersedia.</li><li>Klik simpan, lalu cari pelanggan pada tabel untuk memastikan data tersimpan.</li><li>Gunakan aksi Edit untuk mengubah data. Hapus hanya pelanggan yang tidak lagi memiliki kontrak yang perlu disimpan.</li></ol>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/CUST-01-form-pelanggan-terisi-desktop.png"><figcaption>Form tambah pelanggan.</figcaption></figure>
+
+<h2>4. Kontrak</h2><h3>Tambah dan edit</h3><ol><li>Buka <b>Kontrak Lengkap</b>, lalu klik <b>Tambah Kontrak</b>.</li><li>Pilih pelanggan; isi lokasi, periode, kode/nomor kontrak, nilai, dan durasi.</li><li>Pilih salah satu: Direct Core atau Sharing Core. Jangan isi keduanya bersamaan.</li><li>Opsional: unggah dokumen dan pilih kategorinya.</li><li>Simpan dan pastikan kontrak tampil pada tabel.</li></ol>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/CONTRACT-01-form-kontrak-uat-terisi-desktop.png"><figcaption>Form tambah kontrak.</figcaption></figure>
+<h3>Perpanjangan</h3><p>Klik <b>Perpanjang Kontrak</b>, isi periode/nilai baru, lalu simpan. Kontrak lama tetap tersimpan sebagai histori berstatus <b>Diperpanjang</b> dan sistem membuat record periode baru.</p>
+<h3>Upgrade paket</h3><ol><li>Klik <b>Upgrade Paket Kontrak</b> pada kontrak aktif.</li><li>Isi tanggal efektif, kode kontrak baru, kapasitas baru, serta nilai.</li><li>Untuk rasio, pilih mode <b>Sharing Core</b> dan pilih rasio baru.</li><li>Klik <b>Upgrade Paket</b>.</li></ol>
+<div class="note">Tanggal upgrade wajib setelah tanggal mulai kontrak. Kontrak lama berakhir satu hari sebelum upgrade; kontrak baru dimulai pada tanggal upgrade. Untuk koreksi pada hari pertama, gunakan Edit Kontrak.</div>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/CONTRACT-06-form-upgrade-sharing-core-desktop.png"><figcaption>Upgrade Sharing Core.</figcaption></figure>
+
+<h2>5. Dokumen dan Google Drive</h2><ol><li>Pilih file pada area unggahan saat tambah/edit/perpanjang/upgrade kontrak.</li><li>Pilih kategori: Kontrak, BAK-PKS, atau Dokumen Lain.</li><li>Simpan transaksi. Klik tautan Drive pada detail kontrak untuk membuka dokumen/folder.</li><li>Hapus dokumen melalui aksi hapus jika tidak diperlukan.</li></ol><p>Folder Drive disusun berdasarkan pelanggan → lokasi → periode kontrak → kategori dokumen.</p>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/DOC-01-dokumen-kontrak-uat-terunggah-desktop.png"><figcaption>Dokumen kontrak yang terunggah.</figcaption></figure>
+
+<h2>6. Monitoring Kontrak</h2><p>Buka <b>Monitoring Kontrak</b>, gunakan pencarian dan filter status, lalu periksa periode, sisa waktu, kapasitas, dan nilai. Aksi edit, perpanjang, dan upgrade tersedia pada baris yang sesuai.</p>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/CONTRACT-05-monitoring-kontrak-desktop.png"><figcaption>Monitoring kontrak.</figcaption></figure>
+
+<h2>7. Titik Peta</h2><ol><li>Buka <b>Titik Peta</b> dan pilih pelanggan/lokasi pada tabel.</li><li>Klik <b>Tambah Titik Lokasi</b>, tentukan koordinat, isi label, lalu simpan.</li><li>Gunakan ikon edit/hapus pada sidebar untuk mengelola titik.</li><li>Gunakan <b>Tambah Titik Tetap</b> untuk titik kantor/ISP.</li></ol>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/MAP-02-peta-sidebar-desktop.png"><figcaption>Peta dan sidebar konteks lokasi.</figcaption></figure>
+
+<h2>8. Kelola Pengguna</h2><ol><li>Admin membuka <b>Kelola Pengguna</b>.</li><li>Klik <b>Tambah Pengguna</b>, isi data dan password sementara.</li><li>Gunakan Edit untuk memperbarui data/role.</li><li>Gunakan Nonaktifkan untuk menghentikan akses tanpa menghapus histori audit.</li></ol><p>Admin aktif terakhir tidak dapat dinonaktifkan. Reset password membuat pengguna harus login ulang.</p>
+<figure><img src="../uat/bukti-screenshot-desktop-2026-07-24/USER-01-form-pengguna-uat-terisi-desktop.png"><figcaption>Form kelola pengguna.</figcaption></figure>
+
+<h2>9. Masalah umum</h2><table><tr><th>Kondisi</th><th>Tindakan</th></tr><tr><td>Login ditolak</td><td>Periksa email/password atau hubungi administrator untuk status akun.</td></tr><tr><td>Data tidak tampil</td><td>Muat ulang halaman dan periksa filter/pencarian serta hak akses role.</td></tr><tr><td>Upload gagal</td><td>Periksa koneksi, ukuran/format file, kategori, dan konfigurasi Google Drive.</td></tr><tr><td>Upgrade ditolak</td><td>Pastikan tanggal upgrade setelah tanggal mulai kontrak.</td></tr><tr><td>Tautan Drive tidak terbuka</td><td>Pastikan akun memiliki izin yang sesuai lalu hubungi administrator.</td></tr></table>
+<p class="lead">Selalu periksa data sebelum menyimpan atau menghapus perubahan.</p>
+</body></html>
