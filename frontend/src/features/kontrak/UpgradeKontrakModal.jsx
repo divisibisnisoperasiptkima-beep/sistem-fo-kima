@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, ArrowUp, File, Paperclip, Calculator } from "lucide-react";
 import { upgradeContract, getNextKontrakCode, uploadDocument } from "../../lib/rust-api";
+import { coreInputError, coreInputValue } from "./coreUtils";
 
-const CORE_OPTIONS = ["1 Core", "2 Core", "4 Core", "8 Core", "16 Core", "32 Core", "64 Core"];
 const SHARING_CORE_OPTIONS = ["1/2", "1/4", "1/8", "1/16", "1/32"];
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
@@ -41,7 +41,7 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
     kode_kontrak: "",
     no_kontrak: "",
     tanggal_mulai_upgrade: new Date().toISOString().split("T")[0],
-    core: "4 Core",
+    core: "4",
     sharing_core: "",
     durasi_kontrak_bulan: "12",
     nilai_kontrak: "",
@@ -66,7 +66,7 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
         kode_kontrak: "",
         no_kontrak: contract.nomor_kontrak || "",
         tanggal_mulai_upgrade: defaultUpgradeDate,
-        core: isSharing ? "" : contract.core || "4 Core",
+        core: isSharing ? "" : coreInputValue(contract.core) || "4",
         sharing_core: isSharing ? contract.sharing_core || "1/4" : "",
         durasi_kontrak_bulan: contract.durasi_kontrak_bulan?.toString() || "12",
         nilai_kontrak: contract.nilai_kontrak ? (contract.nilai_kontrak * 1.5).toString() : "",
@@ -142,7 +142,7 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
   const handleCoreModeChange = (mode) => {
     setCoreMode(mode);
     if (mode === "direct") {
-      setFormData((prev) => ({ ...prev, core: "4 Core", sharing_core: "" }));
+      setFormData((prev) => ({ ...prev, core: "4", sharing_core: "" }));
     } else {
       setFormData((prev) => ({ ...prev, core: "", sharing_core: "1/4" }));
     }
@@ -167,6 +167,10 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
       newErrors.tanggal_mulai_upgrade = "Tanggal mulai upgrade wajib diisi";
     } else if (minUpgradeDate && formData.tanggal_mulai_upgrade < minUpgradeDate) {
       newErrors.tanggal_mulai_upgrade = "Tanggal upgrade harus setelah tanggal mulai kontrak. Gunakan edit kontrak untuk perubahan pada hari pertama.";
+    }
+    if (coreMode === "direct") {
+      const coreError = coreInputError(formData.core);
+      if (coreError) newErrors.core = coreError;
     }
     if (uploadFile && !kategori) {
       setFolderError("Folder tujuan wajib dipilih");
@@ -348,14 +352,17 @@ export default function UpgradeKontrakModal({ isOpen, onClose, onSuccess, contra
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-slate-300">Kapasitas Core Baru * <span className="text-xs text-slate-400 font-normal">(Manual Input)</span></label>
                   <input
-                    type="text"
+                    type="number"
                     name="core"
                     value={formData.core}
                     onChange={handleChange}
                     disabled={loading}
-                    placeholder="Contoh: 1 Core, 4 Core, 16 Core"
+                    min="1"
+                    step="1"
+                    placeholder="Contoh: 1 atau 4"
                     className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   />
+                  {errors.core && <p className="text-xs text-red-400">{errors.core}</p>}
                 </div>
               ) : (
                 <div className="space-y-1.5">

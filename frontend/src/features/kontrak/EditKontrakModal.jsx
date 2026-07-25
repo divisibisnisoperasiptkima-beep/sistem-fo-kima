@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, File, Paperclip, ExternalLink, Trash2 } from "lucide-react";
 import { updateContract, listCustomers, uploadDocument, listDocuments, deleteDocument } from "../../lib/rust-api";
+import { coreInputError, coreInputValue } from "./coreUtils";
 
 const STATUS_OPTIONS = [
   "Beroperasi",
@@ -12,7 +13,6 @@ const STATUS_OPTIONS = [
 ];
 
 const SHARING_CORE_OPTIONS = ["1/2", "1/4", "1/8", "1/16", "1/32"];
-const CORE_OPTIONS = ["1 Core", "2 Core", "4 Core", "8 Core", "16 Core", "32 Core", "64 Core"];
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
 /**
@@ -80,7 +80,7 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
         durasi_kontrak_bulan: duration,
         status_kontrak: contract.status_kontrak || "Belum Beroperasi",
         kategori: contract.jalur || "",
-        core: contract.core || "",
+        core: coreInputValue(contract.core),
         sharing_core: contract.sharing_core || "",
         no_kontrak: contract.nomor_kontrak || "",
         nilai_kontrak: contract.nilai_kontrak?.toString() || "",
@@ -238,6 +238,10 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
         newErrors.periode_berakhir = "Periode berakhir harus setelah periode awal";
       }
     }
+    if (!formData.sharing_core) {
+      const coreError = coreInputError(formData.core);
+      if (coreError) newErrors.core = coreError;
+    }
     if (uploadFile && !kategori) {
       setFolderError("Folder tujuan wajib dipilih");
       newErrors.folder = true;
@@ -261,6 +265,7 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
       // Remove empty optional fields
       Object.keys(payload).forEach((key) => {
         if (payload[key] === "" || payload[key] === null) {
+          if (key === "core" || key === "sharing_core") return;
           delete payload[key];
         }
       });
@@ -546,16 +551,19 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
                     Core <span className="text-xs text-slate-400 font-normal">(Manual Input)</span>
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="core"
                     value={formData.core}
                     onChange={handleChange}
                     disabled={loading || !!formData.sharing_core}
-                    placeholder="Contoh: 1 Core, 4 Core"
+                    min="1"
+                    step="1"
+                    placeholder="Contoh: 1 atau 4"
                     className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all ${
                       formData.sharing_core ? "opacity-50 cursor-not-allowed bg-slate-900/50 border-slate-700" : "border-slate-600"
                     }`}
                   />
+                  {errors.core && <p className="text-xs text-red-400">{errors.core}</p>}
                   {formData.sharing_core && (
                     <p className="text-[10px] text-amber-400 font-medium">Nonaktif (Sharing Core dipilih)</p>
                   )}

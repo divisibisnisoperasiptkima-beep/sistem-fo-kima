@@ -40,20 +40,20 @@ Semua respons ISP tidak mengekspos `link_folder_berkas` atau
 berhasil, sedangkan upload lintas pelanggan ditolak HTTP 403 tanpa membuat
 metadata atau file baru.
 
-Percobaan setup awal menggunakan nilai Core mentah `1` ditolak oleh constraint
-database `chk_lokasi_core_format`; pengujian diulang dengan format data yang
-sesuai aplikasi, yaitu `1 Core`, dan seluruh skenario lulus. Form frontend
-memang menyediakan format `1 Core`.
+Percobaan setup awal menggunakan nilai Core mentah `1` sempat ditolak oleh
+constraint database `chk_lokasi_core_format`. Setelah retest, input Core pada
+frontend menggunakan angka manual dan backend menormalisasi nilai tersebut ke
+format penyimpanan `1 Core`.
 
 ## Temuan UAT terbaru
 
 | ID | Severity | Status | Temuan | Rekomendasi |
 |---|---|---|---|---|
-| UAT-ISP-20260725-01 | Sedang | Terbuka sebagai catatan teknis | API pembuatan kontrak dengan input Core mentah `1` menghasilkan HTTP 500 karena constraint `chk_lokasi_core_format`, bukan respons validasi HTTP 400. Nilai UI yang benar, `1 Core`, berhasil diproses. | Tambahkan validasi/normalisasi Core di backend agar input tidak valid ditolak sebagai HTTP 400 dengan pesan yang jelas. |
+| UAT-ISP-20260725-01 | Sedang | **Selesai** | Input Core kini berupa angka bulat positif manual; backend menormalisasi `1` menjadi `1 Core`, menolak nilai tidak valid dengan HTTP 400, dan portal ISP tidak menggandakan suffix `Core`. | Tidak ada tindakan lanjutan. |
 
-Temuan ini tidak memengaruhi alur normal melalui UI karena form frontend
-mengirim nilai dengan format `1 Core`. Seluruh skenario akses, pembatasan data,
-upload, dan cleanup role ISP tetap lulus.
+Temuan ini sudah diperbaiki pada alur tambah, edit, perpanjangan, dan upgrade
+kontrak. Seluruh skenario akses, pembatasan data, upload, dan cleanup role ISP
+tetap lulus.
 
 ## Hasil Eksekusi Awal (sebelum retest)
 

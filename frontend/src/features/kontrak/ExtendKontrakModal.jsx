@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, CalendarPlus, File, Paperclip } from "lucide-react";
 import { extendContract, getNextKontrakCode, uploadDocument } from "../../lib/rust-api";
+import { coreInputError, coreInputValue } from "./coreUtils";
 
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
@@ -84,7 +85,7 @@ export default function ExtendKontrakModal({ isOpen, onClose, onSuccess, contrac
         perbulan: contract.perbulan?.toString() || "",
         nilai_periode_aktif: contract.nilai_periode_aktif?.toString() || "",
         keterangan: `Perpanjangan dari kontrak ${contract.kode_kontrak || ""}`,
-        core: contract.core || "",
+        core: coreInputValue(contract.core),
         sharing_core: contract.sharing_core || "",
       });
     }
@@ -109,6 +110,12 @@ export default function ExtendKontrakModal({ isOpen, onClose, onSuccess, contrac
     const { name, value } = e.target;
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
+
+      if (name === "core" && value.trim() !== "") {
+        newData.sharing_core = "";
+      } else if (name === "sharing_core" && value !== "") {
+        newData.core = "";
+      }
 
       if (name === "durasi_kontrak_bulan" || name === "periode_awal") {
         const startDate = name === "periode_awal" ? value : prev.periode_awal;
@@ -154,6 +161,10 @@ export default function ExtendKontrakModal({ isOpen, onClose, onSuccess, contrac
     }
     if (formData.core.trim() && formData.sharing_core) {
       newErrors.core = "Core dan Sharing Core tidak boleh diisi bersamaan";
+    }
+    if (!formData.sharing_core) {
+      const coreError = coreInputError(formData.core);
+      if (coreError) newErrors.core = coreError;
     }
 
     setErrors(newErrors);
@@ -358,12 +369,14 @@ export default function ExtendKontrakModal({ isOpen, onClose, onSuccess, contrac
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-slate-300">Core (Manual Input)</label>
                   <input
-                    type="text"
+                    type="number"
                     name="core"
                     value={formData.core}
                     onChange={handleChange}
                     disabled={loading || !!formData.sharing_core}
-                    placeholder="Contoh: 1 Core, 4 Core"
+                    min="1"
+                    step="1"
+                    placeholder="Contoh: 1 atau 4"
                     className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all disabled:opacity-50 ${
                       errors.core ? "border-red-500" : "border-slate-600"
                     }`}

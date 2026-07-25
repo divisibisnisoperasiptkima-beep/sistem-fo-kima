@@ -21,8 +21,8 @@ use crate::{
     },
     state::AppState,
     util::{
-        optional_trim_or_keep, pagination, parse_date, require_admin, require_business_read,
-        trim_opt, validate_opt_string_length, validate_string_length,
+        pagination, parse_date, require_admin, require_business_read, trim_opt,
+        validate_opt_string_length, validate_string_length,
     },
 };
 
@@ -112,6 +112,65 @@ pub async fn delete_contract(
 }
 
 const VALID_SHARING: &[&str] = &["1/2", "1/4", "1/8", "1/16", "1/32"];
+
+fn normalize_core(value: Option<String>) -> Result<Option<String>, ApiError> {
+    let Some(value) = value else {
+        return Ok(None);
+    };
+
+    let value = value.trim();
+    if value.is_empty() {
+        return Ok(None);
+    }
+
+    let number = value
+        .strip_suffix(" Core")
+        .or_else(|| value.strip_suffix(" core"))
+        .unwrap_or(value)
+        .trim();
+    let parsed = number.parse::<u64>().map_err(|_| {
+        ApiError::bad_request("Core harus berupa angka bulat positif, contoh: 1 atau 4.")
+    })?;
+    if parsed == 0 {
+        return Err(ApiError::bad_request(
+            "Core harus berupa angka bulat positif, minimal 1.",
+        ));
+    }
+
+    Ok(Some(format!("{parsed} Core")))
+}
+
+fn normalize_sharing_core(value: Option<String>) -> Result<Option<String>, ApiError> {
+    let sharing = trim_opt(value);
+    if let Some(ref value) = sharing
+        && !VALID_SHARING.contains(&value.as_str())
+    {
+        return Err(ApiError::bad_request(
+            "Sharing Core harus salah satu dari 1/2, 1/4, 1/8, 1/16, 1/32.",
+        ));
+    }
+    Ok(sharing)
+}
+
+fn normalize_core_selection(
+    core: Option<String>,
+    sharing_core: Option<String>,
+    require_value: bool,
+) -> Result<(Option<String>, Option<String>), ApiError> {
+    let core = normalize_core(core)?;
+    let sharing_core = normalize_sharing_core(sharing_core)?;
+
+    if core.is_some() && sharing_core.is_some() {
+        return Err(ApiError::bad_request(
+            "Core dan Sharing Core tidak boleh diisi bersamaan.",
+        ));
+    }
+    if require_value && core.is_none() && sharing_core.is_none() {
+        return Err(ApiError::bad_request("Isi Core atau pilih Sharing Core."));
+    }
+
+    Ok((core, sharing_core))
+}
 
 pub async fn list_contracts(
     State(state): State<Arc<AppState>>,
@@ -378,7 +437,16 @@ pub async fn list_contracts(
             .await
     }
     .map_err(ApiError::database)?;
-    let data = rows.into_iter().map(map_contract_row).collect();
+    let data = rows
+        .into_iter()
+        .map(|row| {
+            let mut contract = map_contract_row(row);
+            if auth.role == "isp" {
+                contract.link_folder_berkas = None;
+            }
+            contract
+        })
+        .collect();
     Ok(Json(Page {
         data,
         total: total.max(0) as u64,
@@ -480,20 +548,7 @@ pub async fn create_contract(
         return Err(ApiError::bad_request("Status kontrak tidak valid."));
     }
 
-    let core = trim_opt(input.core);
-    let sharing_core = trim_opt(input.sharing_core);
-    if core.is_some() && sharing_core.is_some() {
-        return Err(ApiError::bad_request(
-            "Core dan Sharing Core tidak boleh diisi bersamaan.",
-        ));
-    }
-    if let Some(ref sharing) = sharing_core
-        && !VALID_SHARING.contains(&sharing.as_str())
-    {
-        return Err(ApiError::bad_request(
-            "Sharing Core harus salah satu dari 1/2, 1/4, 1/8, 1/16, 1/32.",
-        ));
-    }
+    let (core, sharing_core) = normalize_core_selection(input.core, input.sharing_core, true)?;
 
     let pelanggan_row = sqlx::query(
         "SELECT id, nama_pelanggan, kode_pelanggan, link_folder_berkas FROM pelanggan WHERE id = ? LIMIT 1",
@@ -739,31 +794,12 @@ pub async fn update_contract(
         existing_kategori
     };
 
-    // Validate core and sharing_core (mutually exclusive)
-    let (core, sharing_core) = match (&input.core, &input.sharing_core) {
-        (Some(c), Some(s)) if !c.is_empty() && !s.is_empty() => {
-            return Err(ApiError::bad_request(
-                "Core dan Sharing Core tidak boleh bersamaan",
-            ));
-        }
-        (Some(c), _) => {
-            let c = c.trim();
-            if !c.is_empty() && !c.ends_with(" Core") {
-                return Err(ApiError::bad_request("Format Core tidak valid"));
-            }
-            (Some(c.to_owned()), None)
-        }
-        (_, Some(s)) => {
-            let s = s.trim();
-            if !s.is_empty() && !VALID_SHARING.contains(&s) {
-                return Err(ApiError::bad_request(format!(
-                    "Sharing Core tidak valid. Pilih: {}",
-                    VALID_SHARING.join(", ")
-                )));
-            }
-            (None, Some(s.to_owned()))
-        }
-        _ => (existing_core.clone(), existing_sharing_core.clone()),
+    // If either field is present, the request explicitly replaces the capacity mode.
+    // If both are omitted, retain the existing selection for partial updates.
+    let (core, sharing_core) = if input.core.is_none() && input.sharing_core.is_none() {
+        (existing_core.clone(), existing_sharing_core.clone())
+    } else {
+        normalize_core_selection(input.core.clone(), input.sharing_core.clone(), true)?
     };
 
     let no_kontrak = if let Some(ref v) = input.no_kontrak {
@@ -880,13 +916,11 @@ pub async fn extend_contract(
     let kode_pelanggan: Option<String> = old_row.try_get("kode_pelanggan").unwrap_or(None);
     let pelanggan_link: Option<String> = old_row.try_get("pelanggan_link").unwrap_or(None);
 
-    let core = optional_trim_or_keep(input.core.clone(), old_core);
-    let sharing_core = optional_trim_or_keep(input.sharing_core.clone(), old_sharing);
-    if core.is_some() && sharing_core.is_some() {
-        return Err(ApiError::bad_request(
-            "Core dan Sharing Core tidak boleh diisi bersamaan.",
-        ));
-    }
+    let (core, sharing_core) = if input.core.is_none() && input.sharing_core.is_none() {
+        (old_core, old_sharing)
+    } else {
+        normalize_core_selection(input.core.clone(), input.sharing_core.clone(), true)?
+    };
 
     assert_pelanggan_access(&state.database, auth.id, &auth.role, pelanggan_id).await?;
 
@@ -1054,6 +1088,9 @@ pub async fn upgrade_contract(
     let truncated_end_str = truncated_end.format("%Y-%m-%d").to_string();
     let start_date_str = upgrade_date.format("%Y-%m-%d").to_string();
 
+    let (core, sharing_core) =
+        normalize_core_selection(input.core.clone(), input.sharing_core.clone(), true)?;
+
     let durasi = input.durasi_kontrak_bulan.unwrap_or(12);
     let end_date = upgrade_date
         .checked_add_signed(chrono::Duration::days((durasi * 30) as i64))
@@ -1081,8 +1118,6 @@ pub async fn upgrade_contract(
     };
 
     let no_kontrak = trim_opt(input.no_kontrak);
-    let core = trim_opt(input.core);
-    let sharing_core = trim_opt(input.sharing_core);
     let keterangan = trim_opt(input.keterangan);
     let biaya_aktivasi = input.biaya_aktivasi.unwrap_or(0.0);
     let perbulan = input.perbulan.unwrap_or(0.0);
@@ -1197,7 +1232,7 @@ fn validate_upgrade_date(
 
 #[cfg(test)]
 mod tests {
-    use super::validate_upgrade_date;
+    use super::{normalize_core, normalize_core_selection, validate_upgrade_date};
 
     fn date(value: &str) -> chrono::NaiveDate {
         chrono::NaiveDate::parse_from_str(value, "%Y-%m-%d").expect("tanggal pengujian valid")
@@ -1216,5 +1251,32 @@ mod tests {
     #[test]
     fn accepts_upgrade_after_contract_start_date() {
         assert!(validate_upgrade_date(date("2026-07-24"), date("2026-07-25")).is_ok());
+    }
+
+    #[test]
+    fn normalizes_manual_core_to_storage_format() {
+        assert_eq!(
+            normalize_core(Some(" 4 ".to_owned())).ok().flatten(),
+            Some("4 Core".to_owned())
+        );
+        assert_eq!(
+            normalize_core(Some("4 Core".to_owned())).ok().flatten(),
+            Some("4 Core".to_owned())
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_manual_core() {
+        assert!(normalize_core(Some("0".to_owned())).is_err());
+        assert!(normalize_core(Some("abc".to_owned())).is_err());
+    }
+
+    #[test]
+    fn core_and_sharing_are_exclusive_and_one_is_required() {
+        assert!(
+            normalize_core_selection(Some("4".to_owned()), Some("1/4".to_owned()), true).is_err()
+        );
+        assert!(normalize_core_selection(None, None, true).is_err());
+        assert!(normalize_core_selection(None, Some("1/4".to_owned()), true).is_ok());
     }
 }
