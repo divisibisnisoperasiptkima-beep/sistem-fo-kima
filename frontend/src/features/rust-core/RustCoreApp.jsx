@@ -24,12 +24,18 @@ const MENU = [
 ];
 
 const PAGE_KEY = "kima-last-page";
+const DEFAULT_ADMIN_PAGE = "dashboard";
 
 import Login from "../auth/Login";
 
 export default function RustCoreApp() {
   const [session, setSession] = useState(() => getSession());
-  const [page, setPage] = useState(() => localStorage.getItem(PAGE_KEY) || "dashboard");
+  const [page, setPage] = useState(() => {
+    const storedSession = getSession();
+    return storedSession?.user?.role === "admin"
+      ? DEFAULT_ADMIN_PAGE
+      : localStorage.getItem(PAGE_KEY) || DEFAULT_ADMIN_PAGE;
+  });
   const [sidebarHover, setSidebarHover] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
@@ -67,7 +73,15 @@ export default function RustCoreApp() {
     });
   }, []);
 
-  if (!session) return <Login onLogin={setSession} />;
+  const handleLogin = (nextSession) => {
+    if (nextSession?.user?.role === "admin") {
+      setPage(DEFAULT_ADMIN_PAGE);
+      localStorage.setItem(PAGE_KEY, DEFAULT_ADMIN_PAGE);
+    }
+    setSession(nextSession);
+  };
+
+  if (!session) return <Login onLogin={handleLogin} />;
 
   const isAdmin = session.user?.role === "admin";
   const isTechnician = session.user?.role === "teknisi";
