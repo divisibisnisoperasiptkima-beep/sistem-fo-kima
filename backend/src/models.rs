@@ -79,10 +79,12 @@ pub struct CustomerRow {
     pub pic: Option<String>,
     pub telepon: Option<String>,
     pub email: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub link_folder_berkas: Option<String>,
     pub keterangan: Option<String>,
     pub lokasi_beroperasi: i64,
     pub lokasi_belum_beroperasi: i64,
+    pub lokasi_proses_perpanjangan: i64,
 }
 
 #[derive(Deserialize)]
@@ -121,6 +123,7 @@ pub struct ContractRow {
     pub periode_awal: String,
     pub periode_berakhir: String,
     pub jalur: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub link_folder_berkas: Option<String>,
     pub core: Option<String>,
     pub sharing_core: Option<String>,
@@ -202,7 +205,6 @@ pub struct UpgradeContractRequest {
     pub keterangan: Option<String>,
 }
 
-
 #[derive(Serialize)]
 pub struct DocumentRow {
     pub id: u64,
@@ -212,12 +214,35 @@ pub struct DocumentRow {
     pub uploaded_by_user_id: Option<u64>,
     pub kategori: String,
     pub nama_file: String,
-    pub drive_file_id: Option<String>,
-    pub drive_folder_id: Option<String>,
-    pub drive_url: Option<String>,
     pub ukuran_byte: Option<u64>,
     pub mime_type: Option<String>,
     pub created_at: String,
+}
+
+#[derive(Serialize)]
+pub struct IspDocumentRow {
+    pub id: u64,
+    pub pelanggan_id: u64,
+    pub lokasi_id: Option<u64>,
+    pub nama_pelanggan: String,
+    pub nama_lokasi: Option<String>,
+    pub kategori: String,
+    pub nama_file: String,
+    pub ukuran_byte: Option<u64>,
+    pub mime_type: Option<String>,
+    pub created_at: String,
+}
+
+#[derive(Serialize)]
+pub struct PelangganAccessRow {
+    pub id: u64,
+    pub kode_pelanggan: Option<String>,
+    pub nama_pelanggan: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateUserPelangganAccessRequest {
+    pub pelanggan_ids: Vec<u64>,
 }
 
 #[derive(Deserialize)]

@@ -79,7 +79,7 @@ impl DriveClient {
             .map_err(|_| "GOOGLE_REFRESH_TOKEN wajib diatur pada backend/.env".to_owned())?;
         let root_folder_id = std::env::var("PELANGGAN_ROOT_FOLDER_ID")
             .map_err(|_| "PELANGGAN_ROOT_FOLDER_ID wajib diatur pada backend/.env".to_owned())?;
-        let link_sharing = crate::util::optional_env_bool("GOOGLE_DRIVE_LINK_SHARING", true);
+        let link_sharing = crate::util::optional_env_bool("GOOGLE_DRIVE_LINK_SHARING", false);
 
         Ok(Self {
             http: Client::builder()
@@ -147,12 +147,7 @@ impl DriveClient {
             "https://www.googleapis.com/drive/v3/files?q={}&fields=files(id,name)&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true",
             urlencoding::encode(&query)
         );
-        let response = self
-            .http
-            .get(url)
-            .bearer_auth(token)
-            .send()
-            .await?;
+        let response = self.http.get(url).bearer_auth(token).send().await?;
         if !response.status().is_success() {
             let status = response.status();
             return Err(DriveError::Message(format!(
@@ -160,14 +155,12 @@ impl DriveClient {
             )));
         }
         let payload: DriveListResponse = response.json().await?;
-        Ok(payload.files.and_then(|files| files.into_iter().next().map(|f| f.id)))
+        Ok(payload
+            .files
+            .and_then(|files| files.into_iter().next().map(|f| f.id)))
     }
 
-    pub async fn create_folder(
-        &self,
-        parent_id: &str,
-        name: &str,
-    ) -> Result<String, DriveError> {
+    pub async fn create_folder(&self, parent_id: &str, name: &str) -> Result<String, DriveError> {
         let token = self.access_token().await?;
         let response = self
             .http
@@ -193,11 +186,7 @@ impl DriveClient {
         Ok(file.id)
     }
 
-    pub async fn ensure_folder(
-        &self,
-        parent_id: &str,
-        name: &str,
-    ) -> Result<String, DriveError> {
+    pub async fn ensure_folder(&self, parent_id: &str, name: &str) -> Result<String, DriveError> {
         if let Some(id) = self.find_child_folder(parent_id, name).await? {
             return Ok(id);
         }
@@ -265,6 +254,28 @@ impl DriveClient {
         })
     }
 
+    /// Mengambil isi file dari Drive melalui backend.
+    /// Browser tidak pernah menerima token OAuth Google maupun link publik.
+    pub async fn download_file_content(&self, file_id: &str) -> Result<Vec<u8>, DriveError> {
+        let token = self.access_token().await?;
+        let encoded_file_id = urlencoding::encode(file_id);
+        let response = self
+            .http
+            .get(format!(
+                "https://www.googleapis.com/drive/v3/files/{encoded_file_id}?alt=media&supportsAllDrives=true"
+            ))
+            .bearer_auth(token)
+            .send()
+            .await?;
+        if !response.status().is_success() {
+            let status = response.status();
+            return Err(DriveError::Message(format!(
+                "Gagal mengambil isi file Drive: HTTP {status}"
+            )));
+        }
+        Ok(response.bytes().await?.to_vec())
+    }
+
     /// Delete folder or file in Google Drive
     pub async fn delete_file(&self, file_id: &str) -> Result<(), DriveError> {
         let token = self.access_token().await?;
@@ -316,10 +327,7 @@ impl DriveClient {
     }
 
     /// List all child folders of a parent folder
-    pub async fn list_child_folders(
-        &self,
-        parent_id: &str,
-    ) -> Result<Vec<DriveFile>, DriveError> {
+    pub async fn list_child_folders(&self, parent_id: &str) -> Result<Vec<DriveFile>, DriveError> {
         let token = self.access_token().await?;
         let query = format!(
             "mimeType = 'application/vnd.google-apps.folder' and '{parent_id}' in parents and trashed = false"
@@ -328,12 +336,7 @@ impl DriveClient {
             "https://www.googleapis.com/drive/v3/files?q={}&fields=files(id,name,webViewLink)&pageSize=100&supportsAllDrives=true&includeItemsFromAllDrives=true",
             urlencoding::encode(&query)
         );
-        let response = self
-            .http
-            .get(url)
-            .bearer_auth(token)
-            .send()
-            .await?;
+        let response = self.http.get(url).bearer_auth(token).send().await?;
         if !response.status().is_success() {
             let status = response.status();
             return Err(DriveError::Message(format!(

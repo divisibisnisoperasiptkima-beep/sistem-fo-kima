@@ -17,6 +17,8 @@ mod util;
 
 use std::{collections::HashMap, env, net::SocketAddr, sync::Arc};
 
+#[allow(unused_imports)]
+use axum::routing::delete;
 use axum::{
     Json, Router,
     extract::State,
@@ -25,29 +27,38 @@ use axum::{
     response::IntoResponse,
     routing::{get, patch, post, put},
 };
-#[allow(unused_imports)]
-use axum::routing::delete;
 use tokio::sync::RwLock;
 use tower_http::{cors::CorsLayer, limit::RequestBodyLimitLayer, trace::TraceLayer};
 use tracing::info;
 
 use crate::{
-    auth::{login, require_auth, change_password},
+    auth::{change_password, current_session, login, require_auth},
     dashboard::get_dashboard,
-    dokumen::{delete_document, list_documents, rename_document, upload_document},
+    dokumen::{
+        delete_document, download_document, list_documents, list_isp_documents, preview_document,
+        rename_document, upload_document,
+    },
     drive::DriveClient,
-    kontrak::{create_contract, delete_contract, extend_contract, get_next_kontrak_code, list_contracts, update_contract, upgrade_contract},
+    kontrak::{
+        create_contract, delete_contract, extend_contract, get_next_kontrak_code, list_contracts,
+        sync_expired_contract_statuses, update_contract, upgrade_contract,
+    },
     models::StatusResponse,
-    pelanggan::{create_customer, delete_customer, get_next_pelanggan_code, list_customers, update_customer},
+    pelanggan::{
+        create_customer, delete_customer, get_next_pelanggan_code, list_customers, update_customer,
+    },
     schema::ensure_application_schema,
     state::AppState,
     titik_isp::{delete_isp_point, list_isp_points, upsert_isp_point},
-    titik_lokasi::{create_location_point, delete_location_point, list_location_points, update_location_point},
-    titik_peta::{delete_map_point, list_map_points, upsert_map_point},
-    users::{create_user, delete_user, list_users, reset_password, update_user},
-    util::{
-        optional_env_u64, optional_env_usize, required_env,
+    titik_lokasi::{
+        create_location_point, delete_location_point, list_location_points, update_location_point,
     },
+    titik_peta::{delete_map_point, list_map_points, upsert_map_point},
+    users::{
+        create_user, delete_user, list_user_pelanggan_access, list_users, reset_password,
+        update_user, update_user_pelanggan_access,
+    },
+    util::{optional_env_u64, optional_env_usize, required_env},
 };
 
 #[tokio::main]
@@ -91,36 +102,97 @@ async fn main() {
         login_lockout_minutes: optional_env_u64("LOGIN_LOCKOUT_MINUTES", 15) as u32,
     });
 
+    // Sinkronisasi awal memastikan data lama langsung mengikuti tanggal kontrak
+    // saat backend dinyalakan.
+    match sync_expired_contract_statuses(&state.database).await {
+        Ok(updated) if updated > 0 => {
+            info!(updated, "Contract statuses synchronized at startup");
+        }
+        Ok(_) => {}
+        Err(error) => {
+            tracing::error!(%error, "Initial contract status synchronization failed");
+        }
+    }
+
+    // Jalankan kembali setiap hari agar status database tetap benar walaupun
+    // tidak ada pengguna yang membuka halaman kontrak.
+    let status_sync_database = state.database.clone();
+    tokio::spawn(async move {
+        let mut ticker = tokio::time::interval(std::time::Duration::from_secs(24 * 60 * 60));
+        ticker.tick().await;
+        loop {
+            ticker.tick().await;
+            match sync_expired_contract_statuses(&status_sync_database).await {
+                Ok(updated) if updated > 0 => {
+                    tracing::info!(updated, "Contract statuses synchronized by daily job");
+                }
+                Ok(_) => {}
+                Err(error) => {
+                    tracing::error!(%error, "Daily contract status synchronization failed");
+                }
+            }
+        }
+    });
+
     let protected = Router::new()
         .route("/api/pelanggan", get(list_customers).post(create_customer))
-        .route("/api/pelanggan/{id}", put(update_customer).delete(delete_customer))
+        .route(
+            "/api/pelanggan/{id}",
+            put(update_customer).delete(delete_customer),
+        )
         .route("/api/pelanggan-next-code", get(get_next_pelanggan_code))
         .route(
             "/api/kontrak-lengkap",
             get(list_contracts).post(create_contract),
         )
-        .route("/api/kontrak-lengkap/{id}", put(update_contract).delete(delete_contract))
+        .route(
+            "/api/kontrak-lengkap/{id}",
+            put(update_contract).delete(delete_contract),
+        )
         .route("/api/kontrak-lengkap/{id}/extend", post(extend_contract))
         .route("/api/kontrak-lengkap/{id}/upgrade", post(upgrade_contract))
         .route("/api/kontrak-next-code", get(get_next_kontrak_code))
         .route("/api/dokumen", get(list_documents).post(upload_document))
-        .route("/api/dokumen/{id}", patch(rename_document).delete(delete_document))
+        .route("/api/isp/dokumen", get(list_isp_documents))
+        .route("/api/dokumen/{id}/preview", get(preview_document))
+        .route("/api/dokumen/{id}/download", get(download_document))
+        .route(
+            "/api/dokumen/{id}",
+            patch(rename_document).delete(delete_document),
+        )
         .route("/api/dashboard", get(get_dashboard))
         .route("/api/users", get(list_users).post(create_user))
         .route("/api/users/{id}", put(update_user).delete(delete_user))
         .route("/api/users/{id}/reset-password", post(reset_password))
-        .route("/api/titik-peta", get(list_map_points).post(upsert_map_point))
+        .route(
+            "/api/users/{id}/pelanggan-access",
+            get(list_user_pelanggan_access).put(update_user_pelanggan_access),
+        )
+        .route(
+            "/api/titik-peta",
+            get(list_map_points).post(upsert_map_point),
+        )
         .route("/api/titik-peta/{lokasi_id}", delete(delete_map_point))
-        .route("/api/titik-isp", get(list_isp_points).post(upsert_isp_point))
+        .route(
+            "/api/titik-isp",
+            get(list_isp_points).post(upsert_isp_point),
+        )
         .route("/api/titik-isp/{id}", delete(delete_isp_point))
-        .route("/api/titik-lokasi", get(list_location_points).post(create_location_point))
-        .route("/api/titik-lokasi/{id}", put(update_location_point).delete(delete_location_point))
+        .route(
+            "/api/titik-lokasi",
+            get(list_location_points).post(create_location_point),
+        )
+        .route(
+            "/api/titik-lokasi/{id}",
+            put(update_location_point).delete(delete_location_point),
+        )
         .route("/api/auth/change-password", post(change_password))
+        .route("/api/auth/session", get(current_session))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
         .layer(RequestBodyLimitLayer::new(10 * 1024 * 1024));
 
-    let allowed_origin = env::var("CORS_ALLOWED_ORIGIN")
-        .unwrap_or_else(|_| "http://localhost:5173".to_owned());
+    let allowed_origin =
+        env::var("CORS_ALLOWED_ORIGIN").unwrap_or_else(|_| "http://localhost:5173".to_owned());
 
     let app = Router::new()
         .route("/healthz", get(healthz))
@@ -156,10 +228,13 @@ async fn main() {
         .await
         .expect("Gagal membuka alamat server");
     info!(%bind_addr, "FO KIMA backend listening");
-    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
-        .with_graceful_shutdown(shutdown_signal())
-        .await
-        .expect("Server berhenti karena kesalahan");
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .with_graceful_shutdown(shutdown_signal())
+    .await
+    .expect("Server berhenti karena kesalahan");
 }
 
 async fn healthz() -> Json<StatusResponse> {

@@ -47,6 +47,10 @@ impl ApiError {
         Self::new(StatusCode::TOO_MANY_REQUESTS, message)
     }
 
+    pub fn unsupported_media_type(message: impl Into<String>) -> Self {
+        Self::new(StatusCode::UNSUPPORTED_MEDIA_TYPE, message)
+    }
+
     pub fn internal(message: impl Into<String>) -> Self {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, message)
     }

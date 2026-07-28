@@ -21,10 +21,10 @@ export default function ChangePasswordForm({ token, onSuccess, onCancel }) {
 
     setLoading(true);
     try {
-      await changePassword(token, newPassword);
+      const session = await changePassword(token, newPassword);
       setSuccess(true);
       setTimeout(() => {
-        onSuccess();
+        onSuccess(session);
       }, 1500);
     } catch (err) {
       setError(err.message || "Gagal mengubah password.");

@@ -251,9 +251,15 @@ Semua 16 pelanggan dan 269 kontrak **sudah** memiliki `link_folder_berkas` (URL 
 
 Folder baru dibuat **hanya** untuk data baru (create pelanggan/kontrak via API ini).
 
-### Link Sharing
+### Link Sharing dan Akses Isi File
 
-Jika `GOOGLE_DRIVE_LINK_SHARING=true` (default), setiap folder/file baru diberi permission `anyone` → `reader`.
+`GOOGLE_DRIVE_LINK_SHARING=false` adalah default. Folder dan file baru tidak diberi
+permission publik `anyone`.
+
+Portal ISP tidak membuka `drive_url` secara langsung. Preview dan download memakai
+endpoint backend yang memeriksa JWT serta penugasan pelanggan ISP, kemudian backend
+mengambil isi file melalui OAuth Google Drive. Preview dibatasi untuk PDF dan gambar;
+format lain tersedia melalui download.
 
 ---
 
@@ -297,7 +303,7 @@ RUST_LOG=info,tower_http=info
 GOOGLE_CLIENT_ID=<from-google-cloud-console>
 GOOGLE_CLIENT_SECRET=<from-google-cloud-console>
 GOOGLE_REFRESH_TOKEN=<pre-generated>
-GOOGLE_DRIVE_LINK_SHARING=true
+GOOGLE_DRIVE_LINK_SHARING=false
 PELANGGAN_ROOT_FOLDER_ID=<folder-id-root-drive>
 EMAIL_PROVIDER=resend
 EMAIL_FROM="KIMA Notification <notification@matics.space>"

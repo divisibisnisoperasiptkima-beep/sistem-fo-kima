@@ -15,7 +15,6 @@ function Login({ onLogin }) {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [mustChangePw, setMustChangePw] = useState(false);
   const [pendingToken, setPendingToken] = useState(null);
-  const [pendingSession, setPendingSession] = useState(null);
 
   useEffect(() => {
     const handle = () => setWindowWidth(window.innerWidth);
@@ -39,7 +38,6 @@ function Login({ onLogin }) {
       const session = await login(email.trim(), password);
       if (session.must_change_password) {
         setPendingToken(session.token);
-        setPendingSession(session);
         setMustChangePw(true);
       } else {
         onLogin(session);
@@ -69,7 +67,6 @@ function Login({ onLogin }) {
       const session = await login(account.email, account.password);
       if (session.must_change_password) {
         setPendingToken(session.token);
-        setPendingSession(session);
         setMustChangePw(true);
       } else {
         onLogin(session);
@@ -101,19 +98,14 @@ function Login({ onLogin }) {
     return (
       <ChangePasswordForm
         token={pendingToken}
-        onSuccess={() => {
+        onSuccess={(session) => {
           setMustChangePw(false);
           setPendingToken(null);
-          if (pendingSession) {
-            delete pendingSession.must_change_password;
-            onLogin(pendingSession);
-          }
-          setPendingSession(null);
+          onLogin(session);
         }}
         onCancel={() => {
           setMustChangePw(false);
           setPendingToken(null);
-          setPendingSession(null);
         }}
       />
     );

@@ -40,7 +40,7 @@ Panduan ini menjalankan aplikasi lokal dengan arsitektur React/Vite → Rust/Axu
    GOOGLE_CLIENT_ID=<client-id-google>
    GOOGLE_CLIENT_SECRET=<client-secret-google>
    GOOGLE_REFRESH_TOKEN=<refresh-token-google>
-   GOOGLE_DRIVE_LINK_SHARING=true
+   GOOGLE_DRIVE_LINK_SHARING=false
    PELANGGAN_ROOT_FOLDER_ID=<id-folder-root-google-drive>
    ```
 
@@ -108,11 +108,14 @@ Kedua endpoint harus mengembalikan respons sukses. Setelah itu, login melalui br
 | Browser menampilkan CORS atau `Failed to fetch` | Akses frontend lewat `http://localhost:5173` dan samakan `CORS_ALLOWED_ORIGIN=http://localhost:5173`. |
 | Port sudah dipakai | Hentikan proses lama atau ubah `BIND_ADDR` dan `VITE_API_BASE_URL` secara konsisten. |
 | Dokumen gagal diunggah | Periksa izin folder root Google Drive, refresh token, dan batas ukuran unggahan backend. |
+| Preview/download dokumen gagal | Pastikan backend memiliki akses ke Drive dan dokumen dibuka dari portal setelah login; ISP tidak lagi memakai link publik Drive. |
 
 ## 7. Berhenti menjalankan aplikasi
 
 Tekan `Ctrl+C` pada masing-masing terminal backend dan frontend.
 
 Dokumen teknis pendukung: [arsitektur](implementasi/Dokumentasi_Arsitektur_Website.md) dan [integrasi Google Drive](laporan/Dokumentasi_Implementasi_Drive.md).
+
+Untuk deployment produksi di VPS, lihat [Panduan Deploy VPS](Panduan_Deploy_VPS.md).
 
 Panduan penggunaan aplikasi untuk pengguna operasional: [User Manual Sistem FO KIMA](manual/User_Manual_Sistem_FO_KIMA.md).

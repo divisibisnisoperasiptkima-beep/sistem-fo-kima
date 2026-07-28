@@ -2,7 +2,7 @@
 
 ## Tujuan
 
-Panduan ini menjelaskan penggunaan harian Sistem FO KIMA untuk mengelola pelanggan, kontrak, dokumen Google Drive, titik peta, dan pengguna. Dokumen ini bukan laporan UAT dan bukan panduan instalasi.
+Panduan ini menjelaskan penggunaan harian Sistem FO KIMA untuk mengelola pelanggan, kontrak, dokumen Google Drive, titik peta, pengguna, dan portal ISP. Dokumen ini bukan laporan UAT dan bukan panduan instalasi.
 
 ## 1. Akses dan role
 
@@ -95,7 +95,7 @@ Dokumen dapat diunggah saat tambah, edit, perpanjang, atau upgrade kontrak.
 1. Pilih file pada area unggahan.
 2. Pilih kategori dokumen.
 3. Simpan transaksi kontrak.
-4. Pada detail kontrak, klik tautan **Drive** untuk membuka file/folder terkait.
+4. Pada detail kontrak, gunakan tombol **Preview** atau **Download** untuk membuka dokumen melalui backend.
 5. Untuk menghapus dokumen, pilih aksi hapus pada baris dokumen lalu konfirmasi.
 
 Sistem membuat struktur folder pelanggan → lokasi → periode kontrak → kategori dokumen pada Google Drive. Penghapusan dokumen dari aplikasi juga menghapus file pada Drive.
@@ -124,24 +124,62 @@ Sistem membuat struktur folder pelanggan → lokasi → periode kontrak → kate
 ## 8. Kelola pengguna (Admin)
 
 1. Buka **Kelola Pengguna**.
-2. Klik **Tambah Pengguna**, isi nama, email, role, dan password sementara.
-3. Gunakan **Edit Pengguna** untuk memperbarui data/role.
+2. Klik **Tambah Pengguna**, isi email, role, dan password sementara.
+3. Gunakan **Edit Pengguna** untuk memperbarui data atau role.
 4. Gunakan **Nonaktifkan Pengguna** untuk menghentikan akses tanpa menghapus histori audit.
+
+### Menugaskan pelanggan ke akun ISP
+
+1. Buat akun baru dengan role **ISP - Mitra**, atau buka **Edit** pada akun yang
+   akan dijadikan ISP.
+2. Pastikan field **Role** bernilai **ISP - Mitra**.
+3. Pada bagian **Pelanggan yang dapat diakses**, centang satu atau beberapa
+   pelanggan.
+4. Klik **Simpan**. Assignment menggantikan daftar assignment sebelumnya,
+   sehingga pelanggan yang tidak dicentang tidak lagi dapat dilihat akun ISP.
+5. Jika tidak ada pelanggan yang dicentang, portal ISP tetap dapat login tetapi
+   tidak menampilkan data pelanggan, kontrak, atau dokumen.
+
+### Filter status akun
+
+Gunakan tombol filter di bagian atas tabel **Kelola Pengguna**:
+
+- **Semua:** menampilkan akun aktif dan nonaktif.
+- **Aktif saja:** hanya menampilkan akun yang dapat login.
+- **Nonaktif saja:** hanya menampilkan akun yang sudah dinonaktifkan.
+
+Filter status dapat digunakan bersamaan dengan kolom pencarian email.
 
 Admin aktif terakhir tidak dapat dinonaktifkan. Jika password direset, pengguna harus login ulang.
 
 ![Kelola pengguna](../uat/bukti-screenshot-desktop-2026-07-24/USER-01-form-pengguna-uat-terisi-desktop.png)
 
-## 9. Penyelesaian masalah singkat
+## 9. Portal ISP
+
+Akun ISP hanya dapat melihat pelanggan yang ditugaskan Admin. Setelah login,
+ISP memiliki tiga halaman utama:
+
+1. **Ringkasan** — profil pelanggan yang ditugaskan dan jumlah kontraknya.
+2. **Kontrak & Lokasi** — kontrak/lokasi yang dimiliki pelanggan tersebut.
+3. **Dokumen** — daftar dokumen pelanggan/kontrak dengan tombol **Preview** dan **Download**.
+
+ISP juga dapat mengunggah dokumen ke pelanggan atau kontrak yang ditugaskan.
+Dokumen dibuka melalui backend setelah sesi dan penugasan pelanggan diverifikasi;
+tautan atau ID Google Drive tidak ditampilkan di portal ISP. Akses ke pelanggan
+lain ditolak oleh backend meskipun ID pelanggan diubah secara manual.
+
+## 10. Penyelesaian masalah singkat
 
 | Kondisi | Tindakan |
 |---|---|
 | Login ditolak | Periksa email/password atau hubungi administrator untuk status akun. |
 | Data tidak tampil | Muat ulang halaman, periksa filter/pencarian, lalu pastikan role memiliki akses. |
+| Pelanggan tidak muncul pada akun ISP | Pastikan Admin sudah memilih pelanggan pada **Edit Pengguna → Pelanggan yang dapat diakses**, lalu logout/login ulang. |
+| Filter akun tidak berubah | Pastikan tombol **Semua**, **Aktif saja**, atau **Nonaktif saja** sudah dipilih; muat ulang tabel bila perlu. |
 | Upload gagal | Periksa koneksi, ukuran/format file, kategori, dan konfigurasi Google Drive. |
 | Upgrade ditolak | Pastikan tanggal upgrade setelah tanggal mulai kontrak; gunakan Edit Kontrak untuk koreksi hari pertama. |
 | Folder Drive tidak terbuka | Pastikan tautan dibuka dengan akun/izin yang sesuai, lalu laporkan ke administrator. |
 
-## 10. Penutup
+## 11. Penutup
 
 Selalu periksa data sebelum menyimpan atau menghapus. Untuk perubahan yang berdampak pada kontrak aktif, lakukan sesuai prosedur bisnis dan simpan dokumen pendukung pada kategori yang tepat.

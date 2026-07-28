@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, AlertCircle, CheckCircle, Loader2, File, Paperclip, ExternalLink, Trash2 } from "lucide-react";
-import { updateContract, listCustomers, uploadDocument, listDocuments, deleteDocument } from "../../lib/rust-api";
+import { X, AlertCircle, CheckCircle, Loader2, File, Paperclip, Download, Eye, Trash2 } from "lucide-react";
+import { updateContract, listCustomers, uploadDocument, listDocuments, deleteDocument, fetchDocumentContent } from "../../lib/rust-api";
 import { coreInputError, coreInputValue } from "./coreUtils";
 
 const STATUS_OPTIONS = [
@@ -36,6 +36,7 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
   const [documents, setDocuments] = useState([]);
   const [docsLoading, setDocsLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [documentAction, setDocumentAction] = useState("");
 
   // Form state - initialized from contract prop
   const [formData, setFormData] = useState({
@@ -163,6 +164,33 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
       fetchDocuments();
     } catch (err) {
       console.error("Failed to delete document:", err);
+    }
+  };
+
+  const handleDocumentAction = async (doc, mode) => {
+    const previewWindow = mode === "preview" ? window.open("", "_blank") : null;
+    if (previewWindow) previewWindow.opener = null;
+    setDocumentAction(`${mode}-${doc.id}`);
+    try {
+      if (mode === "preview" && !previewWindow) throw new Error("Izinkan pop-up browser untuk membuka preview dokumen.");
+      const blob = await fetchDocumentContent(session.token, doc.id, mode);
+      const url = URL.createObjectURL(blob);
+      if (mode === "preview") {
+        previewWindow.location.href = url;
+      } else {
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = doc.nama_file || "dokumen";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (err) {
+      if (previewWindow) previewWindow.close();
+      setError(err.message || "Dokumen gagal dibuka.");
+    } finally {
+      setDocumentAction("");
     }
   };
 
@@ -746,17 +774,24 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
                         </div>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
-                        {doc.drive_url && (
-                          <a
-                            href={doc.drive_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 rounded-md text-slate-400 hover:text-indigo-400 hover:bg-slate-700/50 transition-colors"
-                            title="Buka di Google Drive"
-                          >
-                            <ExternalLink size={14} />
-                          </a>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => void handleDocumentAction(doc, "preview")}
+                          disabled={documentAction !== ""}
+                          className="p-1.5 rounded-md text-slate-400 hover:text-indigo-400 hover:bg-slate-700/50 transition-colors disabled:opacity-50"
+                          title="Preview dokumen"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDocumentAction(doc, "download")}
+                          disabled={documentAction !== ""}
+                          className="p-1.5 rounded-md text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 transition-colors disabled:opacity-50"
+                          title="Download dokumen"
+                        >
+                          <Download size={14} />
+                        </button>
                         {deleteConfirm === doc.id ? (
                           <div className="flex items-center gap-1">
                             <button

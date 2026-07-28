@@ -2,24 +2,26 @@ use std::sync::Arc;
 
 use axum::{
     Extension, Json,
+    body::Body,
     extract::{Multipart, Path, Query, State},
-    http::StatusCode,
-    response::IntoResponse,
+    http::{HeaderValue, StatusCode, header},
+    response::{IntoResponse, Response},
 };
 use sqlx::Row;
 
 use crate::{
-    access::{
-        assert_pelanggan_access, resolve_billing_context, resolve_lokasi_pelanggan_id,
-    },
+    access::{assert_pelanggan_access, resolve_billing_context, resolve_lokasi_pelanggan_id},
     drive::{
         DOC_CATEGORIES, ensure_category_folder, ensure_kontrak_tree, ensure_pelanggan_tree,
         folder_url, parse_drive_folder_id,
     },
     error::ApiError,
-    models::{AuthUser, DocumentRow, ListDocumentsQuery, Page, Pagination, RenameDocumentRequest},
+    models::{
+        AuthUser, DocumentRow, IspDocumentRow, ListDocumentsQuery, Page, Pagination,
+        RenameDocumentRequest,
+    },
     state::AppState,
-    util::{pagination, require_staff},
+    util::{pagination, require_admin, require_document_upload},
 };
 
 pub async fn list_documents(
@@ -27,6 +29,8 @@ pub async fn list_documents(
     Extension(auth): Extension<AuthUser>,
     Query(query): Query<ListDocumentsQuery>,
 ) -> Result<Json<Page<DocumentRow>>, ApiError> {
+    require_admin(&auth.role)?;
+
     let pagination_query = Pagination {
         page: query.page,
         page_size: query.page_size,
@@ -72,7 +76,7 @@ pub async fn list_documents(
         .map_err(ApiError::database)?;
         let rows = sqlx::query(
             "SELECT id, pelanggan_id, lokasi_id, billing_id, uploaded_by_user_id, kategori, \
-                    nama_file, drive_file_id, drive_folder_id, drive_url, ukuran_byte, mime_type, \
+                    nama_file, ukuran_byte, mime_type, \
                     CAST(created_at AS CHAR) AS created_at \
              FROM dokumen \
              WHERE pelanggan_id = ? AND lokasi_id IS NULL AND billing_id IS NULL \
@@ -86,15 +90,14 @@ pub async fn list_documents(
         .map_err(ApiError::database)?;
         (total, rows)
     } else if let Some(lokasi_id) = query.lokasi_id {
-        let total: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM dokumen WHERE lokasi_id = ?")
-                .bind(lokasi_id)
-                .fetch_one(&state.database)
-                .await
-                .map_err(ApiError::database)?;
+        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM dokumen WHERE lokasi_id = ?")
+            .bind(lokasi_id)
+            .fetch_one(&state.database)
+            .await
+            .map_err(ApiError::database)?;
         let rows = sqlx::query(
             "SELECT id, pelanggan_id, lokasi_id, billing_id, uploaded_by_user_id, kategori, \
-                    nama_file, drive_file_id, drive_folder_id, drive_url, ukuran_byte, mime_type, \
+                    nama_file, ukuran_byte, mime_type, \
                     CAST(created_at AS CHAR) AS created_at \
              FROM dokumen WHERE lokasi_id = ? \
              ORDER BY id DESC LIMIT ? OFFSET ?",
@@ -108,15 +111,14 @@ pub async fn list_documents(
         (total, rows)
     } else {
         let billing_id = query.billing_id.unwrap();
-        let total: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM dokumen WHERE billing_id = ?")
-                .bind(billing_id)
-                .fetch_one(&state.database)
-                .await
-                .map_err(ApiError::database)?;
+        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM dokumen WHERE billing_id = ?")
+            .bind(billing_id)
+            .fetch_one(&state.database)
+            .await
+            .map_err(ApiError::database)?;
         let rows = sqlx::query(
             "SELECT id, pelanggan_id, lokasi_id, billing_id, uploaded_by_user_id, kategori, \
-                    nama_file, drive_file_id, drive_folder_id, drive_url, ukuran_byte, mime_type, \
+                    nama_file, ukuran_byte, mime_type, \
                     CAST(created_at AS CHAR) AS created_at \
              FROM dokumen WHERE billing_id = ? \
              ORDER BY id DESC LIMIT ? OFFSET ?",
@@ -139,12 +141,235 @@ pub async fn list_documents(
     }))
 }
 
+/// Daftar dokumen lintas pelanggan/kontrak yang dapat dibaca akun ISP.
+/// Respons sengaja tidak memuat link maupun ID Google Drive.
+pub async fn list_isp_documents(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+    Query(query): Query<Pagination>,
+) -> Result<Json<Page<IspDocumentRow>>, ApiError> {
+    if auth.role != "isp" {
+        return Err(ApiError::forbidden("Endpoint ini hanya untuk akun ISP."));
+    }
+
+    let search = query
+        .search
+        .as_deref()
+        .unwrap_or_default()
+        .trim()
+        .to_owned();
+    let has_search = !search.is_empty();
+    let pattern = format!("%{}%", search);
+    let (page, page_size, offset) = pagination(query);
+    let access_clause = "EXISTS (SELECT 1 FROM user_pelanggan_access a WHERE a.user_id = ? AND a.pelanggan_id = COALESCE(d.pelanggan_id, l.pelanggan_id, bl.pelanggan_id))";
+    let search_clause = " AND (d.nama_file LIKE ? OR d.kategori LIKE ? OR p.nama_pelanggan LIKE ? OR l.nama_lokasi LIKE ? OR bp.nama_pelanggan LIKE ? OR bl.nama_lokasi LIKE ?)";
+
+    let total_sql = format!(
+        "SELECT COUNT(*) FROM dokumen d \
+         LEFT JOIN lokasi l ON l.id = d.lokasi_id \
+         LEFT JOIN pelanggan p ON p.id = d.pelanggan_id \
+         LEFT JOIN billing b ON b.id = d.billing_id \
+         LEFT JOIN lokasi bl ON bl.id = b.lokasi_id \
+         LEFT JOIN pelanggan bp ON bp.id = bl.pelanggan_id \
+         WHERE {}{}",
+        access_clause,
+        if has_search { search_clause } else { "" }
+    );
+    let mut total_query = sqlx::query_scalar::<_, i64>(&total_sql).bind(auth.id);
+    if has_search {
+        for _ in 0..6 {
+            total_query = total_query.bind(&pattern);
+        }
+    }
+    let total = total_query
+        .fetch_one(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+
+    let rows_sql = format!(
+        "SELECT d.id, COALESCE(d.pelanggan_id, l.pelanggan_id, bl.pelanggan_id) AS pelanggan_id, \
+                COALESCE(d.lokasi_id, b.lokasi_id) AS lokasi_id, \
+                COALESCE(p.nama_pelanggan, bp.nama_pelanggan) AS nama_pelanggan, \
+                COALESCE(l.nama_lokasi, bl.nama_lokasi) AS nama_lokasi, \
+                d.kategori, d.nama_file, d.ukuran_byte, d.mime_type, \
+                CAST(d.created_at AS CHAR) AS created_at \
+         FROM dokumen d \
+         LEFT JOIN lokasi l ON l.id = d.lokasi_id \
+         LEFT JOIN pelanggan p ON p.id = d.pelanggan_id \
+         LEFT JOIN billing b ON b.id = d.billing_id \
+         LEFT JOIN lokasi bl ON bl.id = b.lokasi_id \
+         LEFT JOIN pelanggan bp ON bp.id = bl.pelanggan_id \
+         WHERE {}{} ORDER BY d.created_at DESC, d.id DESC LIMIT ? OFFSET ?",
+        access_clause,
+        if has_search { search_clause } else { "" }
+    );
+    let mut rows_query = sqlx::query(&rows_sql).bind(auth.id);
+    if has_search {
+        for _ in 0..6 {
+            rows_query = rows_query.bind(&pattern);
+        }
+    }
+    let rows = rows_query
+        .bind(page_size)
+        .bind(offset)
+        .fetch_all(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+    let data = rows
+        .into_iter()
+        .map(|row| IspDocumentRow {
+            id: row.try_get("id").unwrap_or_default(),
+            pelanggan_id: row.try_get("pelanggan_id").unwrap_or_default(),
+            lokasi_id: row.try_get("lokasi_id").unwrap_or(None),
+            nama_pelanggan: row.try_get("nama_pelanggan").unwrap_or_default(),
+            nama_lokasi: row.try_get("nama_lokasi").unwrap_or(None),
+            kategori: row.try_get("kategori").unwrap_or_default(),
+            nama_file: row.try_get("nama_file").unwrap_or_default(),
+            ukuran_byte: row.try_get("ukuran_byte").unwrap_or(None),
+            mime_type: row.try_get("mime_type").unwrap_or(None),
+            created_at: row.try_get("created_at").unwrap_or_default(),
+        })
+        .collect();
+
+    Ok(Json(Page {
+        data,
+        total: total.max(0) as u64,
+        page,
+        page_size,
+    }))
+}
+
+pub async fn preview_document(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+    Path(id): Path<u64>,
+) -> Result<Response, ApiError> {
+    serve_document(&state, &auth, id, true).await
+}
+
+pub async fn download_document(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+    Path(id): Path<u64>,
+) -> Result<Response, ApiError> {
+    serve_document(&state, &auth, id, false).await
+}
+
+async fn serve_document(
+    state: &AppState,
+    auth: &AuthUser,
+    id: u64,
+    preview: bool,
+) -> Result<Response, ApiError> {
+    if !matches!(auth.role.as_str(), "admin" | "isp") {
+        return Err(ApiError::forbidden(
+            "Role pengguna tidak diizinkan membuka dokumen.",
+        ));
+    }
+
+    let row = sqlx::query(
+        "SELECT pelanggan_id, lokasi_id, billing_id, drive_file_id, nama_file, mime_type \
+         FROM dokumen WHERE id = ? LIMIT 1",
+    )
+    .bind(id)
+    .fetch_optional(&state.database)
+    .await
+    .map_err(ApiError::database)?
+    .ok_or_else(|| ApiError::not_found("Dokumen tidak ditemukan."))?;
+
+    let pelanggan_id: Option<u64> = row.try_get("pelanggan_id").unwrap_or(None);
+    let lokasi_id: Option<u64> = row.try_get("lokasi_id").unwrap_or(None);
+    let billing_id: Option<u64> = row.try_get("billing_id").unwrap_or(None);
+    let access_pelanggan_id = if let Some(pelanggan_id) = pelanggan_id {
+        pelanggan_id
+    } else if let Some(lokasi_id) = lokasi_id {
+        resolve_lokasi_pelanggan_id(&state.database, lokasi_id).await?
+    } else if let Some(billing_id) = billing_id {
+        resolve_billing_context(&state.database, billing_id)
+            .await?
+            .1
+    } else {
+        return Err(ApiError::internal("Dokumen tanpa pemilik."));
+    };
+    assert_pelanggan_access(&state.database, auth.id, &auth.role, access_pelanggan_id).await?;
+
+    let drive_file_id: Option<String> = row.try_get("drive_file_id").unwrap_or(None);
+    let drive_file_id = drive_file_id
+        .filter(|value| !value.trim().is_empty())
+        .ok_or_else(|| ApiError::not_found("File dokumen tidak tersedia di Google Drive."))?;
+    let file_name: String = row.try_get("nama_file").map_err(ApiError::database)?;
+    let raw_mime_type: Option<String> = row.try_get("mime_type").unwrap_or(None);
+    let mime_type = raw_mime_type.unwrap_or_else(|| "application/octet-stream".to_owned());
+
+    let content_type = if preview {
+        preview_mime_type(&mime_type).ok_or_else(|| {
+            ApiError::unsupported_media_type(
+                "Preview hanya tersedia untuk PDF dan gambar. Gunakan tombol download untuk format lain.",
+            )
+        })?
+        .to_owned()
+    } else {
+        normalized_mime_type(&mime_type)
+            .unwrap_or("application/octet-stream")
+            .to_owned()
+    };
+    let bytes = state
+        .drive
+        .download_file_content(&drive_file_id)
+        .await
+        .map_err(ApiError::drive)?;
+
+    let disposition = if preview { "inline" } else { "attachment" };
+    let encoded_name = urlencoding::encode(if file_name.trim().is_empty() {
+        "dokumen"
+    } else {
+        &file_name
+    });
+    let content_disposition =
+        HeaderValue::from_str(&format!("{disposition}; filename*=UTF-8''{encoded_name}"))
+            .map_err(|_| ApiError::internal("Nama file dokumen tidak valid."))?;
+
+    let mut response = Body::from(bytes).into_response();
+    let headers = response.headers_mut();
+    headers.insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_str(&content_type)
+            .map_err(|_| ApiError::internal("Tipe file dokumen tidak valid."))?,
+    );
+    headers.insert(header::CONTENT_DISPOSITION, content_disposition);
+    headers.insert(
+        header::X_CONTENT_TYPE_OPTIONS,
+        HeaderValue::from_static("nosniff"),
+    );
+    headers.insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static("private, no-store"),
+    );
+    Ok(response)
+}
+
+fn normalized_mime_type(value: &str) -> Option<&str> {
+    let value = value.split(';').next()?.trim();
+    if value.is_empty() { None } else { Some(value) }
+}
+
+fn preview_mime_type(value: &str) -> Option<&'static str> {
+    match normalized_mime_type(value)?.to_ascii_lowercase().as_str() {
+        "application/pdf" => Some("application/pdf"),
+        "image/jpeg" => Some("image/jpeg"),
+        "image/png" => Some("image/png"),
+        "image/gif" => Some("image/gif"),
+        "image/webp" => Some("image/webp"),
+        _ => None,
+    }
+}
+
 pub async fn upload_document(
     State(state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthUser>,
     mut multipart: Multipart,
 ) -> Result<impl IntoResponse, ApiError> {
-    require_staff(&auth.role)?;
+    require_document_upload(&auth.role)?;
 
     let mut file_name: Option<String> = None;
     let mut mime_type: Option<String> = None;
@@ -172,9 +397,7 @@ pub async fn upload_document(
                     .await
                     .map_err(|_| ApiError::bad_request("Gagal membaca file unggahan."))?;
                 if bytes.len() > state.max_upload_bytes {
-                    return Err(ApiError::bad_request(
-                        "Ukuran file melebihi batas 25 MB.",
-                    ));
+                    return Err(ApiError::bad_request("Ukuran file melebihi batas 25 MB."));
                 }
                 file_bytes = Some(bytes.to_vec());
             }
@@ -229,10 +452,14 @@ pub async fn upload_document(
         ));
     }
 
-    let owners = [pelanggan_id.is_some(), lokasi_id.is_some(), billing_id.is_some()]
-        .into_iter()
-        .filter(|v| *v)
-        .count();
+    let owners = [
+        pelanggan_id.is_some(),
+        lokasi_id.is_some(),
+        billing_id.is_some(),
+    ]
+    .into_iter()
+    .filter(|v| *v)
+    .count();
     if owners != 1 {
         return Err(ApiError::bad_request(
             "Sertakan tepat satu pemilik: pelanggan_id, lokasi_id, atau billing_id.",
@@ -245,12 +472,22 @@ pub async fn upload_document(
         .unwrap_or_else(|| "application/octet-stream".to_owned());
     let ukuran = file_bytes.len() as u64;
 
+    // Periksa otorisasi sebelum menyentuh Google Drive. Dengan urutan ini,
+    // request ISP lintas pelanggan tidak dapat membuat folder sampah sebelum
+    // akhirnya ditolak.
+    let access_pelanggan_id = if let Some(pid) = pelanggan_id {
+        pid
+    } else if let Some(lid) = lokasi_id {
+        resolve_lokasi_pelanggan_id(&state.database, lid).await?
+    } else if let Some(bid) = billing_id {
+        resolve_billing_context(&state.database, bid).await?.1
+    } else {
+        return Err(ApiError::bad_request("Pemilik dokumen tidak ditemukan."));
+    };
+    assert_pelanggan_access(&state.database, auth.id, &auth.role, access_pelanggan_id).await?;
+
     let (store_pelanggan_id, store_lokasi_id, store_billing_id, parent_folder_id) =
         resolve_upload_parent(&state, pelanggan_id, lokasi_id, billing_id).await?;
-
-    if let Some(pid) = store_pelanggan_id {
-        assert_pelanggan_access(&state.database, auth.id, &auth.role, pid).await?;
-    }
 
     let category_folder_id = ensure_category_folder(&state.drive, &parent_folder_id, &kategori)
         .await
@@ -306,9 +543,6 @@ pub async fn upload_document(
             uploaded_by_user_id: Some(auth.id),
             kategori,
             nama_file,
-            drive_file_id: Some(uploaded.id),
-            drive_folder_id: Some(category_folder_id),
-            drive_url: Some(drive_url),
             ukuran_byte: Some(ukuran),
             mime_type: Some(mime),
             created_at: chrono::Local::now()
@@ -324,7 +558,7 @@ pub async fn delete_document(
     Extension(auth): Extension<AuthUser>,
     Path(id): Path<u64>,
 ) -> Result<StatusCode, ApiError> {
-    require_staff(&auth.role)?;
+    require_admin(&auth.role)?;
 
     let row = sqlx::query(
         "SELECT id, pelanggan_id, lokasi_id, billing_id, drive_file_id FROM dokumen WHERE id = ? LIMIT 1",
@@ -534,7 +768,7 @@ pub async fn rename_document(
     Path(id): Path<u64>,
     Json(input): Json<RenameDocumentRequest>,
 ) -> Result<Json<DocumentRow>, ApiError> {
-    require_staff(&auth.role)?;
+    require_admin(&auth.role)?;
 
     let nama_file = input.nama_file.trim().to_owned();
     if nama_file.is_empty() {
@@ -544,7 +778,7 @@ pub async fn rename_document(
     // Ambil data dokumen yang ada
     let row = sqlx::query(
         "SELECT id, pelanggan_id, lokasi_id, billing_id, kategori, nama_file, \
-                drive_file_id, drive_folder_id, drive_url, ukuran_byte, mime_type, \
+                drive_file_id, drive_folder_id, ukuran_byte, mime_type, \
                 CAST(created_at AS CHAR) AS created_at \
          FROM dokumen WHERE id = ? LIMIT 1",
     )
@@ -597,9 +831,6 @@ pub async fn rename_document(
         uploaded_by_user_id: row.try_get("uploaded_by_user_id").unwrap_or(None),
         kategori: row.try_get("kategori").unwrap_or_default(),
         nama_file,
-        drive_file_id,
-        drive_folder_id: row.try_get("drive_folder_id").unwrap_or(None),
-        drive_url: row.try_get("drive_url").unwrap_or(None),
         ukuran_byte: row.try_get("ukuran_byte").unwrap_or(None),
         mime_type: row.try_get("mime_type").unwrap_or(None),
         created_at: row.try_get("created_at").unwrap_or_default(),
@@ -615,12 +846,27 @@ fn map_document_row(row: sqlx::mysql::MySqlRow) -> DocumentRow {
         uploaded_by_user_id: row.try_get("uploaded_by_user_id").unwrap_or(None),
         kategori: row.try_get("kategori").unwrap_or_default(),
         nama_file: row.try_get("nama_file").unwrap_or_default(),
-        drive_file_id: row.try_get("drive_file_id").unwrap_or(None),
-        drive_folder_id: row.try_get("drive_folder_id").unwrap_or(None),
-        drive_url: row.try_get("drive_url").unwrap_or(None),
         ukuran_byte: row.try_get("ukuran_byte").unwrap_or(None),
         mime_type: row.try_get("mime_type").unwrap_or(None),
         created_at: row.try_get("created_at").unwrap_or_default(),
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::preview_mime_type;
+
+    #[test]
+    fn preview_only_allows_safe_document_types() {
+        assert_eq!(
+            preview_mime_type("application/pdf"),
+            Some("application/pdf")
+        );
+        assert_eq!(
+            preview_mime_type("image/png; charset=binary"),
+            Some("image/png")
+        );
+        assert_eq!(preview_mime_type("text/html"), None);
+        assert_eq!(preview_mime_type("image/svg+xml"), None);
+    }
+}

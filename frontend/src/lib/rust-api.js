@@ -4,22 +4,52 @@ export const API_BASE_URL = (configuredBaseUrl || "http://localhost:8080")
   .replace(/\/$/, "")
   .replace(/\/api$/, "");
 
-const SESSION_KEY = "kima-rust-session";
+export const SESSION_KEY = "kima-rust-session";
 
 // Global handler untuk 401 Unauthorized
 let onUnauthorized = null;
+let authInvalidated = false;
 
 export function setUnauthorizedHandler(fn) {
-  onUnauthorized = fn;
+  onUnauthorized = typeof fn === "function" ? fn : null;
+  return () => {
+    if (onUnauthorized === fn) onUnauthorized = null;
+  };
 }
 
 export function getSession() {
-  try { return JSON.parse(window.localStorage.getItem(SESSION_KEY) || "null"); }
-  catch { return null; }
+  try {
+    const raw = window.localStorage.getItem(SESSION_KEY);
+    const session = JSON.parse(raw || "null");
+    if (!session || typeof session.token !== "string" || !session.token.trim()) {
+      if (raw) window.localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return session;
+  } catch {
+    window.localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
 }
 
-export function saveSession(session) { window.localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }
+export function saveSession(session) {
+  authInvalidated = false;
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
 export function clearSession() { window.localStorage.removeItem(SESSION_KEY); }
+
+function invalidateSession() {
+  clearSession();
+  if (authInvalidated) return;
+  authInvalidated = true;
+  if (onUnauthorized) onUnauthorized();
+}
+
+function apiError(message, status) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
 
 function errorMessage(body, fallback) {
   if (typeof body?.message === "string") return body.message;
@@ -28,11 +58,12 @@ function errorMessage(body, fallback) {
   return fallback;
 }
 
-export async function request(path, { method = "GET", body, token } = {}) {
+export async function request(path, { method = "GET", body, token, signal } = {}) {
   const response = await fetch(`${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`, {
     method,
     headers: { Accept: "application/json", ...(body ? { "Content-Type": "application/json" } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     ...(body ? { body: JSON.stringify(body) } : {}),
+    ...(signal ? { signal } : {}),
   });
   const raw = await response.text();
   let data = null;
@@ -42,31 +73,63 @@ export async function request(path, { method = "GET", body, token } = {}) {
   // adalah kesalahan kredensial/akun dan pesannya perlu ditampilkan apa adanya.
   if (response.status === 401) {
     if (token) {
-      clearSession();
-      if (onUnauthorized) onUnauthorized();
-      throw new Error("Sesi berakhir. Silakan login ulang.");
+      invalidateSession();
+      throw apiError("Sesi berakhir. Silakan login ulang.", 401);
     }
-    throw new Error(errorMessage(data, "Email atau kata sandi tidak valid."));
+    throw apiError(errorMessage(data, "Email atau kata sandi tidak valid."), 401);
   }
 
-  if (!response.ok) throw new Error(errorMessage(data, `Permintaan gagal (${response.status}).`));
+  if (!response.ok) throw apiError(errorMessage(data, `Permintaan gagal (${response.status}).`), response.status);
   return data;
+}
+
+function sessionFromAuthResponse(data, fallbackEmail = "") {
+  const token = data?.access_token || data?.token || data?.data?.access_token || data?.data?.token;
+  const user = data?.user || data?.data?.user || data?.profile || data?.data?.profile || { email: fallbackEmail };
+  if (!token) throw new Error("Sesi berhasil dibuat tetapi token akses tidak ditemukan pada respons backend.");
+  const expiresIn = Number(data?.expires_in || 0);
+  return {
+    token,
+    user,
+    role: user.role || data?.role || data?.data?.role || "",
+    ...(expiresIn > 0 ? { expires_at: Date.now() + expiresIn * 1000 } : {}),
+  };
 }
 
 export async function login(email, password) {
   const data = await request("/api/auth/login", { method: "POST", body: { email, password } });
-  const token = data?.access_token || data?.token || data?.data?.access_token || data?.data?.token;
-  const user = data?.user || data?.data?.user || data?.profile || data?.data?.profile || { email };
-  if (!token) throw new Error("Login berhasil tetapi token akses tidak ditemukan pada respons backend.");
-  const session = { token, user, role: user.role || data?.role || data?.data?.role || "" };
+  const session = sessionFromAuthResponse(data, email);
   if (data?.must_change_password) {
     session.must_change_password = true;
+  } else {
+    saveSession(session);
   }
-  saveSession(session); return session;
+  return session;
 }
 
 export const rowsFrom = (data) => Array.isArray(data) ? data : data?.data || data?.items || data?.results || data?.pelanggan || data?.kontrak || [];
 export const totalFrom = (data, fallback) => Number(data?.total ?? data?.count ?? data?.pagination?.total ?? fallback) || 0;
+
+// Memuat seluruh halaman untuk tampilan yang memang membutuhkan dataset lengkap,
+// seperti portal ISP yang melakukan pencarian dan filter di sisi browser.
+export async function listAllPages(loadPage, pageSize = 100) {
+  const rows = [];
+  let page = 1;
+  let total = 0;
+
+  while (page <= 10000) {
+    const response = await loadPage(page, pageSize);
+    const pageRows = rowsFrom(response);
+    rows.push(...pageRows);
+    total = totalFrom(response, rows.length);
+
+    if (!pageRows.length || pageRows.length < pageSize || rows.length >= total) break;
+    page += 1;
+  }
+
+  return { data: rows, total: Math.max(total, rows.length) };
+}
+
 export const listCustomers = (token, page = 1, pageSize = 20, search = "") => request(`/api/pelanggan?page=${page}&page_size=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ""}`, { token });
 
 export async function createCustomer(token, data) {
@@ -97,6 +160,24 @@ export async function listDocuments(token, lokasiId) {
   return request(`/api/dokumen?lokasi_id=${lokasiId}`, { token });
 }
 
+export async function fetchDocumentContent(token, id, mode = "preview") {
+  const safeMode = mode === "download" ? "download" : "preview";
+  const response = await fetch(`${API_BASE_URL}/api/dokumen/${id}/${safeMode}`, {
+    headers: { Accept: "*/*", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+  });
+  if (response.status === 401) {
+    if (token) invalidateSession();
+    throw apiError("Sesi berakhir. Silakan login ulang.", 401);
+  }
+  if (!response.ok) {
+    const raw = await response.text();
+    let data = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch { data = { message: raw }; }
+    throw apiError(errorMessage(data, `Dokumen gagal dimuat (${response.status}).`), response.status);
+  }
+  return response.blob();
+}
+
 export async function uploadDocument(token, formData, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -118,9 +199,8 @@ export async function uploadDocument(token, formData, onProgress) {
         }
       } else if (xhr.status === 401) {
         // Handle 401 Unauthorized for XHR
-        clearSession();
-        if (onUnauthorized) onUnauthorized();
-        reject(new Error("Sesi berakhir. Silakan login ulang."));
+        invalidateSession();
+        reject(apiError("Sesi berakhir. Silakan login ulang.", 401));
       } else {
         try {
           const err = JSON.parse(xhr.responseText);
@@ -135,6 +215,14 @@ export async function uploadDocument(token, formData, onProgress) {
     xhr.send(formData);
   });
 }
+export const listIspDocuments = (token, page = 1, pageSize = 20, search = "") =>
+  request(`/api/isp/dokumen?page=${page}&page_size=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ""}`, { token });
+
+export const listUserPelangganAccess = (token, userId) =>
+  request(`/api/users/${userId}/pelanggan-access`, { token });
+
+export const updateUserPelangganAccess = (token, userId, pelangganIds) =>
+  request(`/api/users/${userId}/pelanggan-access`, { method: "PUT", body: { pelanggan_ids: pelangganIds }, token });
 export const listContracts = (token, page = 1, pageSize = 20, search = "", status = "", activeOnly = false) => request(`/api/kontrak-lengkap?page=${page}&page_size=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ""}${status ? `&status=${encodeURIComponent(status)}` : ""}${activeOnly ? `&active_only=true` : ""}`, { token });
 
 export async function getNextKontrakCode(token) {
@@ -161,7 +249,9 @@ export async function upgradeContract(token, id, data) {
   return request(`/api/kontrak-lengkap/${id}/upgrade`, { method: "POST", body: data, token });
 }
 
-export const getDashboardMetrics = (token, params = {}) => {
+export const getCurrentSession = (token) => request("/api/auth/session", { token });
+
+export const getDashboardMetrics = (token, params = {}, options = {}) => {
   const query = new URLSearchParams();
   if (params.year) query.set("year", params.year);
   if (params.growth_start_year) query.set("growth_start_year", params.growth_start_year);
@@ -169,11 +259,11 @@ export const getDashboardMetrics = (token, params = {}) => {
   if (params.core_trend_start_year) query.set("core_trend_start_year", params.core_trend_start_year);
   if (params.core_trend_end_year) query.set("core_trend_end_year", params.core_trend_end_year);
   const qs = query.toString();
-  return request(`/api/dashboard${qs ? `?${qs}` : ""}`, { token });
+  return request(`/api/dashboard${qs ? `?${qs}` : ""}`, { token, signal: options.signal });
 };
 
-export const listUsers = (token, page = 1, pageSize = 20, search = "") =>
-  request(`/api/users?page=${page}&page_size=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ""}`, { token });
+export const listUsers = (token, page = 1, pageSize = 20, search = "", status = "") =>
+  request(`/api/users?page=${page}&page_size=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ""}${status ? `&status=${encodeURIComponent(status)}` : ""}`, { token });
 
 export async function createUser(token, data) {
   return request("/api/users", { method: "POST", body: data, token });
@@ -192,7 +282,8 @@ export async function resetPassword(token, id, newPassword) {
 }
 
 export async function changePassword(token, newPassword) {
-  return request("/api/auth/change-password", { method: "POST", body: { new_password: newPassword }, token });
+  const data = await request("/api/auth/change-password", { method: "POST", body: { new_password: newPassword }, token });
+  return sessionFromAuthResponse(data);
 }
 
 export const listMapPoints = (token, page = 1, pageSize = 20, search = "") =>

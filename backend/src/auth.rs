@@ -5,19 +5,18 @@ use std::{
 
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{
-    Json,
+    Extension, Json,
     extract::{ConnectInfo, Request, State},
     http::header,
     middleware::Next,
     response::Response,
-    Extension,
 };
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use sqlx::Row;
 
 use crate::{
     error::ApiError,
-    models::{AuthUser, Claims, LoginRequest, LoginResponse, SessionUser, ChangePasswordRequest, StatusResponse},
+    models::{AuthUser, ChangePasswordRequest, Claims, LoginRequest, LoginResponse, SessionUser},
     state::AppState,
     util::hash_password,
 };
@@ -27,6 +26,44 @@ fn now_seconds() -> u64 {
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs()
+}
+
+const CHANGE_PASSWORD_PATH: &str = "/api/auth/change-password";
+
+fn blocks_pending_password_change(must_change_password: bool, path: &str) -> bool {
+    must_change_password && path != CHANGE_PASSWORD_PATH
+}
+
+fn issue_session(
+    state: &AppState,
+    user: SessionUser,
+    session_version: u64,
+    must_change_password: bool,
+) -> Result<LoginResponse, ApiError> {
+    let now = now_seconds();
+    let expires_in = state.token_expiry_seconds;
+    let claims = Claims {
+        sub: user.id,
+        email: user.email.clone(),
+        role: user.role.clone(),
+        session_version,
+        iat: now,
+        exp: now + expires_in,
+    };
+    let access_token = encode(
+        &Header::default(),
+        &claims,
+        &EncodingKey::from_secret(state.jwt_secret.as_bytes()),
+    )
+    .map_err(|_| ApiError::internal("Gagal membuat token akses."))?;
+
+    Ok(LoginResponse {
+        access_token,
+        token_type: "Bearer",
+        expires_in,
+        user,
+        must_change_password,
+    })
 }
 
 pub async fn login(
@@ -58,20 +95,17 @@ pub async fn login(
     .map_err(ApiError::database)?;
 
     let Some(row) = row else {
-        return Err(ApiError::unauthorized(
-            "Email atau kata sandi tidak valid.",
-        ));
+        return Err(ApiError::unauthorized("Email atau kata sandi tidak valid."));
     };
 
     let user_id: u64 = row.try_get("id").map_err(ApiError::database)?;
     let is_active: bool = row.try_get("is_active").map_err(ApiError::database)?;
     let is_unlocked: bool = row.try_get("is_unlocked").map_err(ApiError::database)?;
     let password_hash: String = row.try_get("password_hash").map_err(ApiError::database)?;
-    let parsed_hash = PasswordHash::new(&password_hash)
-        .map_err(|_| {
-            tracing::error!(user_id, "Corrupt password hash in database");
-            ApiError::internal("Terjadi kesalahan pada server.")
-        })?;
+    let parsed_hash = PasswordHash::new(&password_hash).map_err(|_| {
+        tracing::error!(user_id, "Corrupt password hash in database");
+        ApiError::internal("Terjadi kesalahan pada server.")
+    })?;
 
     if Argon2::default()
         .verify_password(input.password.as_bytes(), &parsed_hash)
@@ -94,9 +128,7 @@ pub async fn login(
         .await
         .map_err(ApiError::database)?;
 
-        return Err(ApiError::unauthorized(
-            "Email atau kata sandi tidak valid.",
-        ));
+        return Err(ApiError::unauthorized("Email atau kata sandi tidak valid."));
     }
 
     if !is_active {
@@ -117,37 +149,18 @@ pub async fn login(
         role: row.try_get("role").map_err(ApiError::database)?,
     };
     let session_version: u64 = row.try_get("session_version").map_err(ApiError::database)?;
-    let must_change_password: bool = row.try_get("must_change_password").map_err(ApiError::database)?;
-    let now = now_seconds();
-    let expires_in = state.token_expiry_seconds;
-    let claims = Claims {
-        sub: user.id,
-        email: user.email.clone(),
-        role: user.role.clone(),
-        session_version,
-        iat: now,
-        exp: now + expires_in,
-    };
-    let access_token = encode(
-        &Header::default(),
-        &claims,
-        &EncodingKey::from_secret(state.jwt_secret.as_bytes()),
-    )
-    .map_err(|_| ApiError::internal("Gagal membuat token akses."))?;
+    let must_change_password: bool = row
+        .try_get("must_change_password")
+        .map_err(ApiError::database)?;
+    let response = issue_session(&state, user, session_version, must_change_password)?;
 
     sqlx::query("UPDATE users SET last_login_at = NOW(), failed_login_attempts = 0, locked_until = NULL WHERE id = ?")
-        .bind(user.id)
+        .bind(response.user.id)
         .execute(&state.database)
         .await
         .map_err(ApiError::database)?;
 
-    Ok(Json(LoginResponse {
-        access_token,
-        token_type: "Bearer",
-        expires_in,
-        user,
-        must_change_password,
-    }))
+    Ok(Json(response))
 }
 
 pub async fn require_auth(
@@ -177,18 +190,32 @@ pub async fn require_auth(
         return Err(ApiError::forbidden("Role pengguna tidak diizinkan."));
     }
 
-    let current_version: u64 = sqlx::query_scalar(
-        "SELECT session_version FROM users WHERE id = ? AND is_active = 1 LIMIT 1",
+    let current = sqlx::query(
+        "SELECT session_version, role, must_change_password \
+         FROM users WHERE id = ? AND is_active = 1 LIMIT 1",
     )
     .bind(claims.sub)
     .fetch_optional(&state.database)
     .await
     .map_err(ApiError::database)?
     .ok_or_else(|| ApiError::unauthorized("Pengguna tidak ditemukan atau tidak aktif."))?;
+    let current_version: u64 = current
+        .try_get("session_version")
+        .map_err(ApiError::database)?;
+    let current_role: String = current.try_get("role").map_err(ApiError::database)?;
+    let must_change_password: bool = current
+        .try_get("must_change_password")
+        .map_err(ApiError::database)?;
 
-    if current_version as u64 != claims.session_version {
+    if current_version != claims.session_version || current_role != claims.role {
         return Err(ApiError::unauthorized(
             "Sesi telah berakhir. Silakan login kembali.",
+        ));
+    }
+
+    if blocks_pending_password_change(must_change_password, request.uri().path()) {
+        return Err(ApiError::forbidden(
+            "Anda wajib mengubah kata sandi sebelum mengakses fitur lain.",
         ));
     }
 
@@ -199,11 +226,32 @@ pub async fn require_auth(
     Ok(next.run(request).await)
 }
 
+/// Mengembalikan identitas sesi yang sudah diverifikasi middleware.
+/// Endpoint ini dipakai frontend saat aplikasi dibuka kembali dari localStorage.
+pub async fn current_session(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+) -> Result<Json<SessionUser>, ApiError> {
+    let row =
+        sqlx::query("SELECT id, email, role FROM users WHERE id = ? AND is_active = 1 LIMIT 1")
+            .bind(auth.id)
+            .fetch_optional(&state.database)
+            .await
+            .map_err(ApiError::database)?
+            .ok_or_else(|| ApiError::unauthorized("Pengguna tidak ditemukan atau tidak aktif."))?;
+
+    Ok(Json(SessionUser {
+        id: row.try_get("id").map_err(ApiError::database)?,
+        email: row.try_get("email").map_err(ApiError::database)?,
+        role: row.try_get("role").map_err(ApiError::database)?,
+    }))
+}
+
 pub async fn change_password(
     State(state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthUser>,
     Json(input): Json<ChangePasswordRequest>,
-) -> Result<Json<StatusResponse>, ApiError> {
+) -> Result<Json<LoginResponse>, ApiError> {
     if input.new_password.is_empty() {
         return Err(ApiError::bad_request("Kata sandi baru wajib diisi."));
     }
@@ -211,23 +259,12 @@ pub async fn change_password(
         return Err(ApiError::bad_request("Kata sandi baru minimal 6 karakter."));
     }
 
-    let must_change: bool = sqlx::query_scalar(
-        "SELECT must_change_password FROM users WHERE id = ? LIMIT 1",
-    )
-    .bind(auth.id)
-    .fetch_optional(&state.database)
-    .await
-    .map_err(ApiError::database)?
-    .ok_or_else(|| ApiError::not_found("Pengguna tidak ditemukan."))?;
-
-    if !must_change {
-        return Err(ApiError::forbidden("Anda tidak diwajibkan mengubah kata sandi saat ini."));
-    }
-
     let password_hash = hash_password(&input.new_password)?;
 
-    sqlx::query(
-        "UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?",
+    let result = sqlx::query(
+        "UPDATE users \
+         SET password_hash = ?, must_change_password = 0, session_version = session_version + 1 \
+         WHERE id = ? AND must_change_password = 1",
     )
     .bind(&password_hash)
     .bind(auth.id)
@@ -235,7 +272,41 @@ pub async fn change_password(
     .await
     .map_err(ApiError::database)?;
 
-    Ok(Json(StatusResponse {
-        status: "password_changed",
-    }))
+    if result.rows_affected() != 1 {
+        return Err(ApiError::forbidden(
+            "Anda tidak diwajibkan mengubah kata sandi saat ini.",
+        ));
+    }
+
+    let row = sqlx::query(
+        "SELECT id, email, role, session_version \
+         FROM users WHERE id = ? AND is_active = 1 LIMIT 1",
+    )
+    .bind(auth.id)
+    .fetch_optional(&state.database)
+    .await
+    .map_err(ApiError::database)?
+    .ok_or_else(|| ApiError::unauthorized("Pengguna tidak ditemukan atau tidak aktif."))?;
+    let user = SessionUser {
+        id: row.try_get("id").map_err(ApiError::database)?,
+        email: row.try_get("email").map_err(ApiError::database)?,
+        role: row.try_get("role").map_err(ApiError::database)?,
+    };
+    let session_version: u64 = row.try_get("session_version").map_err(ApiError::database)?;
+
+    Ok(Json(issue_session(&state, user, session_version, false)?))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{CHANGE_PASSWORD_PATH, blocks_pending_password_change};
+
+    #[test]
+    fn pending_password_change_only_allows_its_own_endpoint() {
+        assert_eq!(CHANGE_PASSWORD_PATH, "/api/auth/change-password");
+        assert!(!blocks_pending_password_change(true, CHANGE_PASSWORD_PATH));
+        assert!(blocks_pending_password_change(true, "/api/dashboard"));
+        assert!(blocks_pending_password_change(true, "/api/auth/session"));
+        assert!(!blocks_pending_password_change(false, "/api/dashboard"));
+    }
 }

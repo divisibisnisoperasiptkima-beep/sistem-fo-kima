@@ -4,7 +4,8 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock3,
-  ExternalLink,
+  Download,
+  Eye,
   FileCheck2,
   FileUp,
   Mail,
@@ -14,7 +15,7 @@ import {
   UserRound,
   WalletCards,
 } from "lucide-react";
-import { listContracts, listCustomers, listIspDocuments, rowsFrom, uploadDocument } from "../../lib/rust-api";
+import { fetchDocumentContent, listAllPages, listContracts, listCustomers, listIspDocuments, rowsFrom, uploadDocument } from "../../lib/rust-api";
 import { coreDisplayValue } from "../kontrak/coreUtils";
 
 const CATEGORIES = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
@@ -91,15 +92,16 @@ export default function IspPortalPage({ session, page }) {
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [uploading, setUploading] = useState(false);
   const [notice, setNotice] = useState("");
+  const [documentAction, setDocumentAction] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError("");
-    try {
-      const [customerData, contractData, documentData] = await Promise.all([
-        listCustomers(session.token, 1, 100),
-        listContracts(session.token, 1, 100),
-        listIspDocuments(session.token, 1, 100, documentSearch),
+      setError("");
+      try {
+        const [customerData, contractData, documentData] = await Promise.all([
+        listAllPages((page, pageSize) => listCustomers(session.token, page, pageSize)),
+        listAllPages((page, pageSize) => listContracts(session.token, page, pageSize)),
+        listAllPages((page, pageSize) => listIspDocuments(session.token, page, pageSize, documentSearch)),
       ]);
       setCustomers(rowsFrom(customerData));
       setContracts(rowsFrom(contractData));
@@ -173,6 +175,35 @@ export default function IspPortalPage({ session, page }) {
     }
   };
 
+  const handleDocumentAction = async (item, mode) => {
+    const actionKey = `${mode}-${item.id}`;
+    const previewWindow = mode === "preview" ? window.open("", "_blank") : null;
+    if (previewWindow) previewWindow.opener = null;
+    setDocumentAction(actionKey);
+    setNotice("");
+    try {
+      if (mode === "preview" && !previewWindow) throw new Error("Izinkan pop-up browser untuk membuka preview dokumen.");
+      const blob = await fetchDocumentContent(session.token, item.id, mode);
+      const url = URL.createObjectURL(blob);
+      if (mode === "preview") {
+        previewWindow.location.href = url;
+      } else {
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = item.nama_file || "dokumen";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (err) {
+      if (previewWindow) previewWindow.close();
+      setNotice(err.message || "Dokumen gagal dibuka.");
+    } finally {
+      setDocumentAction("");
+    }
+  };
+
   if (loading) return <div className="p-8 text-sm text-white/60">Memuat data ISP…</div>;
 
   return (
@@ -204,7 +235,7 @@ export default function IspPortalPage({ session, page }) {
               <div className="flex items-start justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-widest text-gold-accent">{value(customer.kode_pelanggan)}</p><h2 className="mt-2 text-lg font-bold text-white">{customer.nama_pelanggan}</h2></div><span className="rounded-xl border border-gold-accent/20 bg-gold-accent/10 p-2 text-gold-accent"><Building2 size={18} /></span></div>
               <div className="mt-4 space-y-2 border-t border-white/10 pt-4 text-xs text-white/60"><p className="flex items-center gap-2"><UserRound size={14} className="text-white/35" />{value(customer.pic)}</p><p className="flex items-center gap-2"><Mail size={14} className="text-white/35" />{value(customer.email)}</p><p className="flex items-center gap-2"><MapPin size={14} className="text-white/35" />{value(customer.telepon)}</p></div>
               <p className="mt-4 line-clamp-2 text-xs leading-5 text-white/45">{customer.keterangan || "Data pelanggan FO KIMA"}</p>
-              <div className="mt-5 grid grid-cols-2 gap-2 border-t border-white/10 pt-4"><div className="rounded-xl bg-emerald-400/10 p-3"><p className="text-xl font-black text-emerald-200">{customer.lokasi_beroperasi}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-emerald-200/60">Beroperasi</p></div><div className="rounded-xl bg-sky-400/10 p-3"><p className="text-xl font-black text-sky-200">{customer.lokasi_belum_beroperasi}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-sky-200/60">Belum aktif</p></div></div>
+              <div className="mt-5 grid grid-cols-1 gap-2 border-t border-white/10 pt-4 sm:grid-cols-3"><div className="rounded-xl bg-emerald-400/10 p-3"><p className="text-xl font-black text-emerald-200">{customer.lokasi_beroperasi}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-emerald-200/60">Beroperasi</p></div><div className="rounded-xl bg-sky-400/10 p-3"><p className="text-xl font-black text-sky-200">{customer.lokasi_belum_beroperasi}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-sky-200/60">Belum aktif</p></div><div className="rounded-xl bg-rose-400/10 p-3"><p className="text-xl font-black text-rose-200">{customer.lokasi_proses_perpanjangan ?? 0}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-rose-200/60">Perpanjangan</p></div></div>
             </article>
           ))}</div> : <EmptyState title="Belum ada pelanggan ditugaskan">Hubungi administrator untuk menambahkan pelanggan ke akun ISP Anda.</EmptyState>}
         </section>
@@ -219,7 +250,7 @@ export default function IspPortalPage({ session, page }) {
 
       {isDocuments && <>
         <section className="rounded-2xl border border-white/10 bg-white/[0.055] p-5 backdrop-blur-md"><div className="flex items-start gap-3"><span className="rounded-xl border border-gold-accent/20 bg-gold-accent/10 p-2 text-gold-accent"><FileUp size={18} /></span><div><h2 className="text-lg font-bold text-white">Upload Dokumen</h2><p className="mt-1 text-sm text-white/50">Simpan berkas pada pelanggan atau kontrak yang ditugaskan. Folder Drive tidak ditampilkan di portal ISP.</p></div></div><form onSubmit={handleUpload} className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4"><select value={ownerType} onChange={(event) => { setOwnerType(event.target.value); setOwnerId(""); }} className="rounded-xl border border-white/15 bg-slate-900 px-3 py-2.5 text-sm text-white outline-none focus:border-gold-accent/50"><option value="lokasi">Kontrak / lokasi</option><option value="pelanggan">Pelanggan</option></select><select value={ownerId} onChange={(event) => setOwnerId(event.target.value)} className="rounded-xl border border-white/15 bg-slate-900 px-3 py-2.5 text-sm text-white outline-none focus:border-gold-accent/50"><option value="">Pilih tujuan</option>{ownerOptions.map((item) => <option key={item.id} value={item.id}>{ownerType === "pelanggan" ? item.nama_pelanggan : `${item.nama_pelanggan} — ${item.nama_lokasi}`}</option>)}</select><select value={category} onChange={(event) => setCategory(event.target.value)} className="rounded-xl border border-white/15 bg-slate-900 px-3 py-2.5 text-sm text-white outline-none focus:border-gold-accent/50">{CATEGORIES.map((item) => <option key={item}>{item}</option>)}</select><input type="file" onChange={(event) => setFile(event.target.files?.[0] || null)} className="rounded-xl border border-white/15 bg-slate-900 px-3 py-2.5 text-sm text-white file:mr-3 file:border-0 file:bg-transparent file:font-bold file:text-gold-accent" /><button disabled={uploading} className="inline-flex w-fit items-center gap-2 rounded-xl border border-gold-accent/40 bg-gold-accent/20 px-4 py-2.5 text-sm font-bold text-gold-accent transition hover:bg-gold-accent/30 disabled:opacity-50"><FileUp size={16} />{uploading ? "Mengunggah…" : "Upload dokumen"}</button></form>{notice && <p className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/75">{notice}</p>}</section>
-        <section className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/35 shadow-xl backdrop-blur-md"><div className="flex flex-col gap-3 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-bold text-white">Daftar Dokumen</h2><p className="mt-1 text-xs text-white/45">Tautan yang tersedia hanya menuju file individual.</p></div><div className="flex items-center gap-2"><div className="relative"><Search size={14} className="absolute left-3 top-2.5 text-white/35" /><input value={documentSearch} onChange={(event) => setDocumentSearch(event.target.value)} placeholder="Cari dokumen" className="w-48 rounded-xl border border-white/15 bg-white/5 py-2 pl-9 pr-3 text-xs text-white outline-none placeholder:text-white/30 focus:border-gold-accent/50" /></div><button type="button" onClick={() => void load()} className="rounded-xl border border-white/15 bg-white/5 p-2 text-white/60 transition hover:bg-white/10 hover:text-white" aria-label="Muat ulang dokumen"><RefreshCw size={16} /></button></div></div>{documents.length ? <div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-xs"><thead className="bg-white/[0.04] text-[10px] uppercase tracking-[0.16em] text-white/45"><tr><th className="px-5 py-4">Nama file</th><th className="px-4 py-4">Kategori</th><th className="px-4 py-4">Pelanggan / lokasi</th><th className="px-4 py-4">Diunggah</th><th className="px-4 py-4">Aksi</th></tr></thead><tbody className="divide-y divide-white/[0.07]">{documents.map((item) => <tr key={item.id} className="transition hover:bg-gold-accent/[0.055]"><td className="px-5 py-4 font-bold text-white">{value(item.nama_file)}<p className="mt-1 text-[10px] font-normal text-white/35">{value(item.mime_type)} · {item.ukuran_byte ? `${Math.ceil(item.ukuran_byte / 1024)} KB` : "ukuran tidak tersedia"}</p></td><td className="px-4 py-4"><span className="rounded-full border border-violet-400/25 bg-violet-400/10 px-2.5 py-1 text-[10px] font-bold text-violet-200">{value(item.kategori)}</span></td><td className="px-4 py-4 text-white/70">{value(item.nama_pelanggan)}{item.nama_lokasi ? <p className="mt-1 inline-flex items-center gap-1 text-[10px] text-white/35"><MapPin size={12} />{item.nama_lokasi}</p> : null}</td><td className="px-4 py-4 whitespace-nowrap text-white/55">{formatDate(item.created_at)}</td><td className="px-4 py-4">{item.drive_url ? <a href={item.drive_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-sky-400/25 bg-sky-400/10 px-2.5 py-1.5 font-bold text-sky-200 transition hover:bg-sky-400/20">Buka file <ExternalLink size={13} /></a> : <span className="text-white/30">File tidak tersedia</span>}</td></tr>)}</tbody></table></div> : <div className="p-5"><EmptyState title="Belum ada dokumen">Upload dokumen pertama untuk pelanggan atau kontrak yang ditugaskan.</EmptyState></div>}</section>
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/35 shadow-xl backdrop-blur-md"><div className="flex flex-col gap-3 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-bold text-white">Daftar Dokumen</h2><p className="mt-1 text-xs text-white/45">Dokumen dibuka melalui backend sesuai hak akses akun ISP.</p></div><div className="flex items-center gap-2"><div className="relative"><Search size={14} className="absolute left-3 top-2.5 text-white/35" /><input value={documentSearch} onChange={(event) => setDocumentSearch(event.target.value)} placeholder="Cari dokumen" className="w-48 rounded-xl border border-white/15 bg-white/5 py-2 pl-9 pr-3 text-xs text-white outline-none placeholder:text-white/30 focus:border-gold-accent/50" /></div><button type="button" onClick={() => void load()} className="rounded-xl border border-white/15 bg-white/5 p-2 text-white/60 transition hover:bg-white/10 hover:text-white" aria-label="Muat ulang dokumen"><RefreshCw size={16} /></button></div></div>{documents.length ? <div className="overflow-x-auto"><table className="w-full min-w-[820px] text-left text-xs"><thead className="bg-white/[0.04] text-[10px] uppercase tracking-[0.16em] text-white/45"><tr><th className="px-5 py-4">Nama file</th><th className="px-4 py-4">Kategori</th><th className="px-4 py-4">Pelanggan / lokasi</th><th className="px-4 py-4">Diunggah</th><th className="px-4 py-4">Aksi</th></tr></thead><tbody className="divide-y divide-white/[0.07]">{documents.map((item) => <tr key={item.id} className="transition hover:bg-gold-accent/[0.055]"><td className="px-5 py-4 font-bold text-white">{value(item.nama_file)}<p className="mt-1 text-[10px] font-normal text-white/35">{value(item.mime_type)} · {item.ukuran_byte ? `${Math.ceil(item.ukuran_byte / 1024)} KB` : "ukuran tidak tersedia"}</p></td><td className="px-4 py-4"><span className="rounded-full border border-violet-400/25 bg-violet-400/10 px-2.5 py-1 text-[10px] font-bold text-violet-200">{value(item.kategori)}</span></td><td className="px-4 py-4 text-white/70">{value(item.nama_pelanggan)}{item.nama_lokasi ? <p className="mt-1 inline-flex items-center gap-1 text-[10px] text-white/35"><MapPin size={12} />{item.nama_lokasi}</p> : null}</td><td className="px-4 py-4 whitespace-nowrap text-white/55">{formatDate(item.created_at)}</td><td className="px-4 py-4"><div className="flex items-center gap-2"><button type="button" onClick={() => void handleDocumentAction(item, "preview")} disabled={documentAction !== ""} className="inline-flex items-center gap-1.5 rounded-lg border border-sky-400/25 bg-sky-400/10 px-2.5 py-1.5 font-bold text-sky-200 transition hover:bg-sky-400/20 disabled:opacity-50" title="Preview dokumen"><Eye size={13} />Preview</button><button type="button" onClick={() => void handleDocumentAction(item, "download")} disabled={documentAction !== ""} className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1.5 font-bold text-emerald-200 transition hover:bg-emerald-400/20 disabled:opacity-50" title="Download dokumen"><Download size={13} />Download</button></div></td></tr>)}</tbody></table></div> : <div className="p-5"><EmptyState title="Belum ada dokumen">Upload dokumen pertama untuk pelanggan atau kontrak yang ditugaskan.</EmptyState></div>}</section>
       </>}
     </div>
   );
