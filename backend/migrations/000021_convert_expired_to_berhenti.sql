@@ -1,5 +1,5 @@
--- Ubah semua kontrak dengan status 'Proses Perpanjangan' (dulu 'Berakhir') menjadi 'Berhenti'
--- Status 'Berhenti' sudah valid secara aplikasi (termasuk dalam STATUS_OPTIONS frontend)
-UPDATE lokasi
-SET status_kontrak = 'Berhenti'
-WHERE status_kontrak = 'Proses Perpanjangan';
+-- Tidak ada perubahan data pada skrip ini.
+--
+-- Status 'Proses Perpanjangan' adalah status bisnis yang valid. Sinkronisasi
+-- kontrak kedaluwarsa dilakukan oleh backend tanpa mengubah kontrak histori
+-- yang sudah berstatus 'Berhenti'.

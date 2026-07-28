@@ -4,7 +4,7 @@
 |---|---|---|---|---|---|
 | AUTH-01 | Auth | Login admin valid | Admin masuk ke aplikasi | Lulus | Login API berhasil; endpoint dashboard, pelanggan, kontrak, pengguna, dan peta semuanya 200. |
 | AUTH-02 | Auth | Login teknisi valid | Teknisi dapat memperoleh sesi valid | Lulus | API dan login Dev Access browser berhasil. |
-| AUTH-03 | Auth | Login ISP valid | ISP hanya melihat pelanggan yang diberi akses | Ditunda | Role ISP belum menjadi cakupan implementasi saat ini. |
+| AUTH-03 | Auth | Login ISP valid | ISP hanya melihat pelanggan yang diberi akses | Lulus (browser/API) | Fitur ISP sudah dikembangkan dan diuji melalui portal lokal; detail skenario, pembatasan akses, dokumen, dan upload ada di `Laporan_UAT_ISP_2026-07-25.md`. |
 | AUTH-04 | Auth | Login akun nonaktif | Login ditolak | Lulus (retest) | Akun UAT dinonaktifkan lalu login ditolak HTTP 401 dengan pesan spesifik bahwa akun dinonaktifkan. |
 | ROLE-01 | Role | Teknisi membuka menu | Hanya menu Titik Peta tersedia | Lulus (browser) | Setelah login, hanya halaman/tabel Titik Peta FO KIMA yang tersedia. |
 | ROLE-02 | Role | Teknisi memanggil endpoint admin | Akses ditolak | Lulus | Retest: dashboard, pelanggan, kontrak, dan pengguna semuanya 403; Titik Peta tetap 200. |

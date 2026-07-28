@@ -13,7 +13,7 @@ use crate::{
     error::ApiError,
     models::AuthUser,
     state::AppState,
-    util::{parse_date, require_business_read},
+    util::{parse_date, require_admin},
 };
 
 #[derive(Deserialize)]
@@ -99,8 +99,12 @@ pub async fn get_dashboard(
     Extension(auth): Extension<AuthUser>,
     Query(query): Query<DashboardQuery>,
 ) -> Result<Json<DashboardResponse>, ApiError> {
-    require_business_read(&auth.role)?;
-    let current_year = chrono::Local::now().format("%Y").to_string().parse::<i32>().unwrap_or(2026);
+    require_admin(&auth.role)?;
+    let current_year = chrono::Local::now()
+        .format("%Y")
+        .to_string()
+        .parse::<i32>()
+        .unwrap_or(2026);
     let year = query.year.unwrap_or(current_year);
     let growth_start_year = query.growth_start_year.unwrap_or(current_year - 4);
     let growth_end_year = query.growth_end_year.unwrap_or(current_year);
@@ -289,18 +293,30 @@ pub async fn get_dashboard(
         if start_date.year() > target_year || end_date.year() < target_year {
             continue;
         }
-        let actual_start_mo = if start_date.year() == target_year { start_date.month() as i64 } else { 1 };
-        let actual_end_mo = if end_date.year() == target_year { end_date.month() as i64 } else { 12 };
+        let actual_start_mo = if start_date.year() == target_year {
+            start_date.month() as i64
+        } else {
+            1
+        };
+        let actual_end_mo = if end_date.year() == target_year {
+            end_date.month() as i64
+        } else {
+            12
+        };
         for mo in actual_start_mo..=actual_end_mo {
             *core_monthly_map.entry((year as i64, mo)).or_insert(0) += total_core;
         }
     }
 
-    let month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let month_names = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
     let core_trend: Vec<CoreTrendPoint> = (1..=12)
         .map(|mo| CoreTrendPoint {
             name: month_names[(mo - 1) as usize].to_string(),
-            count: *core_monthly_map.get(&(target_year as i64, mo)).unwrap_or(&0) as u64,
+            count: *core_monthly_map
+                .get(&(target_year as i64, mo))
+                .unwrap_or(&0) as u64,
         })
         .collect();
 
@@ -348,7 +364,8 @@ pub async fn get_dashboard(
         }
     }
 
-    let core_trend_yearly: Vec<CoreTrendYearlyPoint> = (core_trend_start_year..=core_trend_end_year)
+    let core_trend_yearly: Vec<CoreTrendYearlyPoint> = (core_trend_start_year
+        ..=core_trend_end_year)
         .map(|yr| CoreTrendYearlyPoint {
             name: yr.to_string(),
             count: *core_yearly_map.get(&(yr as i64)).unwrap_or(&0) as u64,
@@ -381,19 +398,35 @@ pub async fn get_dashboard(
         let ratio: String = row.get(0);
         let start_date_str: String = row.get(1);
         let end_date_str: String = row.get(2);
-        (ratio, parse_date(&start_date_str).unwrap_or_else(|_| NaiveDate::from_ymd_opt(2026, 1, 1).unwrap()), parse_date(&end_date_str).unwrap_or_else(|_| NaiveDate::from_ymd_opt(2026, 1, 1).unwrap()))
+        (
+            ratio,
+            parse_date(&start_date_str)
+                .unwrap_or_else(|_| NaiveDate::from_ymd_opt(2026, 1, 1).unwrap()),
+            parse_date(&end_date_str)
+                .unwrap_or_else(|_| NaiveDate::from_ymd_opt(2026, 1, 1).unwrap()),
+        )
     })
     .collect();
 
     let mut sharing_monthly_map: HashMap<(String, i64), u64> = HashMap::new();
     let target_year = year;
-    let month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let month_names = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
     for (ratio, start_date, end_date) in sharing_monthly_raw {
         if start_date.year() > target_year || end_date.year() < target_year {
             continue;
         }
-        let actual_start_mo = if start_date.year() == target_year { start_date.month() as i64 } else { 1 };
-        let actual_end_mo = if end_date.year() == target_year { end_date.month() as i64 } else { 12 };
+        let actual_start_mo = if start_date.year() == target_year {
+            start_date.month() as i64
+        } else {
+            1
+        };
+        let actual_end_mo = if end_date.year() == target_year {
+            end_date.month() as i64
+        } else {
+            12
+        };
         for mo in actual_start_mo..=actual_end_mo {
             *sharing_monthly_map.entry((ratio.clone(), mo)).or_insert(0) += 1;
         }
@@ -428,7 +461,9 @@ pub async fn get_dashboard(
                 parts.first().unwrap_or(&"1").parse::<f64>().unwrap_or(1.0)
                     / parts.get(1).unwrap_or(&"1").parse::<f64>().unwrap_or(1.0)
             };
-            frac(&a.ratio).partial_cmp(&frac(&b.ratio)).unwrap_or(std::cmp::Ordering::Equal)
+            frac(&a.ratio)
+                .partial_cmp(&frac(&b.ratio))
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
         series
     };
@@ -476,21 +511,26 @@ pub async fn get_dashboard(
             parts.first().unwrap_or(&"1").parse::<f64>().unwrap_or(1.0)
                 / parts.get(1).unwrap_or(&"1").parse::<f64>().unwrap_or(1.0)
         };
-        frac(a).partial_cmp(&frac(b)).unwrap_or(std::cmp::Ordering::Equal)
+        frac(a)
+            .partial_cmp(&frac(b))
+            .unwrap_or(std::cmp::Ordering::Equal)
     });
     all_ratios.dedup();
 
-    let sharing_trend_yearly: Vec<SharingTrendSeries> = all_ratios.into_iter().map(|ratio| {
-        let start = core_trend_start_year as i64;
-        let end = core_trend_end_year as i64;
-        let data: Vec<SharingTrendPoint> = (start..=end).map(|yr| {
-            SharingTrendPoint {
-                name: yr.to_string(),
-                count: *count_map.get(&(ratio.clone(), yr)).unwrap_or(&0),
-            }
-        }).collect();
-        SharingTrendSeries { ratio, data }
-    }).collect();
+    let sharing_trend_yearly: Vec<SharingTrendSeries> = all_ratios
+        .into_iter()
+        .map(|ratio| {
+            let start = core_trend_start_year as i64;
+            let end = core_trend_end_year as i64;
+            let data: Vec<SharingTrendPoint> = (start..=end)
+                .map(|yr| SharingTrendPoint {
+                    name: yr.to_string(),
+                    count: *count_map.get(&(ratio.clone(), yr)).unwrap_or(&0),
+                })
+                .collect();
+            SharingTrendSeries { ratio, data }
+        })
+        .collect();
 
     let pelanggan_growth_rows = sqlx::query(
         "SELECT m.yr, COALESCE(cnt.cnt, 0) as cnt
@@ -536,7 +576,10 @@ pub async fn get_dashboard(
         .map(|row| {
             let yr: i64 = row.get(0);
             let cnt: i64 = row.get(1);
-            GrowthPoint { year: yr as u32, count: cnt as u64 }
+            GrowthPoint {
+                year: yr as u32,
+                count: cnt as u64,
+            }
         })
         .collect();
 

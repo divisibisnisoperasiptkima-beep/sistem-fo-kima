@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { clearSession, getSession, setUnauthorizedHandler } from "../../lib/rust-api";
+import {
+  clearSession,
+  getCurrentSession,
+  getSession,
+  saveSession,
+  SESSION_KEY,
+  setUnauthorizedHandler,
+} from "../../lib/rust-api";
 // Modular page imports - using standalone components
 import PelangganPage from "../pelanggan/PelangganPage";
 import KontrakPage from "../kontrak/KontrakPage";
@@ -7,6 +14,7 @@ import DashboardPage from "../dashboard/DashboardPage";
 import MonitoringKontrakPage from "../monitoring-kontrak/MonitoringKontrakPage";
 import KelolaPenggunaPage from "../kelola-pengguna/KelolaPenggunaPage";
 import TitikPetaPage from "../titik-peta/TitikPetaPage";
+import IspPortalPage from "../isp-portal/IspPortalPage";
 import { IconUsers } from "../../components/icons";
 
 // Menu icons
@@ -15,6 +23,7 @@ const IconPelanggan = () => <svg width="20" height="20" viewBox="0 0 24 24" fill
 const IconKontrak = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>;
 const IconMonitoring = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /><polyline points="6 8 10 12 14 8 18 12" /></svg>;
 const IconMapPin = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>;
+const IconFile = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>;
 
 const MENU = [
   { key: "dashboard", label: "Dashboard", icon: IconDashboard },
@@ -28,8 +37,23 @@ const DEFAULT_ADMIN_PAGE = "dashboard";
 
 import Login from "../auth/Login";
 
+function getInitialSession() {
+  const storedSession = getSession();
+  if (!storedSession?.token) return null;
+  if (
+    storedSession.must_change_password ||
+    (storedSession.expires_at && Number(storedSession.expires_at) <= Date.now())
+  ) {
+    clearSession();
+    return null;
+  }
+  return storedSession;
+}
+
 export default function RustCoreApp() {
-  const [session, setSession] = useState(() => getSession());
+  const [session, setSession] = useState(getInitialSession);
+  const [sessionStatus, setSessionStatus] = useState(() => (getSession()?.token ? "checking" : "ready"));
+  const [sessionError, setSessionError] = useState("");
   const [page, setPage] = useState(() => {
     const storedSession = getSession();
     return storedSession?.user?.role === "admin"
@@ -41,6 +65,66 @@ export default function RustCoreApp() {
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
   const profileRef = useRef(null);
   const btnRef = useRef(null);
+
+  // Pasang handler sebelum halaman yang membutuhkan API dirender.
+  useEffect(() => {
+    return setUnauthorizedHandler(() => {
+      clearSession();
+      setSession(null);
+      setSessionStatus("ready");
+      setSessionError("");
+    });
+  }, []);
+
+  // Jika sesi dihapus dari tab lain, tab ini juga harus kembali ke login.
+  useEffect(() => {
+    const handleStorage = (event) => {
+      if (event.key !== SESSION_KEY || event.newValue !== null) return;
+      clearSession();
+      setSession(null);
+      setSessionStatus("ready");
+      setSessionError("");
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  // Sesi dari localStorage harus diverifikasi ke backend sebelum Dashboard
+  // ditampilkan. Token yang masih tersimpan belum tentu masih valid.
+  useEffect(() => {
+    const storedSession = getSession();
+    if (!storedSession?.token) return undefined;
+
+    let cancelled = false;
+
+    getCurrentSession(storedSession.token)
+      .then((user) => {
+        if (cancelled) return;
+        const refreshedSession = {
+          ...storedSession,
+          user,
+          role: user.role || storedSession.role || "",
+        };
+        saveSession(refreshedSession);
+        setSession(refreshedSession);
+        setSessionStatus("ready");
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        if (error?.status === 401) {
+          clearSession();
+          setSession(null);
+          setSessionStatus("ready");
+          return;
+        }
+        setSessionError("Sesi belum dapat diverifikasi. Periksa koneksi lalu coba lagi.");
+        setSessionStatus("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const openProfile = () => {
     if (btnRef.current) {
@@ -65,27 +149,53 @@ export default function RustCoreApp() {
     localStorage.setItem(PAGE_KEY, page);
   }, [page]);
 
-  // Handle 401 Unauthorized - redirect ke login
-  useEffect(() => {
-    setUnauthorizedHandler(() => {
-      clearSession();
-      setSession(null);
-    });
-  }, []);
-
   const handleLogin = (nextSession) => {
+    saveSession(nextSession);
     if (nextSession?.user?.role === "admin") {
       setPage(DEFAULT_ADMIN_PAGE);
       localStorage.setItem(PAGE_KEY, DEFAULT_ADMIN_PAGE);
     }
+    setSessionError("");
+    setSessionStatus("ready");
     setSession(nextSession);
   };
+
+  if (sessionStatus === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0c12] text-white">
+        <div className="text-center">
+          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-gold-accent border-t-transparent" />
+          <p className="text-xs font-bold text-white/60">Memverifikasi sesi...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (sessionStatus === "error") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0c12] px-5 text-white">
+        <div className="w-full max-w-md rounded-2xl border border-rose-500/30 bg-rose-500/10 p-6 text-center">
+          <p className="mb-2 text-sm font-black text-rose-300">Sesi belum dapat diverifikasi</p>
+          <p className="mb-4 text-xs text-rose-100/70">{sessionError}</p>
+          <div className="flex justify-center gap-2">
+            <button type="button" onClick={() => window.location.reload()} className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/15">
+              Coba Lagi
+            </button>
+            <button type="button" onClick={() => { clearSession(); setSession(null); setSessionStatus("ready"); }} className="rounded-lg border border-rose-400/40 bg-rose-500/20 px-3 py-2 text-xs font-bold text-rose-200 hover:bg-rose-500/30">
+              Ke Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!session) return <Login onLogin={handleLogin} />;
 
   const isAdmin = session.user?.role === "admin";
   const isTechnician = session.user?.role === "teknisi";
-  const activePage = isTechnician ? "titik-peta" : page;
+  const isIsp = session.user?.role === "isp";
+  const activePage = isTechnician ? "titik-peta" : isIsp && !page.startsWith("isp-") ? "isp-ringkasan" : page;
 
   const expanded = sidebarHover;
   const email = session.user?.email || "";
@@ -98,7 +208,7 @@ export default function RustCoreApp() {
     ? [{ key: "titik-peta", label: "Titik Peta", icon: IconMapPin }]
     : isAdmin
     ? [...MENU, { key: "kelola-pengguna", label: "Kelola Pengguna", icon: IconUsers }, { key: "titik-peta", label: "Titik Peta", icon: IconMapPin }]
-    : MENU;
+    : [{ key: "isp-ringkasan", label: "Ringkasan", icon: IconDashboard }, { key: "isp-kontrak", label: "Kontrak & Lokasi", icon: IconKontrak }, { key: "isp-dokumen", label: "Dokumen", icon: IconFile }];
 
   return (
     <main className="min-h-screen flex gap-4 text-white">
@@ -172,7 +282,7 @@ export default function RustCoreApp() {
                   <p className="text-[9px] font-bold text-on-surface-variant uppercase mt-0.5 truncate">{roleLabel}</p>
                 </div>
                 <button
-                  onClick={() => { setProfileOpen(false); clearSession(); setSession(null); }}
+                  onClick={() => { setProfileOpen(false); clearSession(); setSession(null); setSessionStatus("ready"); }}
                   type="button"
                   className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[11px] font-bold text-rose-400 hover:bg-rose-500/10 anim-surface"
                 >
@@ -196,6 +306,7 @@ export default function RustCoreApp() {
           {activePage === "monitoring-kontrak" && <MonitoringKontrakPage session={session} />}
           {activePage === "kelola-pengguna" && <KelolaPenggunaPage session={session} />}
           {activePage === "titik-peta" && <TitikPetaPage session={session} />}
+          {isIsp && activePage.startsWith("isp-") && <IspPortalPage session={session} page={activePage} />}
         </div>
       </div>
     </main>

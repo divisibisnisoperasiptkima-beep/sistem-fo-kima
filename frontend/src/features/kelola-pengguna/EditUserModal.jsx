@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, Save } from "lucide-react";
-import { updateUser } from "../../lib/rust-api";
+import { listCustomers, listUserPelangganAccess, rowsFrom, updateUser, updateUserPelangganAccess } from "../../lib/rust-api";
 
 const ROLE_OPTIONS = [
   { value: "admin", label: "Admin - Akses Penuh" },
@@ -12,6 +12,9 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user, sessio
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [pelangganIds, setPelangganIds] = useState([]);
+  const [initialPelangganIds, setInitialPelangganIds] = useState([]);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -19,17 +22,42 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user, sessio
     is_active: true,
   });
 
-  if (!isOpen || !user) return null;
-
-  const hasInitialized = formData.email !== "" || (formData.role !== "" && user);
-  if (!hasInitialized && user) {
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    let cancelled = false;
     setFormData({
       email: user.email || "",
       role: user.role || "teknisi",
       is_active: user.is_active !== undefined ? user.is_active : true,
     });
-    return null;
-  }
+    setError(null);
+    setSuccess(false);
+    const load = async () => {
+      try {
+        const customerData = await listCustomers(session.token, 1, 100);
+        if (!cancelled) setCustomers(rowsFrom(customerData));
+        if (String(user.role || "").toLowerCase() === "isp") {
+          const assigned = await listUserPelangganAccess(session.token, user.id);
+          if (!cancelled) {
+            const ids = assigned.map((item) => item.id);
+            setPelangganIds(ids);
+            setInitialPelangganIds(ids);
+          }
+        } else if (!cancelled) {
+          setPelangganIds([]);
+          setInitialPelangganIds([]);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message || "Gagal memuat penugasan pelanggan.");
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [isOpen, session.token, user]);
+
+  if (!isOpen || !user) return null;
+
+  const currentRole = String(formData.role || user.role || "").toLowerCase();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -57,13 +85,23 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user, sessio
         payload.is_active = formData.is_active;
       }
 
-      if (Object.keys(payload).length === 0) {
+      const normalizedAccess = [...pelangganIds].sort((a, b) => a - b);
+      const normalizedInitialAccess = [...initialPelangganIds].sort((a, b) => a - b);
+      const accessChanged = formData.role === "isp" && (
+        formData.role !== user.role || normalizedAccess.join(",") !== normalizedInitialAccess.join(",")
+      );
+      if (Object.keys(payload).length === 0 && !accessChanged) {
         setError("Tidak ada perubahan yang dilakukan.");
         setLoading(false);
         return;
       }
 
-      await updateUser(session.token, user.id, payload);
+      if (Object.keys(payload).length > 0) {
+        await updateUser(session.token, user.id, payload);
+      }
+      if (accessChanged) {
+        await updateUserPelangganAccess(session.token, user.id, pelangganIds);
+      }
       setSuccess(true);
       setTimeout(() => {
         onSuccess();
@@ -80,6 +118,9 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user, sessio
     setFormData({ email: "", role: "", is_active: true });
     setError(null);
     setSuccess(false);
+    setCustomers([]);
+    setPelangganIds([]);
+    setInitialPelangganIds([]);
     onClose();
   };
 
@@ -134,6 +175,30 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user, sessio
                 className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all disabled:opacity-50"
               />
             </div>
+
+            {currentRole === "isp" && (
+              <div className="space-y-2 rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-200">Pelanggan yang dapat diakses</p>
+                  <p className="mt-1 text-xs text-slate-400">ISP hanya dapat melihat dan mengunggah dokumen untuk pelanggan yang dipilih.</p>
+                </div>
+                <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
+                  {customers.map((customer) => (
+                    <label key={customer.id} className="flex items-center gap-2 text-sm text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={pelangganIds.includes(customer.id)}
+                        disabled={loading}
+                        onChange={(event) => setPelangganIds((current) => event.target.checked ? [...current, customer.id] : current.filter((id) => id !== customer.id))}
+                        className="h-4 w-4 rounded border-slate-500 accent-amber-500"
+                      />
+                      <span>{customer.kode_pelanggan ? `${customer.kode_pelanggan} — ` : ""}{customer.nama_pelanggan}</span>
+                    </label>
+                  ))}
+                  {!customers.length && <p className="text-xs text-slate-500">Tidak ada pelanggan tersedia.</p>}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-slate-300">Role</label>

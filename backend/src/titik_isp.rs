@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
-use axum::{Extension, Json, extract::Query, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{
+    Extension, Json, extract::Query, extract::State, http::StatusCode, response::IntoResponse,
+};
 use sqlx::Row;
 
 use crate::{
     error::ApiError,
-    models::{
-        AuthUser, CreateTitikIspRequest, Page, Pagination, StatusResponse, TitikIspRow,
-    },
+    models::{AuthUser, CreateTitikIspRequest, Page, Pagination, StatusResponse, TitikIspRow},
     state::AppState,
     util::{pagination, require_staff},
 };
@@ -115,10 +115,14 @@ pub async fn upsert_isp_point(
         return Err(ApiError::bad_request("Latitude harus antara -90 dan 90."));
     }
     if input.longitude < -180.0 || input.longitude > 180.0 {
-        return Err(ApiError::bad_request("Longitude harus antara -180 dan 180."));
+        return Err(ApiError::bad_request(
+            "Longitude harus antara -180 dan 180.",
+        ));
     }
     if input.latitude.abs() < f64::EPSILON && input.longitude.abs() < f64::EPSILON {
-        return Err(ApiError::bad_request("Koordinat 0,0 tidak dapat digunakan sebagai titik ISP."));
+        return Err(ApiError::bad_request(
+            "Koordinat 0,0 tidak dapat digunakan sebagai titik ISP.",
+        ));
     }
 
     let label = input.label.as_deref().unwrap_or("").to_owned();

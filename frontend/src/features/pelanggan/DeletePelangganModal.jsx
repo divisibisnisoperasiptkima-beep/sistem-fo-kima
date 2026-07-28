@@ -87,11 +87,11 @@ export default function DeletePelangganModal({ isOpen, onClose, onSuccess, custo
                 <span className="text-slate-400">Nama:</span>
                 <span className="text-white font-medium">{customer.nama_pelanggan}</span>
               </div>
-              {(customer.lokasi_beroperasi > 0 || customer.lokasi_belum_beroperasi > 0) && (
+              {(customer.lokasi_beroperasi > 0 || customer.lokasi_belum_beroperasi > 0 || customer.lokasi_proses_perpanjangan > 0) && (
                 <div className="flex gap-2">
                   <span className="text-slate-400">Lokasi:</span>
                   <span className="text-white">
-                    {customer.lokasi_beroperasi + customer.lokasi_belum_beroperasi} kontrak
+                    {customer.lokasi_beroperasi + customer.lokasi_belum_beroperasi + (customer.lokasi_proses_perpanjangan ?? 0)} kontrak
                   </span>
                 </div>
               )}

@@ -20,6 +20,7 @@ export default function KelolaPenggunaPage({ session }) {
   const [resettingUser, setResettingUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [userStatus, setUserStatus] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -92,6 +93,23 @@ export default function KelolaPenggunaPage({ session }) {
               className="pl-10 pr-4 py-2 text-xs font-semibold rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/40 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-gold-accent/50 focus:border-gold-accent/50 transition-all w-64"
             />
           </div>
+          <div className="flex items-center rounded-xl border border-white/15 bg-white/5 p-1" role="group" aria-label="Filter status akun">
+            {[
+              { value: "", label: "Semua" },
+              { value: "active", label: "Aktif saja" },
+              { value: "inactive", label: "Nonaktif saja" },
+            ].map((option) => (
+              <button
+                key={option.value || "all"}
+                type="button"
+                onClick={() => setUserStatus(option.value)}
+                aria-pressed={userStatus === option.value}
+                className={`rounded-lg px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${userStatus === option.value ? "bg-gold-accent text-slate-950 shadow-lg" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-gold-accent/20 border border-gold-accent/40 text-gold-accent hover:bg-gold-accent/30 hover:border-gold-accent/60 transition-all backdrop-blur-md shadow-lg shrink-0"
@@ -110,6 +128,7 @@ export default function KelolaPenggunaPage({ session }) {
           session={session}
           focus={false}
           search={debouncedSearch}
+          status={userStatus}
         />
       </div>
 

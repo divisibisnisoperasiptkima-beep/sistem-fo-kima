@@ -30,7 +30,8 @@ Nilai lama `Berakhir` telah dimigrasikan menjadi `Proses Perpanjangan`.
 
 Satu kontrak dapat memiliki banyak tagihan; satu record billing mewakili satu
 periode tagihan. Billing menyimpan nominal, invoice, tanggal tagih/bayar, dan
-status pembayaran.
+status pembayaran. Billing terhubung ke kontrak/lokasi yang berlaku pada
+periode layanan dan menyimpan snapshot harga agar histori tidak berubah.
 
 | Tanggal mulai kontrak | Bulan jatuh tempo pertama |
 | --- | --- |
@@ -39,11 +40,21 @@ status pembayaran.
 
 Harga billing mengikuti kontrak yang berlaku pada periode layanan.
 
-- Perpanjangan memakai harga yang diinput pada kontrak perpanjangan mulai
-  periode baru berlaku.
-- Upgrade di tengah bulan dihitung prorata berdasarkan hari pada kontrak lama
-  dan kontrak baru.
-- Billing historis tidak boleh berubah saat harga baru dibuat.
+- Jika periode awal kontrak tanggal 1–15, bulan jatuh tempo pertama adalah bulan
+  yang sama. Jika periode awal tanggal 16–akhir bulan, bulan jatuh tempo pertama
+  adalah bulan berikutnya.
+- Perpanjangan membuat billing baru untuk periode kontrak perpanjangan dengan
+  harga yang berlaku pada kontrak baru. Billing lama tidak diubah.
+- Upgrade memotong kontrak lama sehari sebelum tanggal upgrade dan membuat
+  kontrak baru mulai tanggal upgrade.
+- Billing pada bulan upgrade memakai prorata: hari sebelum upgrade menggunakan
+  harga lama, sedangkan mulai tanggal upgrade menggunakan harga baru.
+- Billing bulan berikutnya menggunakan harga baru secara penuh.
+- Billing yang sudah dibuat atau dibayar tidak boleh berubah tanpa proses
+  koreksi dan audit.
+
+Siklus status billing adalah `Belum Ditagih`, `Sudah Ditagih`, `Belum Lunas`,
+dan `Sudah Dibayar`.
 
 ## Struktur Dokumen
 

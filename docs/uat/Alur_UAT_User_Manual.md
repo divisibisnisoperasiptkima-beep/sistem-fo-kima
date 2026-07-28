@@ -13,13 +13,13 @@ Isi sebelum mulai:
 | Role yang diuji | Admin / Teknisi / ISP |
 | URL aplikasi |  |
 | Browser dan versi |  |
-| Environment | Staging/UAT, bukan produksi |
+| Environment | Localhost UAT atau staging, bukan produksi |
 | Nomor versi aplikasi |  |
 
 ## 2. Aturan Pengujian
 
 1. Gunakan akun dan data khusus UAT. Jangan mengubah atau menghapus data produksi.
-2. Siapkan minimal satu akun Admin dan satu akun Teknisi. Uji ISP hanya jika role dan pembagian pelanggan ISP sudah aktif.
+2. Siapkan minimal satu akun Admin, satu akun Teknisi, dan akun ISP beserta pelanggan yang ditugaskan. Skenario ISP dijalankan bila perubahan yang sedang dikembangkan sudah tersedia di environment UAT.
 3. Gunakan nama data yang mudah dikenali, misalnya `UAT_NamaPenguji_Tanggal`.
 4. Setelah skenario selesai, simpan screenshot dengan nama sesuai kode bukti, misalnya `AUTH-01-login-admin.png`.
 5. Untuk setiap skenario, catat hasil **Lulus**, **Gagal**, atau **Diblokir**. Jika gagal, jangan langsung menghapus data sebelum screenshot dan catatan selesai.
@@ -29,7 +29,9 @@ Isi sebelum mulai:
 
 - Akun Admin UAT: email, password sementara, status aktif.
 - Akun Teknisi UAT: email, password sementara, status aktif.
+- Akun ISP UAT: email, password sementara, status aktif, dan minimal satu pelanggan yang ditugaskan melalui `user_pelanggan_access`.
 - Satu pelanggan UAT.
+- Satu pelanggan UAT lain untuk memverifikasi pembatasan akses ISP.
 - Satu kontrak lokasi UAT yang dapat diperpanjang dan di-upgrade.
 - Dua koordinat titik peta UAT dan satu label titik ISP UAT.
 - Satu file uji kecil, misalnya `UAT-Dokumen.pdf` atau `UAT-Dokumen.txt`.
@@ -45,6 +47,14 @@ Isi sebelum mulai:
 | AUTH-02 | Logout, login dengan Teknisi UAT | Login berhasil dan hanya menu Titik Peta yang tersedia | Screenshot menu Teknisi dan halaman Titik Peta |
 | AUTH-03 | Login dengan akun nonaktif | Login ditolak dan pesan akun nonaktif tampil | Screenshot pesan penolakan |
 | ROLE-01 | Sebagai Teknisi, coba buka URL/menu Dashboard, Pelanggan, Kontrak, atau Kelola Pengguna | Menu tidak tersedia atau akses ditolak; Titik Peta tetap dapat dibuka | Screenshot akses ditolak atau menu yang tidak tersedia |
+
+### A.1 Portal ISP
+
+Gunakan [Rencana UAT Role ISP](Rencana_UAT_ISP_2026-07-25.md) sebagai checklist
+khusus untuk akun ISP. Cakupan minimal meliputi login, ringkasan pelanggan,
+kontrak/lokasi, daftar dan upload dokumen, pembukaan link file individual,
+penolakan akses lintas pelanggan, serta verifikasi bahwa link/ID folder Drive
+tidak ditampilkan.
 
 ### B. Dashboard
 
@@ -140,6 +150,11 @@ Minimum paket bukti untuk cakupan Admin dan Teknisi:
 20. `USER-03-nonaktif-login.png` — status Nonaktif dan login ditolak.
 21. `USER-04-admin-terakhir.png` — hanya jika diuji di staging.
 
+Untuk cakupan ISP, tambahkan bukti `ISP-03-login-portal.png`,
+`ISP-06-kontrak-lokasi.png`, `ISP-07-dokumen.png`,
+`ISP-09-upload-dokumen.png`, dan `ISP-14-tanpa-link-folder.png` sesuai
+checklist pada rencana UAT ISP.
+
 Screenshot harus memperlihatkan URL/halaman, konteks data yang diuji, pesan sukses/gagal, dan waktu bila memungkinkan. Crop bagian yang tidak relevan, tetapi jangan menghilangkan nilai, status, nama field, atau pesan error. Samarkan password, token, nomor identitas, dan data sensitif sebelum dibagikan.
 
 ## 7. Penutupan UAT
@@ -152,5 +167,9 @@ Screenshot harus memperlihatkan URL/halaman, konteks data yang diuji, pesan suks
 
 ## 8. Catatan untuk Cakupan Saat Ini
 
-Berdasarkan hasil UAT yang tersedia, cakupan Admin dan Teknisi sudah pernah diterima. Pengujian role ISP masih ditunda sampai role dan pembagian pelanggan ISP digunakan. Pengujian aturan “admin aktif terakhir” wajib dilakukan di staging dengan minimal dua akun Admin UAT; jangan menggunakan satu-satunya admin produksi.
-
+Berdasarkan hasil UAT yang tersedia, cakupan Admin dan Teknisi sudah pernah
+diterima. Fitur ISP kini sudah dikembangkan dan memiliki UAT lokal terpisah
+yang lulus dengan catatan; pengembangan dan pengujian lanjutan dapat diteruskan
+di staging. Pengujian aturan “admin aktif terakhir” wajib dilakukan di staging
+dengan minimal dua akun Admin UAT; jangan menggunakan satu-satunya admin
+produksi.

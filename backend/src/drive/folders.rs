@@ -55,7 +55,9 @@ pub fn parse_drive_folder_id(value: &str) -> Option<String> {
             return Some(id.to_owned());
         }
     }
-    if value.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+    if value
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
         && value.len() >= 10
         && !value.contains(' ')
         && !value.contains("://")
@@ -140,7 +142,10 @@ pub async fn delete_kontrak_tree(
     period_folder_id: &str,
 ) -> Result<(), DriveError> {
     // Get the parent (location) folder ID before deleting
-    let parent_id = drive.get_parent_folder_id(period_folder_id).await.unwrap_or(None);
+    let parent_id = drive
+        .get_parent_folder_id(period_folder_id)
+        .await
+        .unwrap_or(None);
 
     // Delete the period folder
     drive.delete_file(period_folder_id).await?;

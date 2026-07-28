@@ -12,7 +12,11 @@ use crate::{
     access::assert_pelanggan_access,
     drive::{ensure_pelanggan_tree, folder_url, parse_drive_folder_id, sanitize_folder_name},
     error::ApiError,
-    models::{AuthUser, CreateCustomerRequest, CustomerRow, NextPelangganCodeResponse, Page, Pagination, UpdateCustomerRequest},
+    kontrak::sync_expired_contract_statuses,
+    models::{
+        AuthUser, CreateCustomerRequest, CustomerRow, NextPelangganCodeResponse, Page, Pagination,
+        UpdateCustomerRequest,
+    },
     state::AppState,
     util::{optional_trim_or_keep, pagination, require_admin, require_business_read, trim_opt},
 };
@@ -36,19 +40,22 @@ pub async fn get_next_pelanggan_code(
             buf[i] = chars[(seed as usize) % chars.len()];
         }
         let code = format!("PLG-{}", std::str::from_utf8(&buf).unwrap());
-        let exists: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM pelanggan WHERE kode_pelanggan = ?",
-        )
-        .bind(&code)
-        .fetch_one(&state.database)
-        .await
-        .map_err(ApiError::database)?;
+        let exists: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM pelanggan WHERE kode_pelanggan = ?")
+                .bind(&code)
+                .fetch_one(&state.database)
+                .await
+                .map_err(ApiError::database)?;
         if exists == 0 {
-            return Ok(Json(NextPelangganCodeResponse { kode_pelanggan: code }));
+            return Ok(Json(NextPelangganCodeResponse {
+                kode_pelanggan: code,
+            }));
         }
         attempts += 1;
         if attempts >= 10 {
-            return Err(ApiError::internal("Gagal menghasilkan kode pelanggan unik."));
+            return Err(ApiError::internal(
+                "Gagal menghasilkan kode pelanggan unik.",
+            ));
         }
     }
 }
@@ -59,6 +66,18 @@ pub async fn list_customers(
     Query(query): Query<Pagination>,
 ) -> Result<Json<Page<CustomerRow>>, ApiError> {
     require_business_read(&auth.role)?;
+
+    // Samakan status yang dipakai ringkasan pelanggan dengan daftar kontrak.
+    let updated = sync_expired_contract_statuses(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+    if updated > 0 {
+        tracing::info!(
+            updated,
+            "Customer summary statuses synchronized after expiration"
+        );
+    }
+
     let search_term = query.search.as_deref().unwrap_or("").trim();
     let has_search = !search_term.is_empty();
     let search_pattern = format!("%{}%", search_term);
@@ -107,7 +126,8 @@ pub async fn list_customers(
             "SELECT p.id, p.kode_pelanggan, p.nama_pelanggan, p.pic, p.telepon, p.email, \
                     p.link_folder_berkas, p.keterangan, \
                 (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Beroperasi') AS lokasi_beroperasi, \
-                (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Belum Beroperasi') AS lokasi_belum_beroperasi \
+                (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Belum Beroperasi') AS lokasi_belum_beroperasi, \
+                (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Proses Perpanjangan') AS lokasi_proses_perpanjangan \
              FROM pelanggan p \
              WHERE (? <> 'isp' OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
@@ -137,7 +157,8 @@ pub async fn list_customers(
             "SELECT p.id, p.kode_pelanggan, p.nama_pelanggan, p.pic, p.telepon, p.email, \
                     p.link_folder_berkas, p.keterangan, \
                 (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Beroperasi') AS lokasi_beroperasi, \
-                (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Belum Beroperasi') AS lokasi_belum_beroperasi \
+                (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Belum Beroperasi') AS lokasi_belum_beroperasi, \
+                (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Proses Perpanjangan') AS lokasi_proses_perpanjangan \
              FROM pelanggan p \
              WHERE ? <> 'isp' OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
@@ -162,10 +183,15 @@ pub async fn list_customers(
             pic: row.try_get("pic").unwrap_or(None),
             telepon: row.try_get("telepon").unwrap_or(None),
             email: row.try_get("email").unwrap_or(None),
-            link_folder_berkas: row.try_get("link_folder_berkas").unwrap_or(None),
+            link_folder_berkas: if auth.role == "isp" {
+                None
+            } else {
+                row.try_get("link_folder_berkas").unwrap_or(None)
+            },
             keterangan: row.try_get("keterangan").unwrap_or(None),
             lokasi_beroperasi: row.try_get("lokasi_beroperasi").unwrap_or(0),
             lokasi_belum_beroperasi: row.try_get("lokasi_belum_beroperasi").unwrap_or(0),
+            lokasi_proses_perpanjangan: row.try_get("lokasi_proses_perpanjangan").unwrap_or(0),
         })
         .collect();
     Ok(Json(Page {
@@ -221,9 +247,13 @@ pub async fn create_customer(
     .map_err(ApiError::database)?;
     let id = result.last_insert_id();
 
-    let (_, berkas_id) = ensure_pelanggan_tree(&state.drive, kode_pelanggan.as_deref().unwrap_or(""), &nama_pelanggan)
-        .await
-        .map_err(ApiError::drive)?;
+    let (_, berkas_id) = ensure_pelanggan_tree(
+        &state.drive,
+        kode_pelanggan.as_deref().unwrap_or(""),
+        &nama_pelanggan,
+    )
+    .await
+    .map_err(ApiError::drive)?;
     let link = folder_url(&berkas_id);
     sqlx::query("UPDATE pelanggan SET link_folder_berkas = ? WHERE id = ?")
         .bind(&link)
@@ -247,6 +277,7 @@ pub async fn create_customer(
             keterangan,
             lokasi_beroperasi: 0,
             lokasi_belum_beroperasi: 0,
+            lokasi_proses_perpanjangan: 0,
         }),
     ))
 }
@@ -274,7 +305,8 @@ pub async fn update_customer(
 
     let old_nama: String = row.try_get("nama_pelanggan").map_err(ApiError::database)?;
     let old_link: Option<String> = row.try_get("link_folder_berkas").unwrap_or(None);
-    let kode_pelanggan: Option<String> = row.try_get("kode_pelanggan").map_err(ApiError::database)?;
+    let kode_pelanggan: Option<String> =
+        row.try_get("kode_pelanggan").map_err(ApiError::database)?;
 
     let old_pic: Option<String> = row.try_get("pic").unwrap_or(None);
     let old_telepon: Option<String> = row.try_get("telepon").unwrap_or(None);
@@ -286,7 +318,9 @@ pub async fn update_customer(
     let nama_changed = new_nama
         .as_ref()
         .is_some_and(|n| !n.is_empty() && n != &old_nama);
-    let final_nama = new_nama.filter(|n| !n.is_empty()).unwrap_or(old_nama.clone());
+    let final_nama = new_nama
+        .filter(|n| !n.is_empty())
+        .unwrap_or(old_nama.clone());
 
     let pic = optional_trim_or_keep(input.pic.clone(), old_pic);
     let telepon = optional_trim_or_keep(input.telepon.clone(), old_telepon);
@@ -318,6 +352,13 @@ pub async fn update_customer(
     .map_err(ApiError::database)?;
     let lokasi_belum_beroperasi: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = ? AND status_kontrak = 'Belum Beroperasi'",
+    )
+    .bind(id)
+    .fetch_one(&state.database)
+    .await
+    .map_err(ApiError::database)?;
+    let lokasi_proses_perpanjangan: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = ? AND status_kontrak = 'Proses Perpanjangan'",
     )
     .bind(id)
     .fetch_one(&state.database)
@@ -356,6 +397,7 @@ pub async fn update_customer(
             keterangan,
             lokasi_beroperasi,
             lokasi_belum_beroperasi,
+            lokasi_proses_perpanjangan,
         }));
     }
 
@@ -370,6 +412,7 @@ pub async fn update_customer(
         keterangan,
         lokasi_beroperasi,
         lokasi_belum_beroperasi,
+        lokasi_proses_perpanjangan,
     }))
 }
 
@@ -381,13 +424,12 @@ pub async fn delete_customer(
     require_admin(&auth.role)?;
 
     // Check if customer has any contracts (lokasi)
-    let contract_count: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = ?",
-    )
-    .bind(id)
-    .fetch_one(&state.database)
-    .await
-    .map_err(ApiError::database)?;
+    let contract_count: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = ?")
+            .bind(id)
+            .fetch_one(&state.database)
+            .await
+            .map_err(ApiError::database)?;
 
     if contract_count > 0 {
         return Err(ApiError::bad_request(&format!(
@@ -397,13 +439,12 @@ pub async fn delete_customer(
     }
 
     // Ambil link_folder_berkas sebelum dihapus
-    let link_folder: Option<String> = sqlx::query_scalar(
-        "SELECT link_folder_berkas FROM pelanggan WHERE id = ?",
-    )
-    .bind(id)
-    .fetch_optional(&state.database)
-    .await
-    .map_err(ApiError::database)?;
+    let link_folder: Option<String> =
+        sqlx::query_scalar("SELECT link_folder_berkas FROM pelanggan WHERE id = ?")
+            .bind(id)
+            .fetch_optional(&state.database)
+            .await
+            .map_err(ApiError::database)?;
 
     // Hapus folder di Google Drive jika ada
     if let Some(link) = link_folder {

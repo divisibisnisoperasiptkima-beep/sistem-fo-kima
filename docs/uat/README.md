@@ -9,6 +9,8 @@ Folder ini berisi dokumen dan bukti pengujian penerimaan pengguna untuk Sistem F
 - [PDF Laporan UAT User Manual 24 Juli 2026](Laporan_UAT_User_Manual_2026-07-24.pdf) — versi cetak A4 dengan screenshot yang disematkan.
 - [Rencana UAT](Rencana_UAT.md) — ruang lingkup, peran, lingkungan, dan aturan pengujian.
 - [Matriks Skenario UAT](Matriks_Skenario_UAT.md) — daftar skenario dan kriteria lulus/gagal.
+- [Rencana UAT Role ISP](Rencana_UAT_ISP_2026-07-25.md) — skenario portal ISP, pembatasan akses, dokumen, dan upload.
+- [Laporan UAT Role ISP](Laporan_UAT_ISP_2026-07-25.md) — hasil validasi keamanan dasar dan status skenario end-to-end.
 - [Template Laporan UAT](Template_Laporan_UAT.md) — format pencatatan hasil, bukti, temuan, dan keputusan.
 - [Laporan UAT 23 Juli 2026](Laporan_UAT_2026-07-23.md) — hasil eksekusi, bukti, temuan, dan keputusan penerimaan.
 
@@ -16,4 +18,8 @@ Folder ini berisi dokumen dan bukti pengujian penerimaan pengguna untuk Sistem F
 
 Status per 23 Juli 2026: **diterima untuk cakupan admin dan teknisi**.
 
-Sebanyak 22 skenario lulus tanpa kegagalan kritis. UAT ISP ditunda karena role tersebut belum digunakan; perlindungan admin aktif terakhir memerlukan lingkungan staging dengan minimal dua admin uji.
+Sebanyak 22 skenario admin/teknisi lulus tanpa kegagalan kritis. UAT ISP lokal
+juga telah selesai dengan backend komplit dan smoke test browser lulus; lihat
+laporan ISP untuk rincian, bukti, dan catatan kredensial/environment. Perlindungan
+admin aktif terakhir tetap memerlukan lingkungan staging dengan minimal dua
+admin uji.

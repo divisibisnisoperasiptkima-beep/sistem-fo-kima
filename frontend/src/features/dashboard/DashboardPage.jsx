@@ -1,7 +1,6 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:8080";
+import { getDashboardMetrics } from "../../lib/rust-api";
 
 function StatCard({ label, value, sub, onDetail }) {
   return <div className="rounded-2xl p-4 bg-slate-900/40 border border-white/10"><div className="flex justify-between items-start mb-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{label}</p>{onDetail && <button type="button" onClick={onDetail} className="rounded-md border border-gold-accent/40 bg-gold-accent/10 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-gold-accent hover:bg-gold-accent/20">Rincian</button>}</div><h3 className="text-xl font-black text-white mb-1">{value}</h3><p className="text-[10px] font-bold text-slate-400 uppercase">{sub}</p></div>;
@@ -104,8 +103,6 @@ const CHART_TOOLTIP = { contentStyle: { background: "rgba(15,20,30,0.92)", borde
 
 const SHARING_COLORS = { "1/2": "#d4a937", "1/4": "#00687b", "1/8": "#10b981", "1/16": "#8b5cf6", "1/32": "#f43f5e" };
 
-const withTimeout = (p, ms) => Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error('timeout')), ms))]);
-
 /**
  * Dashboard page component
  */
@@ -163,24 +160,16 @@ const DashboardPage = memo(function DashboardPage({ session }) {
     else { gs = numYear - (Number(growthFilter.range) || 5) + 1; ge = numYear; }
     params.growth_start_year = gs; params.growth_end_year = ge;
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+    let active = true;
+
     (async () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await withTimeout((async () => {
-          const query = new URLSearchParams();
-          if (params.year) query.set("year", params.year);
-          if (params.growth_start_year) query.set("growth_start_year", params.growth_start_year);
-          if (params.growth_end_year) query.set("growth_end_year", params.growth_end_year);
-          if (params.core_trend_start_year) query.set("core_trend_start_year", params.core_trend_start_year);
-          if (params.core_trend_end_year) query.set("core_trend_end_year", params.core_trend_end_year);
-          const qs = query.toString();
-          const response = await fetch(`${API_BASE_URL}/api/dashboard${qs ? `?${qs}` : ""}`, {
-            headers: { Authorization: `Bearer ${session.token}` }
-          });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          return response.json();
-        })(), 5000);
+        const data = await getDashboardMetrics(session.token, params, { signal: controller.signal });
+        if (!active) return;
         if (!data) return;
         setStats({
           pelanggan: data.stats?.total_pelanggan || 0,
@@ -202,10 +191,17 @@ const DashboardPage = memo(function DashboardPage({ session }) {
         });
         setLoading(false);
       } catch (err) {
+        if (!active || err?.name === "AbortError") return;
         setError(err.message || "Gagal memuat data dashboard");
         setLoading(false);
       }
     })();
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [
     session.token,
     timeMode,

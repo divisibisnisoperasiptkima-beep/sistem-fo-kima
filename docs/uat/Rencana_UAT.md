@@ -4,10 +4,13 @@
 
 Memastikan fitur utama berjalan sesuai alur bisnis, role pengguna, dan data MySQL yang menjadi sumber utama sistem.
 
-## Status Eksekusi — 23 Juli 2026
+## Status Eksekusi — diperbarui 25 Juli 2026
 
 - Cakupan **admin dan teknisi** telah dieksekusi dan diterima; lihat `Laporan_UAT_2026-07-23.md`.
-- Cakupan **ISP** ditunda sampai role dan penugasan pelanggan ISP mulai digunakan.
+- Fitur **ISP** sudah tersedia dan pengembangannya dilanjutkan untuk portal ISP,
+  pembatasan pelanggan, kontrak/lokasi, dokumen, serta upload.
+- UAT ISP telah dieksekusi di localhost dan lulus dengan catatan; lihat
+  `Rencana_UAT_ISP_2026-07-25.md` dan `Laporan_UAT_ISP_2026-07-25.md`.
 - Skenario admin aktif terakhir hanya boleh dijalankan di staging dengan minimal dua admin uji.
 
 ## Ruang Lingkup

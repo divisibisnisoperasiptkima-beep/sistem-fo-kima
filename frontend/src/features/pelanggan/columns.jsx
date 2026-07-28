@@ -20,6 +20,7 @@ export const pelangganColumns = [
   { label: "Email", render: (row) => value(row.email) },
   { label: "Beroperasi", cellClassName: "text-center text-sm", render: (row) => value(row.lokasi_beroperasi ?? 0) },
   { label: "Belum Beroperasi", cellClassName: "text-center text-sm", render: (row) => value(row.lokasi_belum_beroperasi ?? 0) },
+  { label: "Proses Perpanjangan", cellClassName: "text-center text-sm", render: (row) => value(row.lokasi_proses_perpanjangan ?? 0) },
   { label: "Folder", render: (row) => (
     row.link_folder_berkas ? (
       <a

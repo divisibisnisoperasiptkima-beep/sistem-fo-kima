@@ -6,7 +6,7 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
-use sqlx::Row;
+use sqlx::{MySqlPool, Row};
 
 use crate::{
     access::assert_pelanggan_access,
@@ -34,6 +34,23 @@ const VALID_STATUS: &[&str] = &[
     "Di-upgrade",
     "Berhenti",
 ];
+
+/// Menyelaraskan status kontrak aktif yang periodenya sudah berakhir.
+///
+/// Status histori (`Diperpanjang`, `Di-upgrade`, dan `Berhenti`) tidak disentuh
+/// karena status tersebut merupakan hasil tindakan bisnis yang sudah selesai.
+pub async fn sync_expired_contract_statuses(database: &MySqlPool) -> Result<u64, sqlx::Error> {
+    let result = sqlx::query(
+        "UPDATE lokasi \
+         SET status_kontrak = 'Proses Perpanjangan' \
+         WHERE periode_berakhir < CURDATE() \
+           AND status_kontrak IN ('Beroperasi', 'Belum Beroperasi')",
+    )
+    .execute(database)
+    .await?;
+
+    Ok(result.rows_affected())
+}
 
 pub async fn delete_contract(
     State(state): State<Arc<AppState>>,
@@ -178,6 +195,16 @@ pub async fn list_contracts(
     Query(query): Query<Pagination>,
 ) -> Result<Json<Page<ContractRow>>, ApiError> {
     require_business_read(&auth.role)?;
+
+    // Jalankan sinkronisasi sebelum membaca/filter data agar kontrak yang baru
+    // melewati tanggal berakhir langsung tersimpan sebagai Proses Perpanjangan.
+    let updated = sync_expired_contract_statuses(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+    if updated > 0 {
+        tracing::info!(updated, "Contract statuses synchronized after expiration");
+    }
+
     let search_term = query.search.as_deref().unwrap_or("").trim();
     let has_search = !search_term.is_empty();
     let search_pattern = format!("%{}%", search_term);
@@ -200,7 +227,7 @@ pub async fn list_contracts(
 
     let active_only = query.active_only.unwrap_or(false);
     let active_clause = if active_only {
-        " AND l.periode_awal <= CURDATE() AND l.periode_berakhir >= CURDATE()"
+        " AND ((l.periode_awal <= CURDATE() AND l.periode_berakhir >= CURDATE()) OR l.status_kontrak = 'Proses Perpanjangan')"
     } else {
         ""
     };

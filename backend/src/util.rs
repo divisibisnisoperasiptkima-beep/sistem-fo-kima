@@ -37,16 +37,18 @@ pub fn optional_env_usize(name: &str, default: usize) -> usize {
 }
 
 pub fn trim_opt(value: Option<String>) -> Option<String> {
-    value
-        .map(|v| v.trim().to_owned())
-        .filter(|v| !v.is_empty())
+    value.map(|v| v.trim().to_owned()).filter(|v| !v.is_empty())
 }
 
 pub fn optional_trim_or_keep(input: Option<String>, existing: Option<String>) -> Option<String> {
     match input {
         Some(v) => {
             let trimmed = v.trim().to_owned();
-            if trimmed.is_empty() { None } else { Some(trimmed) }
+            if trimmed.is_empty() {
+                None
+            } else {
+                Some(trimmed)
+            }
         }
         None => existing,
     }
@@ -62,6 +64,16 @@ pub fn require_staff(role: &str) -> Result<(), ApiError> {
     } else {
         Err(ApiError::forbidden(
             "Hanya admin atau teknisi yang diizinkan.",
+        ))
+    }
+}
+
+pub fn require_document_upload(role: &str) -> Result<(), ApiError> {
+    if matches!(role, "admin" | "isp") {
+        Ok(())
+    } else {
+        Err(ApiError::forbidden(
+            "Role pengguna tidak diizinkan mengunggah dokumen.",
         ))
     }
 }
@@ -104,7 +116,11 @@ pub fn parse_date(value: &str) -> Result<NaiveDate, ApiError> {
         .map_err(|_| ApiError::bad_request(format!("Format tanggal tidak valid: {value}")))
 }
 
-pub fn validate_string_length(value: &str, max_len: usize, field_name: &str) -> Result<(), ApiError> {
+pub fn validate_string_length(
+    value: &str,
+    max_len: usize,
+    field_name: &str,
+) -> Result<(), ApiError> {
     if value.len() > max_len {
         return Err(ApiError::bad_request(format!(
             "{field_name} maksimal {max_len} karakter."

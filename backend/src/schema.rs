@@ -32,29 +32,18 @@ pub async fn ensure_application_schema(database: &MySqlPool) -> Result<(), sqlx:
     .execute(database)
     .await?;
 
-    // Konversi status Proses Perpanjangan (lama: Berakhir) menjadi Berhenti
-    sqlx::raw_sql(include_str!(
-        "../migrations/000021_convert_expired_to_berhenti.sql"
-    ))
-    .execute(database)
-    .await?;
-
     // Adjust titik_pelanggan to reference lokasi_id (per-contract)
     ensure_titik_peta_lokasi_migration(database).await?;
 
     // Titik ISP provider (kantor/cabang ISP)
-    sqlx::raw_sql(include_str!(
-        "../migrations/000023_titik_isp.sql"
-    ))
-    .execute(database)
-    .await?;
+    sqlx::raw_sql(include_str!("../migrations/000023_titik_isp.sql"))
+        .execute(database)
+        .await?;
 
     // Banyak titik detail untuk satu lokasi/kontrak.
-    sqlx::raw_sql(include_str!(
-        "../migrations/000024_titik_lokasi_detail.sql"
-    ))
-    .execute(database)
-    .await?;
+    sqlx::raw_sql(include_str!("../migrations/000024_titik_lokasi_detail.sql"))
+        .execute(database)
+        .await?;
 
     Ok(())
 }

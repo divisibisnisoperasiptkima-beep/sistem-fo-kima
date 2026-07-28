@@ -10,9 +10,7 @@ use sqlx::Row;
 
 use crate::{
     error::ApiError,
-    models::{
-        AuthUser, CreateMapPointRequest, MapPointRow, Page, Pagination, StatusResponse,
-    },
+    models::{AuthUser, CreateMapPointRequest, MapPointRow, Page, Pagination, StatusResponse},
     state::AppState,
     util::{pagination, require_staff},
 };
@@ -125,9 +123,7 @@ pub async fn upsert_map_point(
     require_staff(&auth.role)?;
 
     if input.latitude < -90.0 || input.latitude > 90.0 {
-        return Err(ApiError::bad_request(
-            "Latitude harus antara -90 dan 90.",
-        ));
+        return Err(ApiError::bad_request("Latitude harus antara -90 dan 90."));
     }
     if input.longitude < -180.0 || input.longitude > 180.0 {
         return Err(ApiError::bad_request(
@@ -135,14 +131,13 @@ pub async fn upsert_map_point(
         ));
     }
 
-    let pelanggan_id: u64 = sqlx::query_scalar(
-        "SELECT pelanggan_id FROM lokasi WHERE id = ? LIMIT 1",
-    )
-    .bind(input.lokasi_id)
-    .fetch_optional(&state.database)
-    .await
-    .map_err(ApiError::database)?
-    .ok_or_else(|| ApiError::not_found("Lokasi kontrak tidak ditemukan."))?;
+    let pelanggan_id: u64 =
+        sqlx::query_scalar("SELECT pelanggan_id FROM lokasi WHERE id = ? LIMIT 1")
+            .bind(input.lokasi_id)
+            .fetch_optional(&state.database)
+            .await
+            .map_err(ApiError::database)?
+            .ok_or_else(|| ApiError::not_found("Lokasi kontrak tidak ditemukan."))?;
 
     let points = serde_json::json!({
         "latitude": input.latitude,

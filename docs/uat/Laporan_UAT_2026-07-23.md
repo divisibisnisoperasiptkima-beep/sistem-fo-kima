@@ -65,9 +65,11 @@ Audit telah dijalankan terhadap source, build, MySQL live, API, dan browser loka
 
 ## Skenario Berikutnya
 
-1. Uji hak akses ISP setelah role dan penugasan pelanggan ISP mulai digunakan.
+1. Fitur ISP sudah dilanjutkan pengembangannya dan pengujian hak akses ISP
+   telah dieksekusi di localhost; lihat `Laporan_UAT_ISP_2026-07-25.md` untuk
+   hasil backend dan browser.
 2. Bila diperlukan, verifikasi aturan admin aktif terakhir pada lingkungan staging yang memiliki minimal dua admin uji; jangan menonaktifkan admin produksi.
 
 ## Keputusan UAT
 
-**Diterima untuk cakupan admin dan teknisi.** Tidak ada kegagalan build, inkonsistensi data dashboard, pelanggaran akses teknisi, maupun kegagalan pada alur browser/API yang telah diuji. UAT ISP ditunda sesuai prioritas proyek; pengujian admin aktif terakhir dijadwalkan untuk staging.
+**Diterima untuk cakupan admin dan teknisi.** Tidak ada kegagalan build, inkonsistensi data dashboard, pelanggaran akses teknisi, maupun kegagalan pada alur browser/API yang telah diuji. Pada saat laporan ini dibuat UAT ISP masih ditunda; fitur ISP kemudian dilanjutkan pengembangannya dan telah memiliki laporan UAT lokal terpisah. Pengujian admin aktif terakhir dijadwalkan untuk staging.
