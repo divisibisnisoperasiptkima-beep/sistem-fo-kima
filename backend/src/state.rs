@@ -7,6 +7,7 @@ use std::{
 use sqlx::MySqlPool;
 use tokio::sync::{Mutex, RwLock};
 
+use crate::backup::BackupConfig;
 use crate::drive::DriveClient;
 use crate::models::DriveSyncProgress;
 
@@ -15,6 +16,8 @@ pub struct AppState {
     pub database: MySqlPool,
     pub jwt_secret: Arc<str>,
     pub drive: DriveClient,
+    pub backup_config: BackupConfig,
+    pub backup_lock: Arc<Mutex<()>>,
     pub drive_sync_lock: Arc<Mutex<()>>,
     pub drive_sync_job: Arc<Mutex<Option<DriveSyncProgress>>>,
     pub drive_sync_next_id: Arc<AtomicU64>,

@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS backup_jobs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    trigger_type VARCHAR(20) NOT NULL,
+    scheduled_date DATE NULL,
+    status VARCHAR(20) NOT NULL,
+    started_at DATETIME NULL,
+    finished_at DATETIME NULL,
+    drive_file_id VARCHAR(255) NULL,
+    file_name VARCHAR(255) NULL,
+    sha256 CHAR(64) NULL,
+    dump_bytes BIGINT UNSIGNED NULL,
+    compressed_bytes BIGINT UNSIGNED NULL,
+    encrypted_bytes BIGINT UNSIGNED NULL,
+    error_message TEXT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_backup_jobs_scheduled (trigger_type, scheduled_date),
+    KEY idx_backup_jobs_status (status),
+    KEY idx_backup_jobs_started_at (started_at)
+);

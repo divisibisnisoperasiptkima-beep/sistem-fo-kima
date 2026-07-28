@@ -178,6 +178,19 @@ GOOGLE_CLIENT_SECRET=CLIENT_SECRET_GOOGLE
 GOOGLE_REFRESH_TOKEN=REFRESH_TOKEN_GOOGLE
 GOOGLE_DRIVE_LINK_SHARING=false
 PELANGGAN_ROOT_FOLDER_ID=ID_FOLDER_ROOT_GOOGLE_DRIVE
+
+# Backup database terenkripsi ke Root/Backup/Database
+BACKUP_ENABLED=false
+BACKUP_TIMEZONE=Asia/Makassar
+BACKUP_SCHEDULE_HOUR=2
+BACKUP_SCHEDULE_MINUTE=0
+BACKUP_FOLDER_NAME=Backup
+BACKUP_DATABASE_FOLDER_NAME=Database
+BACKUP_RETENTION_DAILY=7
+BACKUP_ENCRYPTION_KEY=BASE64_32_BYTE_KEY
+# Wajib hanya untuk pengujian restore; gunakan user MySQL terpisah dari produksi
+BACKUP_RESTORE_DATABASE_URL=mysql://fo_kima_restore_user:PASSWORD@127.0.0.1:3306/fo_kima_restore_admin
+BACKUP_MAX_RESTORE_BYTES=2147483648
 ```
 
 Buat secret JWT, misalnya:
@@ -189,6 +202,49 @@ openssl rand -hex 32
 Password yang dipakai di `DATABASE_URL` harus URL-encoded jika mengandung karakter khusus seperti `@`, `#`, `/`, `:` atau spasi. File environment ini berisi secret dan tidak boleh dimasukkan ke Git atau dikirim ke browser.
 
 Backend memang memerlukan empat konfigurasi Google Drive tersebut saat startup. Pastikan refresh token masih valid dan akun OAuth memiliki akses ke folder root yang dipakai aplikasi.
+
+Untuk menyiapkan konfigurasi backup, buat kunci enkripsi di server dan jangan
+menyimpannya di repository:
+
+```bash
+openssl rand -base64 32
+```
+
+Masukkan hasilnya ke `BACKUP_ENCRYPTION_KEY`. Backup akan ditempatkan di folder
+`Backup/Database` di bawah `PELANGGAN_ROOT_FOLDER_ID` dalam bentuk
+`*.sql.gz.enc`. Isi dump dikompresi lalu dienkripsi AES-256-GCM sebelum upload;
+kunci tidak pernah dikirim ke browser atau disimpan di Google Drive. Scheduler
+menjalankan backup pada jam yang ditentukan. `BACKUP_RETENTION_DAILY=7` berarti tujuh tanggal backup terbaru
+dipertahankan; file dari tanggal yang lebih lama akan dihapus dari folder
+`Backup/Database`.
+
+Sistem hanya menerima timezone tetap yang didukung: `UTC`, `Asia/Jakarta`,
+`Asia/Makassar`, dan `Asia/Jayapura`.
+
+Pengujian manual satu kali dapat dilakukan oleh admin melalui endpoint
+`POST /api/admin/backup/run` dengan Bearer token. Endpoint ini tidak membuat link
+publik dan mengembalikan checksum file hasil upload.
+
+Riwayat 20 proses backup terakhir dapat diperiksa oleh admin melalui
+`GET /api/admin/backup/jobs`. Status `succeeded` berarti file sudah berhasil
+diunggah dan dicatat; status `failed` menyimpan alasan kegagalan tanpa menyimpan
+kunci enkripsi.
+
+Untuk pengujian restore, buat user MySQL khusus yang memiliki izin membuat dan
+menghapus database sementara. Jangan gunakan URL credential produksi sebagai
+`BACKUP_RESTORE_DATABASE_URL`. Jalankan:
+
+```http
+POST /api/admin/backup/restore
+Content-Type: application/json
+
+{"backup_job_id": 123}
+```
+
+Sistem mengunduh backup melalui backend, mencocokkan checksum, mendekripsi dan
+memvalidasi gzip, merestore ke database dengan prefix `fo_kima_restore_`,
+memastikan ada tabel, lalu menghapus database sementara. Restore tidak pernah
+menulis ke database produksi.
 
 ## 7. Build dan jalankan backend
 

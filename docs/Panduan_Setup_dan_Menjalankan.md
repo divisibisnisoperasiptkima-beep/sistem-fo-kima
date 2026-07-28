@@ -42,7 +42,36 @@ Panduan ini menjalankan aplikasi lokal dengan arsitektur React/Vite → Rust/Axu
    GOOGLE_REFRESH_TOKEN=<refresh-token-google>
    GOOGLE_DRIVE_LINK_SHARING=false
    PELANGGAN_ROOT_FOLDER_ID=<id-folder-root-google-drive>
+
+   # Backup database terenkripsi ke Root/Backup/Database
+   BACKUP_ENABLED=false
+   BACKUP_TIMEZONE=Asia/Makassar
+   BACKUP_SCHEDULE_HOUR=2
+   BACKUP_SCHEDULE_MINUTE=0
+   BACKUP_FOLDER_NAME=Backup
+   BACKUP_DATABASE_FOLDER_NAME=Database
+   BACKUP_RETENTION_DAILY=7
+   # openssl rand -base64 32
+   BACKUP_ENCRYPTION_KEY=<base64-32-byte-key>
+   # Wajib hanya jika akan menguji restore; user harus terpisah dari produksi
+   BACKUP_RESTORE_DATABASE_URL=mysql://fo_kima_restore_user:<password>@127.0.0.1:3306/fo_kima_restore_admin
+   BACKUP_MAX_RESTORE_BYTES=2147483648
    ```
+
+   Sistem melakukan dump database, kompresi gzip, enkripsi AES-256-GCM, lalu
+   upload ke folder `Backup/Database` di bawah `PELANGGAN_ROOT_FOLDER_ID`.
+   Jika backup diaktifkan, proses otomatis berjalan pada jam yang dikonfigurasi:
+   `BACKUP_ENCRYPTION_KEY` wajib berisi hasil Base64 dari tepat 32 byte acak.
+   `BACKUP_TIMEZONE` yang didukung saat ini adalah `UTC`, `Asia/Jakarta`,
+   `Asia/Makassar`, dan `Asia/Jayapura`. Folder backup harus tetap Dibatasi;
+   sistem akan menolak backup jika menemukan permission publik/domain.
+   Untuk uji manual oleh admin, panggil endpoint
+   `POST /api/admin/backup/run` dengan Bearer token admin. Endpoint ini menjalankan
+   satu backup dan mengembalikan checksum serta ukuran hasilnya.
+   Riwayat 20 backup terakhir dapat dilihat melalui `GET /api/admin/backup/jobs`.
+   Pengujian restore aman dijalankan melalui `POST /api/admin/backup/restore`
+   dengan body `{"backup_job_id": 123}`. Sistem hanya membuat database sementara
+   dengan prefix `fo_kima_restore_`, memverifikasi jumlah tabel, lalu menghapusnya.
 
 3. Siapkan konfigurasi frontend bila URL backend berbeda dari default.
 

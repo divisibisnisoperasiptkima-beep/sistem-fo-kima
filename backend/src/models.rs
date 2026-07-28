@@ -243,6 +243,37 @@ pub struct DriveSyncProgress {
 }
 
 #[derive(Serialize)]
+pub struct BackupJobRow {
+    pub id: u64,
+    pub trigger_type: String,
+    pub scheduled_date: Option<String>,
+    pub status: String,
+    pub started_at: Option<String>,
+    pub finished_at: Option<String>,
+    pub drive_file_id: Option<String>,
+    pub file_name: Option<String>,
+    pub sha256: Option<String>,
+    pub dump_bytes: Option<u64>,
+    pub compressed_bytes: Option<u64>,
+    pub encrypted_bytes: Option<u64>,
+    pub error_message: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct RestoreBackupRequest {
+    pub backup_job_id: u64,
+}
+
+#[derive(Serialize)]
+pub struct BackupRestoreResult {
+    pub restore_job_id: u64,
+    pub backup_job_id: u64,
+    pub status: String,
+    pub table_count: u64,
+    pub sha256: String,
+}
+
+#[derive(Serialize)]
 pub struct IspDocumentRow {
     pub id: u64,
     pub pelanggan_id: u64,

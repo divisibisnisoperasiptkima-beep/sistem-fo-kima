@@ -1,5 +1,6 @@
 mod access;
 mod auth;
+mod backup;
 mod dashboard;
 mod dokumen;
 mod drive;
@@ -38,6 +39,10 @@ use tracing::info;
 
 use crate::{
     auth::{change_password, current_session, login, require_auth},
+    backup::{
+        list_backup_jobs, recover_interrupted_backup_jobs, recover_interrupted_restore_jobs,
+        run_backup_scheduler, trigger_backup, trigger_restore,
+    },
     dashboard::get_dashboard,
     dokumen::{
         delete_document, download_document, get_current_drive_sync_status, get_drive_sync_status,
@@ -90,6 +95,17 @@ async fn main() {
         .expect("Gagal menyiapkan skema aplikasi di MySQL");
 
     let drive = DriveClient::from_env().expect("Konfigurasi Google Drive tidak lengkap");
+    let backup_config =
+        backup::BackupConfig::from_env().expect("Konfigurasi backup tidak valid pada backend/.env");
+    if backup_config.enabled {
+        info!(
+            timezone = %backup_config.timezone,
+            hour = backup_config.schedule_hour,
+            minute = backup_config.schedule_minute,
+            retention_daily = backup_config.retention_daily,
+            "Database backup configured; automatic scheduler is active"
+        );
+    }
 
     let rate_limiter = Arc::new(RwLock::new(HashMap::new()));
 
@@ -97,6 +113,8 @@ async fn main() {
         database,
         jwt_secret,
         drive,
+        backup_config,
+        backup_lock: Arc::new(Mutex::new(())),
         drive_sync_lock: Arc::new(Mutex::new(())),
         drive_sync_job: Arc::new(Mutex::new(None)),
         drive_sync_next_id: Arc::new(AtomicU64::new(1)),
@@ -110,6 +128,20 @@ async fn main() {
         login_max_failed_attempts: optional_env_u64("LOGIN_MAX_FAILED_ATTEMPTS", 5) as u32,
         login_lockout_minutes: optional_env_u64("LOGIN_LOCKOUT_MINUTES", 15) as u32,
     });
+
+    if let Err(error) = recover_interrupted_backup_jobs(&state.database).await {
+        tracing::error!(%error, "Gagal memulihkan status backup yang terhenti");
+    }
+    if let Err(error) = recover_interrupted_restore_jobs(&state).await {
+        tracing::error!(%error, "Gagal memulihkan status restore yang terhenti");
+    }
+
+    if state.backup_config.enabled {
+        let backup_state = state.clone();
+        tokio::spawn(async move {
+            run_backup_scheduler(backup_state).await;
+        });
+    }
 
     // Sinkronisasi awal memastikan data lama langsung mengikuti tanggal kontrak
     // saat backend dinyalakan.
@@ -187,6 +219,9 @@ async fn main() {
         .route("/api/kontrak-next-code", get(get_next_kontrak_code))
         .route("/api/dokumen", get(list_documents).post(upload_document))
         .route("/api/dokumen/sync", post(start_drive_sync_job))
+        .route("/api/admin/backup/run", post(trigger_backup))
+        .route("/api/admin/backup/jobs", get(list_backup_jobs))
+        .route("/api/admin/backup/restore", post(trigger_restore))
         .route(
             "/api/dokumen/sync/current",
             get(get_current_drive_sync_status),

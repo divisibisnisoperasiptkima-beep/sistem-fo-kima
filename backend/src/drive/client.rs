@@ -11,6 +11,7 @@ use tokio::sync::Mutex;
 #[derive(Clone)]
 pub struct DriveClient {
     http: Client,
+    backup_http: Client,
     client_id: Arc<str>,
     client_secret: Arc<str>,
     refresh_token: Arc<str>,
@@ -81,6 +82,10 @@ impl From<reqwest::Error> for DriveError {
 }
 
 impl DriveClient {
+    pub fn link_sharing_enabled(&self) -> bool {
+        self.link_sharing
+    }
+
     pub fn from_env() -> Result<Self, String> {
         let client_id = std::env::var("GOOGLE_CLIENT_ID")
             .map_err(|_| "GOOGLE_CLIENT_ID wajib diatur pada backend/.env".to_owned())?;
@@ -92,12 +97,20 @@ impl DriveClient {
             .map_err(|_| "PELANGGAN_ROOT_FOLDER_ID wajib diatur pada backend/.env".to_owned())?;
         let link_sharing = crate::util::optional_env_bool("GOOGLE_DRIVE_LINK_SHARING", false);
 
+        let http = Client::builder()
+            .timeout(Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(10))
+            .build()
+            .map_err(|e| format!("Gagal membuat HTTP client: {e}"))?;
+        let backup_http = Client::builder()
+            .timeout(Duration::from_secs(15 * 60))
+            .connect_timeout(Duration::from_secs(10))
+            .build()
+            .map_err(|e| format!("Gagal membuat HTTP client backup: {e}"))?;
+
         Ok(Self {
-            http: Client::builder()
-                .timeout(Duration::from_secs(30))
-                .connect_timeout(Duration::from_secs(10))
-                .build()
-                .map_err(|e| format!("Gagal membuat HTTP client: {e}"))?,
+            http,
+            backup_http,
             client_id: client_id.into(),
             client_secret: client_secret.into(),
             refresh_token: refresh_token.into(),
@@ -222,6 +235,29 @@ impl DriveClient {
         mime_type: &str,
         bytes: Vec<u8>,
     ) -> Result<DriveFile, DriveError> {
+        self.upload_file_with_client(&self.http, parent_id, name, mime_type, bytes)
+            .await
+    }
+
+    pub async fn upload_backup_file(
+        &self,
+        parent_id: &str,
+        name: &str,
+        mime_type: &str,
+        bytes: Vec<u8>,
+    ) -> Result<DriveFile, DriveError> {
+        self.upload_file_with_client(&self.backup_http, parent_id, name, mime_type, bytes)
+            .await
+    }
+
+    async fn upload_file_with_client(
+        &self,
+        http: &Client,
+        parent_id: &str,
+        name: &str,
+        mime_type: &str,
+        bytes: Vec<u8>,
+    ) -> Result<DriveFile, DriveError> {
         let token = self.access_token().await?;
         let metadata = json!({
             "name": name,
@@ -242,8 +278,7 @@ impl DriveClient {
             .part("metadata", metadata_part)
             .part("file", file_part);
 
-        let response = self
-            .http
+        let response = http
             .post("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink&supportsAllDrives=true")
             .bearer_auth(&token)
             .multipart(form)
@@ -268,13 +303,75 @@ impl DriveClient {
         })
     }
 
-    /// Mengambil isi file dari Drive melalui backend.
-    /// Browser tidak pernah menerima token OAuth Google maupun link publik.
-    pub async fn download_file_content(&self, file_id: &str) -> Result<Vec<u8>, DriveError> {
+    pub async fn ensure_restricted(&self, file_id: &str) -> Result<(), DriveError> {
         let token = self.access_token().await?;
         let encoded_file_id = urlencoding::encode(file_id);
         let response = self
             .http
+            .get(format!(
+                "https://www.googleapis.com/drive/v3/files/{encoded_file_id}?fields=permissions(type,role)&supportsAllDrives=true"
+            ))
+            .bearer_auth(token)
+            .send()
+            .await?;
+        if !response.status().is_success() {
+            let status = response.status();
+            return Err(DriveError::Message(format!(
+                "Gagal memeriksa permission folder backup Drive: HTTP {status}"
+            )));
+        }
+
+        #[derive(Deserialize)]
+        struct PermissionsResponse {
+            permissions: Option<Vec<Permission>>,
+        }
+
+        #[derive(Deserialize)]
+        struct Permission {
+            #[serde(rename = "type")]
+            permission_type: String,
+        }
+
+        let payload: PermissionsResponse = response.json().await?;
+        if payload
+            .permissions
+            .unwrap_or_default()
+            .iter()
+            .any(|permission| matches!(permission.permission_type.as_str(), "anyone" | "domain"))
+        {
+            return Err(DriveError::Message(
+                "Folder backup Drive memiliki permission publik/domain; ubah menjadi Dibatasi"
+                    .to_owned(),
+            ));
+        }
+        Ok(())
+    }
+
+    /// Mengambil isi file dari Drive melalui backend.
+    /// Browser tidak pernah menerima token OAuth Google maupun link publik.
+    pub async fn download_file_content(&self, file_id: &str) -> Result<Vec<u8>, DriveError> {
+        self.download_file_content_with_client(&self.http, file_id, None)
+            .await
+    }
+
+    pub async fn download_backup_file(
+        &self,
+        file_id: &str,
+        max_bytes: u64,
+    ) -> Result<Vec<u8>, DriveError> {
+        self.download_file_content_with_client(&self.backup_http, file_id, Some(max_bytes))
+            .await
+    }
+
+    async fn download_file_content_with_client(
+        &self,
+        http: &Client,
+        file_id: &str,
+        max_bytes: Option<u64>,
+    ) -> Result<Vec<u8>, DriveError> {
+        let token = self.access_token().await?;
+        let encoded_file_id = urlencoding::encode(file_id);
+        let response = http
             .get(format!(
                 "https://www.googleapis.com/drive/v3/files/{encoded_file_id}?alt=media&supportsAllDrives=true"
             ))
@@ -287,7 +384,27 @@ impl DriveClient {
                 "Gagal mengambil isi file Drive: HTTP {status}"
             )));
         }
-        Ok(response.bytes().await?.to_vec())
+        if let (Some(content_length), Some(max_bytes)) = (response.content_length(), max_bytes)
+            && content_length > max_bytes
+        {
+            return Err(DriveError::Message(
+                "file backup Drive melebihi batas ukuran restore".to_owned(),
+            ));
+        }
+
+        let mut body = Vec::new();
+        let mut response = response;
+        while let Some(chunk) = response.chunk().await? {
+            if let Some(max_bytes) = max_bytes
+                && (body.len() as u64).saturating_add(chunk.len() as u64) > max_bytes
+            {
+                return Err(DriveError::Message(
+                    "file backup Drive melebihi batas ukuran restore".to_owned(),
+                ));
+            }
+            body.extend_from_slice(&chunk);
+        }
+        Ok(body)
     }
 
     /// Delete folder or file in Google Drive

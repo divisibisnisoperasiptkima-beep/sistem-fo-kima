@@ -45,6 +45,14 @@ pub async fn ensure_application_schema(database: &MySqlPool) -> Result<(), sqlx:
         .execute(database)
         .await?;
 
+    sqlx::raw_sql(include_str!("../migrations/000025_backup_jobs.sql"))
+        .execute(database)
+        .await?;
+
+    sqlx::raw_sql(include_str!("../migrations/000026_backup_restore_jobs.sql"))
+        .execute(database)
+        .await?;
+
     Ok(())
 }
 
