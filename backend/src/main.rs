@@ -15,7 +15,12 @@ mod titik_peta;
 mod users;
 mod util;
 
-use std::{collections::HashMap, env, net::SocketAddr, sync::Arc};
+use std::{
+    collections::HashMap,
+    env,
+    net::SocketAddr,
+    sync::{Arc, atomic::AtomicU64},
+};
 
 #[allow(unused_imports)]
 use axum::routing::delete;
@@ -35,8 +40,9 @@ use crate::{
     auth::{change_password, current_session, login, require_auth},
     dashboard::get_dashboard,
     dokumen::{
-        delete_document, download_document, list_documents, list_isp_documents, preview_document,
-        rename_document, sync_drive_documents, sync_drive_documents_internal, upload_document,
+        delete_document, download_document, get_current_drive_sync_status, get_drive_sync_status,
+        list_documents, list_isp_documents, preview_document, rename_document,
+        start_drive_sync_job, sync_drive_documents_internal, upload_document,
     },
     drive::DriveClient,
     kontrak::{
@@ -92,6 +98,8 @@ async fn main() {
         jwt_secret,
         drive,
         drive_sync_lock: Arc::new(Mutex::new(())),
+        drive_sync_job: Arc::new(Mutex::new(None)),
+        drive_sync_next_id: Arc::new(AtomicU64::new(1)),
         rate_limiter,
         core_capacity: optional_env_u64("CORE_CAPACITY", 384),
         max_upload_bytes: optional_env_usize("MAX_UPLOAD_BYTES", 25 * 1024 * 1024) as usize,
@@ -178,7 +186,12 @@ async fn main() {
         .route("/api/kontrak-lengkap/{id}/upgrade", post(upgrade_contract))
         .route("/api/kontrak-next-code", get(get_next_kontrak_code))
         .route("/api/dokumen", get(list_documents).post(upload_document))
-        .route("/api/dokumen/sync", post(sync_drive_documents))
+        .route("/api/dokumen/sync", post(start_drive_sync_job))
+        .route(
+            "/api/dokumen/sync/current",
+            get(get_current_drive_sync_status),
+        )
+        .route("/api/dokumen/sync/{job_id}", get(get_drive_sync_status))
         .route("/api/isp/dokumen", get(list_isp_documents))
         .route("/api/dokumen/{id}/preview", get(preview_document))
         .route("/api/dokumen/{id}/download", get(download_document))

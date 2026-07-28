@@ -228,6 +228,20 @@ pub struct DriveSyncResponse {
     pub errors: u64,
 }
 
+#[derive(Clone, Serialize)]
+pub struct DriveSyncProgress {
+    pub job_id: u64,
+    pub status: String,
+    pub total_targets: u64,
+    pub processed_targets: u64,
+    pub folders_scanned: u64,
+    pub files_scanned: u64,
+    pub new_documents: u64,
+    pub existing_documents: u64,
+    pub errors: u64,
+    pub message: Option<String>,
+}
+
 #[derive(Serialize)]
 pub struct IspDocumentRow {
     pub id: u64,

@@ -17,8 +17,8 @@ use crate::{
     },
     error::ApiError,
     models::{
-        AuthUser, DocumentRow, DriveSyncResponse, IspDocumentRow, ListDocumentsQuery, Page,
-        Pagination, RenameDocumentRequest,
+        AuthUser, DocumentRow, DriveSyncProgress, DriveSyncResponse, IspDocumentRow,
+        ListDocumentsQuery, Page, Pagination, RenameDocumentRequest,
     },
     state::AppState,
     util::{pagination, require_admin, require_document_upload},
@@ -153,18 +153,107 @@ struct DriveSyncTarget {
 /// Sinkronisasi hanya memeriksa folder pelanggan dan folder periode kontrak yang
 /// sudah tersimpan di database. Tidak ada pembuatan folder dan tidak ada
 /// penghapusan record dokumen pada proses ini.
-pub async fn sync_drive_documents(
+pub async fn start_drive_sync_job(
     State(state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthUser>,
-) -> Result<Json<DriveSyncResponse>, ApiError> {
+) -> Result<(StatusCode, Json<DriveSyncProgress>), ApiError> {
     require_admin(&auth.role)?;
-    sync_drive_documents_internal(&state)
+
+    if state.drive_sync_lock.try_lock().is_err() {
+        return Err(ApiError::conflict(
+            "Sinkronisasi Drive sedang berjalan. Tunggu sampai selesai.",
+        ));
+    }
+
+    let targets = load_drive_sync_targets(&state.database)
         .await
-        .map(Json)
         .map_err(|error| {
-            tracing::error!(%error, "Drive document synchronization failed");
-            ApiError::internal("Sinkronisasi dokumen Drive gagal.")
-        })
+            tracing::error!(%error, "Unable to prepare Drive synchronization job");
+            ApiError::internal("Sinkronisasi dokumen Drive gagal disiapkan.")
+        })?;
+
+    let mut job_guard = state.drive_sync_job.lock().await;
+    if job_guard
+        .as_ref()
+        .is_some_and(|job| job.status == "running")
+    {
+        return Err(ApiError::conflict(
+            "Sinkronisasi Drive sedang berjalan. Tunggu sampai selesai.",
+        ));
+    }
+
+    let job_id = state
+        .drive_sync_next_id
+        .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let progress = DriveSyncProgress {
+        job_id,
+        status: "running".to_owned(),
+        total_targets: targets.len() as u64,
+        processed_targets: 0,
+        folders_scanned: 0,
+        files_scanned: 0,
+        new_documents: 0,
+        existing_documents: 0,
+        errors: 0,
+        message: None,
+    };
+    *job_guard = Some(progress.clone());
+    drop(job_guard);
+
+    let worker_state = state.clone();
+    tokio::spawn(async move {
+        run_drive_sync_job(worker_state, job_id, targets).await;
+    });
+
+    Ok((StatusCode::ACCEPTED, Json(progress)))
+}
+
+pub async fn get_drive_sync_status(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+    Path(job_id): Path<u64>,
+) -> Result<Json<DriveSyncProgress>, ApiError> {
+    require_admin(&auth.role)?;
+    let job_guard = state.drive_sync_job.lock().await;
+    let progress = job_guard
+        .as_ref()
+        .filter(|job| job.job_id == job_id)
+        .cloned()
+        .ok_or_else(|| ApiError::not_found("Proses sinkronisasi tidak ditemukan."))?;
+    Ok(Json(progress))
+}
+
+pub async fn get_current_drive_sync_status(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+) -> Result<Json<DriveSyncProgress>, ApiError> {
+    require_admin(&auth.role)?;
+    let job_guard = state.drive_sync_job.lock().await;
+    let progress = job_guard
+        .as_ref()
+        .filter(|job| job.status == "running")
+        .cloned()
+        .ok_or_else(|| ApiError::not_found("Tidak ada sinkronisasi Drive yang sedang berjalan."))?;
+    Ok(Json(progress))
+}
+
+async fn run_drive_sync_job(state: Arc<AppState>, job_id: u64, targets: Vec<DriveSyncTarget>) {
+    let _sync_guard = state.drive_sync_lock.lock().await;
+    let result = scan_drive_sync_targets(&state, targets, Some(job_id)).await;
+    let mut job_guard = state.drive_sync_job.lock().await;
+    if let Some(progress) = job_guard.as_mut().filter(|job| job.job_id == job_id) {
+        progress.status = "completed".to_owned();
+        progress.folders_scanned = result.folders_scanned;
+        progress.files_scanned = result.files_scanned;
+        progress.new_documents = result.new_documents;
+        progress.existing_documents = result.existing_documents;
+        progress.errors = result.errors;
+        progress.message = Some(if result.errors == 0 {
+            "Sinkronisasi selesai.".to_owned()
+        } else {
+            "Sinkronisasi selesai dengan beberapa error.".to_owned()
+        });
+    }
 }
 
 pub async fn sync_drive_documents_internal(
@@ -172,6 +261,14 @@ pub async fn sync_drive_documents_internal(
 ) -> Result<DriveSyncResponse, String> {
     let _sync_guard = state.drive_sync_lock.lock().await;
     let targets = load_drive_sync_targets(&state.database).await?;
+    Ok(scan_drive_sync_targets(state, targets, None).await)
+}
+
+async fn scan_drive_sync_targets(
+    state: &Arc<AppState>,
+    targets: Vec<DriveSyncTarget>,
+    job_id: Option<u64>,
+) -> DriveSyncResponse {
     let mut result = DriveSyncResponse {
         folders_scanned: 0,
         files_scanned: 0,
@@ -179,6 +276,8 @@ pub async fn sync_drive_documents_internal(
         existing_documents: 0,
         errors: 0,
     };
+    let total_targets = targets.len() as u64;
+    let mut processed_targets = 0;
 
     for target in targets {
         let category_folders = match state
@@ -190,6 +289,15 @@ pub async fn sync_drive_documents_internal(
             Err(error) => {
                 result.errors += 1;
                 tracing::warn!(target = %target.label, %error, "Folder Drive dilewati saat sinkronisasi");
+                processed_targets += 1;
+                update_drive_sync_progress(
+                    state,
+                    job_id,
+                    total_targets,
+                    processed_targets,
+                    &result,
+                )
+                .await;
                 continue;
             }
         };
@@ -275,9 +383,32 @@ pub async fn sync_drive_documents_internal(
                 }
             }
         }
+
+        processed_targets += 1;
+        update_drive_sync_progress(state, job_id, total_targets, processed_targets, &result).await;
     }
 
-    Ok(result)
+    result
+}
+
+async fn update_drive_sync_progress(
+    state: &Arc<AppState>,
+    job_id: Option<u64>,
+    total_targets: u64,
+    processed_targets: u64,
+    result: &DriveSyncResponse,
+) {
+    let Some(job_id) = job_id else { return };
+    let mut job_guard = state.drive_sync_job.lock().await;
+    if let Some(progress) = job_guard.as_mut().filter(|job| job.job_id == job_id) {
+        progress.total_targets = total_targets;
+        progress.processed_targets = processed_targets;
+        progress.folders_scanned = result.folders_scanned;
+        progress.files_scanned = result.files_scanned;
+        progress.new_documents = result.new_documents;
+        progress.existing_documents = result.existing_documents;
+        progress.errors = result.errors;
+    }
 }
 
 async fn load_drive_sync_targets(

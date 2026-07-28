@@ -83,7 +83,9 @@ GET   /api/kontrak-lengkap         → list_contracts
 POST  /api/kontrak-lengkap         → create_contract
 GET   /api/dokumen?pelanggan_id=|lokasi_id=|billing_id=   → list_documents
 POST  /api/dokumen                 → upload_document (multipart)
-POST  /api/dokumen/sync            → sync_drive_documents (admin; manual scan)
+POST  /api/dokumen/sync            → start_drive_sync_job (admin; mulai job)
+GET   /api/dokumen/sync/current     → get_current_drive_sync_status (admin)
+GET   /api/dokumen/sync/{job_id}    → get_drive_sync_status (admin)
 DELETE /api/dokumen/{id}           → delete_document
 ```
 
@@ -270,6 +272,9 @@ Backend membaca folder pelanggan dan folder periode kontrak yang tersimpan pada
 `BAK-PKS`, dan `Dokumen Lain`. File baru dicatat ke tabel `dokumen` menggunakan
 `drive_file_id` sebagai kunci unik. Sinkronisasi juga dapat dijalankan dari tombol
 `Sinkronkan Drive` pada halaman Kontrak atau endpoint `POST /api/dokumen/sync`.
+Endpoint tersebut langsung mengembalikan `job_id`; progress dapat dibaca melalui
+endpoint status. Job tetap berjalan di backend walaupun browser berpindah halaman
+atau di-refresh.
 
 Selain pemicu manual, backend menjalankan pemeriksaan berkala setiap 10 menit.
 Sinkronisasi tidak membuat folder baru, tidak menghapus record database, dan hanya

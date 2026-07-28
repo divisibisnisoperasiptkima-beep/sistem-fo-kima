@@ -8,8 +8,10 @@ import DeleteKontrakModal from "./DeleteKontrakModal";
 import ExtendKontrakModal from "./ExtendKontrakModal";
 import UpgradeKontrakModal from "./UpgradeKontrakModal";
 import ActionButtons from "./ActionButtons";
-import { listContracts, syncDriveDocuments } from "../../lib/rust-api";
+import { getCurrentDriveSyncStatus, getDriveSyncStatus, listContracts, syncDriveDocuments } from "../../lib/rust-api";
 import { kontrakColumns, setActionButtonsComponent } from "./columns.jsx";
+
+const DRIVE_SYNC_JOB_KEY = "kima-drive-sync-job";
 
 /**
  * Kontrak page component
@@ -28,7 +30,9 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState([]);
-  const [syncingDrive, setSyncingDrive] = useState(false);
+  const [syncJobId, setSyncJobId] = useState(() => localStorage.getItem(DRIVE_SYNC_JOB_KEY) || "");
+  const [syncProgress, setSyncProgress] = useState(null);
+  const [syncingDrive, setSyncingDrive] = useState(() => Boolean(localStorage.getItem(DRIVE_SYNC_JOB_KEY)));
   const [syncMessage, setSyncMessage] = useState("");
 
   // Debounce search input
@@ -66,16 +70,77 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
     setSyncMessage("");
     try {
       const result = await syncDriveDocuments(session.token);
-      setSyncMessage(
-        `${result.new_documents || 0} dokumen baru ditemukan dari ${result.files_scanned || 0} file Drive${result.errors ? `; ${result.errors} bagian gagal dibaca` : ""}.`,
-      );
-      handleSuccess();
+      const jobId = String(result.job_id);
+      localStorage.setItem(DRIVE_SYNC_JOB_KEY, jobId);
+      setSyncJobId(jobId);
+      setSyncProgress(result);
     } catch (error) {
-      setSyncMessage(error.message || "Sinkronisasi Drive gagal.");
-    } finally {
       setSyncingDrive(false);
+      setSyncMessage(error.message || "Sinkronisasi Drive gagal.");
     }
-  }, [handleSuccess, session.token, syncingDrive]);
+  }, [session.token, syncingDrive]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let timerId;
+
+    if (!syncJobId) {
+      getCurrentDriveSyncStatus(session.token)
+        .then((progress) => {
+          if (cancelled) return;
+          const jobId = String(progress.job_id);
+          localStorage.setItem(DRIVE_SYNC_JOB_KEY, jobId);
+          setSyncJobId(jobId);
+          setSyncProgress(progress);
+          setSyncingDrive(true);
+        })
+        .catch((error) => {
+          if (!cancelled && error?.status !== 404) {
+            setSyncMessage(error.message || "Status sinkronisasi gagal dimuat.");
+          }
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const poll = async () => {
+      try {
+        const progress = await getDriveSyncStatus(session.token, syncJobId);
+        if (cancelled) return;
+        setSyncProgress(progress);
+        if (progress.status === "running") {
+          timerId = window.setTimeout(poll, 1200);
+          return;
+        }
+
+        setSyncingDrive(false);
+        localStorage.removeItem(DRIVE_SYNC_JOB_KEY);
+        setSyncJobId("");
+        setSyncMessage(
+          `${progress.new_documents || 0} dokumen baru ditemukan dari ${progress.files_scanned || 0} file Drive${progress.errors ? `; ${progress.errors} bagian gagal dibaca` : ""}.`,
+        );
+        handleSuccess();
+      } catch (error) {
+        if (cancelled) return;
+        if (error?.status === 404) {
+          setSyncingDrive(false);
+          localStorage.removeItem(DRIVE_SYNC_JOB_KEY);
+          setSyncJobId("");
+          setSyncMessage("Status sinkronisasi tidak tersedia. Silakan mulai ulang.");
+          return;
+        }
+        // Gangguan jaringan sementara tidak membatalkan job di backend.
+        timerId = window.setTimeout(poll, 2000);
+      }
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      if (timerId) window.clearTimeout(timerId);
+    };
+  }, [handleSuccess, session.token, syncJobId]);
 
   // Edit handler
   const handleEdit = useCallback((row) => {
@@ -179,6 +244,21 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
         <p className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-3.5 py-2 text-xs font-semibold text-sky-100">
           {syncMessage}
         </p>
+      )}
+
+      {syncingDrive && syncProgress && (
+        <div className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-3.5 py-3 text-xs text-sky-100">
+          <div className="flex items-center justify-between gap-3 font-semibold">
+            <span>Membaca folder {syncProgress.processed_targets || 0} dari {syncProgress.total_targets || 0}</span>
+            <span>{syncProgress.new_documents || 0} dokumen baru</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-950/50">
+            <div
+              className="h-full rounded-full bg-sky-300 transition-all duration-300"
+              style={{ width: `${syncProgress.total_targets ? Math.min(100, Math.round((syncProgress.processed_targets * 100) / syncProgress.total_targets)) : 0}%` }}
+            />
+          </div>
+        </div>
       )}
 
       {/* Active Filter Chips Bar (rendered when filters applied) */}

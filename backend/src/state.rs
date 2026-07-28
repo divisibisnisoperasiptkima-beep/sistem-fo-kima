@@ -1,9 +1,14 @@
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{
+    collections::HashMap,
+    sync::{Arc, atomic::AtomicU64},
+    time::Instant,
+};
 
 use sqlx::MySqlPool;
 use tokio::sync::{Mutex, RwLock};
 
 use crate::drive::DriveClient;
+use crate::models::DriveSyncProgress;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -11,6 +16,8 @@ pub struct AppState {
     pub jwt_secret: Arc<str>,
     pub drive: DriveClient,
     pub drive_sync_lock: Arc<Mutex<()>>,
+    pub drive_sync_job: Arc<Mutex<Option<DriveSyncProgress>>>,
+    pub drive_sync_next_id: Arc<AtomicU64>,
     pub rate_limiter: Arc<RwLock<HashMap<String, Vec<Instant>>>>,
     pub core_capacity: u64,
     pub max_upload_bytes: usize,

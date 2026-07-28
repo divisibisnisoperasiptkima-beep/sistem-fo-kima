@@ -12,6 +12,16 @@ const formatRupiah = (val) => {
   }).format(Number(val));
 };
 
+const renderCapacity = (row) => {
+  if (row.sharing_core && row.sharing_core !== "—") {
+    return <span className="font-semibold text-violet-300">Sharing {row.sharing_core}</span>;
+  }
+  if (row.core && row.core !== "—") {
+    return <span className="font-semibold text-sky-300">{row.core}</span>;
+  }
+  return "—";
+};
+
 const renderStatusBadge = (row) => {
   const preserved = ["Diperpanjang", "Di-upgrade", "Berhenti"];
   const stored = row.status_kontrak || row.status || "—";
@@ -117,6 +127,7 @@ export const monitoringColumns = [
   { label: "Periode Awal", render: (row) => value(row.periode_awal) },
   { label: "Periode Berakhir", render: (row) => value(row.periode_berakhir) },
   { label: "Durasi", render: (row) => (row.durasi_kontrak_bulan ? `${row.durasi_kontrak_bulan} Bln` : "—") },
+  { label: "Kapasitas Core", render: renderCapacity },
   { label: "Nilai Perbulan", render: (row) => <span className="font-semibold text-emerald-400">{formatRupiah(row.perbulan)}</span> },
   {
     label: "Aksi",
