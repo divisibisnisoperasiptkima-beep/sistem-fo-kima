@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, forwardRef, useImperativeHandle, useEffect } from "react";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, RefreshCw, Search, X } from "lucide-react";
 import DataTable from "../../components/DataTable";
 import StatusFilterBar from "../../components/StatusFilterBar";
 import AddKontrakModal from "./AddKontrakModal";
@@ -8,7 +8,7 @@ import DeleteKontrakModal from "./DeleteKontrakModal";
 import ExtendKontrakModal from "./ExtendKontrakModal";
 import UpgradeKontrakModal from "./UpgradeKontrakModal";
 import ActionButtons from "./ActionButtons";
-import { listContracts } from "../../lib/rust-api";
+import { listContracts, syncDriveDocuments } from "../../lib/rust-api";
 import { kontrakColumns, setActionButtonsComponent } from "./columns.jsx";
 
 /**
@@ -28,6 +28,8 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState([]);
+  const [syncingDrive, setSyncingDrive] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
 
   // Debounce search input
   useEffect(() => {
@@ -57,6 +59,23 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
       tableRef.current.refresh();
     }
   }, []);
+
+  const handleDriveSync = useCallback(async () => {
+    if (syncingDrive) return;
+    setSyncingDrive(true);
+    setSyncMessage("");
+    try {
+      const result = await syncDriveDocuments(session.token);
+      setSyncMessage(
+        `${result.new_documents || 0} dokumen baru ditemukan dari ${result.files_scanned || 0} file Drive${result.errors ? `; ${result.errors} bagian gagal dibaca` : ""}.`,
+      );
+      handleSuccess();
+    } catch (error) {
+      setSyncMessage(error.message || "Sinkronisasi Drive gagal.");
+    } finally {
+      setSyncingDrive(false);
+    }
+  }, [handleSuccess, session.token, syncingDrive]);
 
   // Edit handler
   const handleEdit = useCallback((row) => {
@@ -136,6 +155,17 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
           />
 
           <button
+            type="button"
+            onClick={() => void handleDriveSync()}
+            disabled={syncingDrive}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-sky-400/10 border border-sky-400/30 text-sky-200 hover:bg-sky-400/20 transition-all backdrop-blur-md disabled:opacity-50 shrink-0"
+            title="Baca file baru dari folder Google Drive yang terdaftar"
+          >
+            <RefreshCw size={16} className={syncingDrive ? "animate-spin" : ""} />
+            <span>{syncingDrive ? "Menyinkronkan…" : "Sinkronkan Drive"}</span>
+          </button>
+
+          <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-gold-accent/20 border border-gold-accent/40 text-gold-accent hover:bg-gold-accent/30 hover:border-gold-accent/60 transition-all backdrop-blur-md shadow-lg shrink-0"
           >
@@ -144,6 +174,12 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
           </button>
         </div>
       </div>
+
+      {syncMessage && (
+        <p className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-3.5 py-2 text-xs font-semibold text-sky-100">
+          {syncMessage}
+        </p>
+      )}
 
       {/* Active Filter Chips Bar (rendered when filters applied) */}
       {statusFilter.length > 0 && (

@@ -83,6 +83,7 @@ GET   /api/kontrak-lengkap         → list_contracts
 POST  /api/kontrak-lengkap         → create_contract
 GET   /api/dokumen?pelanggan_id=|lokasi_id=|billing_id=   → list_documents
 POST  /api/dokumen                 → upload_document (multipart)
+POST  /api/dokumen/sync            → sync_drive_documents (admin; manual scan)
 DELETE /api/dokumen/{id}           → delete_document
 ```
 
@@ -260,6 +261,21 @@ Portal ISP tidak membuka `drive_url` secara langsung. Preview dan download memak
 endpoint backend yang memeriksa JWT serta penugasan pelanggan ISP, kemudian backend
 mengambil isi file melalui OAuth Google Drive. Preview dibatasi untuk PDF dan gambar;
 format lain tersedia melalui download.
+
+### Sinkronisasi Upload Langsung dari Drive
+
+Admin dapat meng-upload file langsung ke folder kategori yang sudah dibuat sistem.
+Backend membaca folder pelanggan dan folder periode kontrak yang tersimpan pada
+`link_folder_berkas`, kemudian mencari file langsung di dalam subfolder `Kontrak`,
+`BAK-PKS`, dan `Dokumen Lain`. File baru dicatat ke tabel `dokumen` menggunakan
+`drive_file_id` sebagai kunci unik. Sinkronisasi juga dapat dijalankan dari tombol
+`Sinkronkan Drive` pada halaman Kontrak atau endpoint `POST /api/dokumen/sync`.
+
+Selain pemicu manual, backend menjalankan pemeriksaan berkala setiap 10 menit.
+Sinkronisasi tidak membuat folder baru, tidak menghapus record database, dan hanya
+menemukan file yang dapat dibaca oleh akun Google OAuth backend. Jika satu folder
+lama tidak dapat dibaca, proses melaporkan jumlah error dan tetap melanjutkan folder
+lainnya.
 
 ---
 

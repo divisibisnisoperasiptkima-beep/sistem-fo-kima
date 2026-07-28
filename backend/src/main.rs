@@ -27,7 +27,7 @@ use axum::{
     response::IntoResponse,
     routing::{get, patch, post, put},
 };
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use tower_http::{cors::CorsLayer, limit::RequestBodyLimitLayer, trace::TraceLayer};
 use tracing::info;
 
@@ -36,7 +36,7 @@ use crate::{
     dashboard::get_dashboard,
     dokumen::{
         delete_document, download_document, list_documents, list_isp_documents, preview_document,
-        rename_document, upload_document,
+        rename_document, sync_drive_documents, sync_drive_documents_internal, upload_document,
     },
     drive::DriveClient,
     kontrak::{
@@ -91,6 +91,7 @@ async fn main() {
         database,
         jwt_secret,
         drive,
+        drive_sync_lock: Arc::new(Mutex::new(())),
         rate_limiter,
         core_capacity: optional_env_u64("CORE_CAPACITY", 384),
         max_upload_bytes: optional_env_usize("MAX_UPLOAD_BYTES", 25 * 1024 * 1024) as usize,
@@ -134,6 +135,30 @@ async fn main() {
         }
     });
 
+    // Sinkronisasi file Drive dijalankan berkala. Proses ini hanya membaca
+    // folder yang sudah terdaftar di database dan tidak menghapus metadata.
+    let drive_sync_state = state.clone();
+    tokio::spawn(async move {
+        let mut ticker = tokio::time::interval(std::time::Duration::from_secs(10 * 60));
+        ticker.tick().await;
+        loop {
+            ticker.tick().await;
+            match sync_drive_documents_internal(&drive_sync_state).await {
+                Ok(result) if result.new_documents > 0 => {
+                    info!(
+                        new_documents = result.new_documents,
+                        files_scanned = result.files_scanned,
+                        "Drive documents synchronized"
+                    );
+                }
+                Ok(_) => {}
+                Err(error) => {
+                    tracing::error!(%error, "Drive document synchronization failed");
+                }
+            }
+        }
+    });
+
     let protected = Router::new()
         .route("/api/pelanggan", get(list_customers).post(create_customer))
         .route(
@@ -153,6 +178,7 @@ async fn main() {
         .route("/api/kontrak-lengkap/{id}/upgrade", post(upgrade_contract))
         .route("/api/kontrak-next-code", get(get_next_kontrak_code))
         .route("/api/dokumen", get(list_documents).post(upload_document))
+        .route("/api/dokumen/sync", post(sync_drive_documents))
         .route("/api/isp/dokumen", get(list_isp_documents))
         .route("/api/dokumen/{id}/preview", get(preview_document))
         .route("/api/dokumen/{id}/download", get(download_document))

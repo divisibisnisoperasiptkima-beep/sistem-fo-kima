@@ -33,11 +33,19 @@ struct TokenResponse {
 #[derive(Deserialize)]
 struct DriveListResponse {
     files: Option<Vec<DriveFileMeta>>,
+    #[serde(rename = "nextPageToken")]
+    next_page_token: Option<String>,
 }
 
 #[derive(Deserialize)]
 struct DriveFileMeta {
     id: String,
+    #[serde(default)]
+    name: Option<String>,
+    #[serde(default, rename = "mimeType")]
+    mime_type: Option<String>,
+    #[serde(default)]
+    size: Option<String>,
     #[serde(default, rename = "webViewLink")]
     web_view_link: Option<String>,
 }
@@ -45,6 +53,9 @@ struct DriveFileMeta {
 #[derive(Debug, Clone)]
 pub struct DriveFile {
     pub id: String,
+    pub name: String,
+    pub mime_type: Option<String>,
+    pub size: Option<u64>,
     pub web_view_link: Option<String>,
 }
 
@@ -250,6 +261,9 @@ impl DriveClient {
         }
         Ok(DriveFile {
             id: file.id,
+            name: file.name.unwrap_or_default(),
+            mime_type: file.mime_type,
+            size: file.size.and_then(|size| size.parse().ok()),
             web_view_link: file.web_view_link,
         })
     }
@@ -350,9 +364,64 @@ impl DriveClient {
             .into_iter()
             .map(|f| DriveFile {
                 id: f.id,
+                name: f.name.unwrap_or_default(),
+                mime_type: f.mime_type,
+                size: f.size.and_then(|size| size.parse().ok()),
                 web_view_link: f.web_view_link,
             })
             .collect())
+    }
+
+    /// Membaca file langsung di bawah sebuah folder, tanpa ikut membaca
+    /// subfolder. Pagination digunakan agar folder besar tetap terbaca utuh.
+    pub async fn list_child_files(&self, parent_id: &str) -> Result<Vec<DriveFile>, DriveError> {
+        let token = self.access_token().await?;
+        let query = format!(
+            "'{parent_id}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'"
+        );
+        let mut page_token: Option<String> = None;
+        let mut files = Vec::new();
+
+        loop {
+            let mut url = format!(
+                "https://www.googleapis.com/drive/v3/files?q={}&fields=nextPageToken,files(id,name,mimeType,size,webViewLink)&pageSize=1000&supportsAllDrives=true&includeItemsFromAllDrives=true",
+                urlencoding::encode(&query)
+            );
+            if let Some(token_value) = page_token.as_deref() {
+                url.push_str("&pageToken=");
+                url.push_str(&urlencoding::encode(token_value));
+            }
+
+            let response = self.http.get(url).bearer_auth(&token).send().await?;
+            if !response.status().is_success() {
+                let status = response.status();
+                return Err(DriveError::Message(format!(
+                    "Gagal membaca file dalam folder Drive: HTTP {status}"
+                )));
+            }
+
+            let payload: DriveListResponse = response.json().await?;
+            files.extend(
+                payload
+                    .files
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|file| DriveFile {
+                        id: file.id,
+                        name: file.name.unwrap_or_default(),
+                        mime_type: file.mime_type,
+                        size: file.size.and_then(|size| size.parse().ok()),
+                        web_view_link: file.web_view_link,
+                    }),
+            );
+
+            page_token = payload.next_page_token;
+            if page_token.is_none() {
+                break;
+            }
+        }
+
+        Ok(files)
     }
 
     /// Rename folder atau file di Google Drive

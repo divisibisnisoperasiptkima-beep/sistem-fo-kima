@@ -220,6 +220,15 @@ pub struct DocumentRow {
 }
 
 #[derive(Serialize)]
+pub struct DriveSyncResponse {
+    pub folders_scanned: u64,
+    pub files_scanned: u64,
+    pub new_documents: u64,
+    pub existing_documents: u64,
+    pub errors: u64,
+}
+
+#[derive(Serialize)]
 pub struct IspDocumentRow {
     pub id: u64,
     pub pelanggan_id: u64,

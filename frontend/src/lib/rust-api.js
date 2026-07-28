@@ -160,6 +160,10 @@ export async function listDocuments(token, lokasiId) {
   return request(`/api/dokumen?lokasi_id=${lokasiId}`, { token });
 }
 
+export async function syncDriveDocuments(token) {
+  return request("/api/dokumen/sync", { method: "POST", token });
+}
+
 export async function fetchDocumentContent(token, id, mode = "preview") {
   const safeMode = mode === "download" ? "download" : "preview";
   const response = await fetch(`${API_BASE_URL}/api/dokumen/${id}/${safeMode}`, {

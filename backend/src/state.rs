@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
 use sqlx::MySqlPool;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 
 use crate::drive::DriveClient;
 
@@ -10,6 +10,7 @@ pub struct AppState {
     pub database: MySqlPool,
     pub jwt_secret: Arc<str>,
     pub drive: DriveClient,
+    pub drive_sync_lock: Arc<Mutex<()>>,
     pub rate_limiter: Arc<RwLock<HashMap<String, Vec<Instant>>>>,
     pub core_capacity: u64,
     pub max_upload_bytes: usize,

@@ -51,20 +51,23 @@ pub fn parse_drive_folder_id(value: &str) -> Option<String> {
             .next()
             .unwrap_or_default()
             .trim();
-        if !id.is_empty() {
+        if is_valid_drive_id(id) {
             return Some(id.to_owned());
         }
     }
-    if value
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
-        && value.len() >= 10
-        && !value.contains(' ')
-        && !value.contains("://")
-    {
+    if is_valid_drive_id(value) {
         return Some(value.to_owned());
     }
     None
+}
+
+fn is_valid_drive_id(value: &str) -> bool {
+    value.len() >= 10
+        && value
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+        && !value.contains(' ')
+        && !value.contains("://")
 }
 
 pub fn folder_url(folder_id: &str) -> String {

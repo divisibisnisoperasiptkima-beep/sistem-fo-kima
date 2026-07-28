@@ -17,8 +17,8 @@ use crate::{
     },
     error::ApiError,
     models::{
-        AuthUser, DocumentRow, IspDocumentRow, ListDocumentsQuery, Page, Pagination,
-        RenameDocumentRequest,
+        AuthUser, DocumentRow, DriveSyncResponse, IspDocumentRow, ListDocumentsQuery, Page,
+        Pagination, RenameDocumentRequest,
     },
     state::AppState,
     util::{pagination, require_admin, require_document_upload},
@@ -139,6 +139,216 @@ pub async fn list_documents(
         page,
         page_size,
     }))
+}
+
+struct DriveSyncTarget {
+    pelanggan_id: u64,
+    lokasi_id: Option<u64>,
+    parent_folder_id: String,
+    label: String,
+}
+
+/// Menjalankan sinkronisasi file Drive untuk endpoint admin maupun job berkala.
+///
+/// Sinkronisasi hanya memeriksa folder pelanggan dan folder periode kontrak yang
+/// sudah tersimpan di database. Tidak ada pembuatan folder dan tidak ada
+/// penghapusan record dokumen pada proses ini.
+pub async fn sync_drive_documents(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+) -> Result<Json<DriveSyncResponse>, ApiError> {
+    require_admin(&auth.role)?;
+    sync_drive_documents_internal(&state)
+        .await
+        .map(Json)
+        .map_err(|error| {
+            tracing::error!(%error, "Drive document synchronization failed");
+            ApiError::internal("Sinkronisasi dokumen Drive gagal.")
+        })
+}
+
+pub async fn sync_drive_documents_internal(
+    state: &Arc<AppState>,
+) -> Result<DriveSyncResponse, String> {
+    let _sync_guard = state.drive_sync_lock.lock().await;
+    let targets = load_drive_sync_targets(&state.database).await?;
+    let mut result = DriveSyncResponse {
+        folders_scanned: 0,
+        files_scanned: 0,
+        new_documents: 0,
+        existing_documents: 0,
+        errors: 0,
+    };
+
+    for target in targets {
+        let category_folders = match state
+            .drive
+            .list_child_folders(&target.parent_folder_id)
+            .await
+        {
+            Ok(folders) => folders,
+            Err(error) => {
+                result.errors += 1;
+                tracing::warn!(target = %target.label, %error, "Folder Drive dilewati saat sinkronisasi");
+                continue;
+            }
+        };
+
+        for kategori in DOC_CATEGORIES {
+            let Some(category_folder_id) = category_folders
+                .iter()
+                .find(|folder| folder.name == *kategori)
+                .map(|folder| folder.id.clone())
+            else {
+                // Folder kategori mungkin belum ada pada data lama. Jangan
+                // membuat folder baru hanya karena proses sinkronisasi.
+                continue;
+            };
+
+            result.folders_scanned += 1;
+            let files = match state.drive.list_child_files(&category_folder_id).await {
+                Ok(files) => files,
+                Err(error) => {
+                    result.errors += 1;
+                    tracing::warn!(
+                        target = %target.label,
+                        kategori = *kategori,
+                        %error,
+                        "Isi folder Drive dilewati saat sinkronisasi"
+                    );
+                    continue;
+                }
+            };
+
+            for file in files {
+                if file.name.trim().is_empty() {
+                    continue;
+                }
+                result.files_scanned += 1;
+                let drive_url = file
+                    .web_view_link
+                    .unwrap_or_else(|| format!("https://drive.google.com/file/d/{}/view", file.id));
+
+                let affected = match sqlx::query(
+                    "INSERT INTO dokumen \
+                     (pelanggan_id, lokasi_id, billing_id, uploaded_by_user_id, kategori, nama_file, \
+                      drive_file_id, drive_folder_id, drive_url, ukuran_byte, mime_type) \
+                     VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?) \
+                     ON DUPLICATE KEY UPDATE \
+                       nama_file = VALUES(nama_file), \
+                       drive_url = VALUES(drive_url), \
+                       ukuran_byte = VALUES(ukuran_byte), \
+                       mime_type = VALUES(mime_type)",
+                )
+                .bind(target.pelanggan_id)
+                .bind(target.lokasi_id)
+                .bind(*kategori)
+                .bind(&file.name)
+                .bind(&file.id)
+                .bind(&category_folder_id)
+                .bind(drive_url)
+                .bind(file.size)
+                .bind(file.mime_type.as_deref())
+                .execute(&state.database)
+                .await
+                {
+                    Ok(affected) => affected,
+                    Err(error) => {
+                        result.errors += 1;
+                        tracing::warn!(
+                            target = %target.label,
+                            kategori = *kategori,
+                            file = %file.name,
+                            %error,
+                            "File Drive gagal dicatat saat sinkronisasi"
+                        );
+                        continue;
+                    }
+                };
+
+                // MySQL melaporkan 1 row untuk insert baru, 2 atau 0 untuk
+                // record yang sudah ada (tergantung apakah metadata berubah).
+                if affected.rows_affected() == 1 {
+                    result.new_documents += 1;
+                } else {
+                    result.existing_documents += 1;
+                }
+            }
+        }
+    }
+
+    Ok(result)
+}
+
+async fn load_drive_sync_targets(
+    database: &sqlx::MySqlPool,
+) -> Result<Vec<DriveSyncTarget>, String> {
+    let mut targets = Vec::new();
+    let customer_rows = sqlx::query(
+        "SELECT id, nama_pelanggan, link_folder_berkas \
+         FROM pelanggan \
+         WHERE NULLIF(link_folder_berkas, '') IS NOT NULL",
+    )
+    .fetch_all(database)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    for row in customer_rows {
+        let link: Option<String> = row.try_get("link_folder_berkas").unwrap_or(None);
+        let Some(link) = link else { continue };
+        let Some(parent_folder_id) = parse_drive_folder_id(&link) else {
+            tracing::warn!(link = %link, "Mengabaikan link folder pelanggan yang tidak valid saat sinkronisasi Drive");
+            continue;
+        };
+        let pelanggan_id: u64 = row.try_get("id").map_err(|error| error.to_string())?;
+        let nama_pelanggan: String = row
+            .try_get("nama_pelanggan")
+            .map_err(|error| error.to_string())?;
+        targets.push(DriveSyncTarget {
+            pelanggan_id,
+            lokasi_id: None,
+            parent_folder_id,
+            label: format!("Pelanggan {nama_pelanggan}"),
+        });
+    }
+
+    let location_rows = sqlx::query(
+        "SELECT l.id, l.pelanggan_id, l.nama_lokasi, l.link_folder_berkas, \
+                p.nama_pelanggan \
+         FROM lokasi l \
+         INNER JOIN pelanggan p ON p.id = l.pelanggan_id \
+         WHERE NULLIF(l.link_folder_berkas, '') IS NOT NULL",
+    )
+    .fetch_all(database)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    for row in location_rows {
+        let link: Option<String> = row.try_get("link_folder_berkas").unwrap_or(None);
+        let Some(link) = link else { continue };
+        let Some(parent_folder_id) = parse_drive_folder_id(&link) else {
+            tracing::warn!(link = %link, "Mengabaikan link folder lokasi yang tidak valid saat sinkronisasi Drive");
+            continue;
+        };
+        let lokasi_id: u64 = row.try_get("id").map_err(|error| error.to_string())?;
+        let pelanggan_id: u64 = row
+            .try_get("pelanggan_id")
+            .map_err(|error| error.to_string())?;
+        let nama_lokasi: String = row
+            .try_get("nama_lokasi")
+            .map_err(|error| error.to_string())?;
+        let nama_pelanggan: String = row
+            .try_get("nama_pelanggan")
+            .map_err(|error| error.to_string())?;
+        targets.push(DriveSyncTarget {
+            pelanggan_id,
+            lokasi_id: Some(lokasi_id),
+            parent_folder_id,
+            label: format!("{nama_pelanggan} / {nama_lokasi}"),
+        });
+    }
+
+    Ok(targets)
 }
 
 /// Daftar dokumen lintas pelanggan/kontrak yang dapat dibaca akun ISP.
