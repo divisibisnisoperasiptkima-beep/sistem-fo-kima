@@ -1,0 +1,669 @@
+- main [ref=f15e3]:
+  - complementary [ref=f15e6]:
+    - generic [ref=f15e7]: KIMA
+    - navigation [ref=f15e9]:
+      - button [ref=f15e10]
+      - button [ref=f15e17]
+      - button [ref=f15e24]
+      - button [ref=f15e29]
+  - generic [ref=f15e34]:
+    - button [ref=f15e37]:
+      - img "Profile" [ref=f15e38]
+      - generic [ref=f15e39]:
+        - paragraph [ref=f15e40]: admin
+        - paragraph [ref=f15e41]: Admin
+    - generic [ref=f15e43]:
+      - generic [ref=f15e44]:
+        - generic [ref=f15e45]:
+          - paragraph [ref=f15e48]: Manajemen Kontrak
+          - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f15e49]
+        - generic [ref=f15e50]:
+          - textbox "Cari kontrak..." [ref=f15e55]
+          - button "Filter Status (Semua)" [ref=f15e57] [cursor=pointer]:
+            - generic [ref=f15e60]: Filter Status
+            - generic [ref=f15e61]: (Semua)
+          - button "Tambah Kontrak" [active] [ref=f15e64]
+      - generic [ref=f15e68]:
+        - generic [ref=f15e69]:
+          - generic [ref=f15e70]:
+            - heading [level=2]
+            - paragraph [ref=f15e71]: 269 data
+          - button "Muat ulang" [ref=f15e72]
+        - table [ref=f15e77]:
+          - rowgroup [ref=f15e78]:
+            - row [ref=f15e79]:
+              - columnheader "No" [ref=f15e80]
+              - columnheader "Pelanggan" [ref=f15e81]
+              - columnheader "Lokasi" [ref=f15e82]
+              - columnheader "Sisa Waktu" [ref=f15e83]
+              - columnheader "Status" [ref=f15e84]
+              - columnheader "No. Kontrak" [ref=f15e85]
+              - columnheader "Periode Awal" [ref=f15e86]
+              - columnheader "Periode Berakhir" [ref=f15e87]
+              - columnheader "Durasi" [ref=f15e88]
+              - columnheader "Kapasitas Core" [ref=f15e89]
+              - columnheader "Nilai Kontrak" [ref=f15e90]
+              - columnheader "Biaya Aktivasi" [ref=f15e91]
+              - columnheader "Biaya / Bln" [ref=f15e92]
+              - columnheader "Periode Aktif" [ref=f15e93]
+              - columnheader "Folder Berkas" [ref=f15e94]
+              - columnheader "Aksi" [ref=f15e95]
+          - rowgroup [ref=f15e96]:
+            - row [ref=f15e102]:
+              - cell "1" [ref=f15e103]
+              - cell "Indosat Tbk" [ref=f15e104]
+              - cell "Core" [ref=f15e106]
+              - cell "10 Bln 13 Hr" [ref=f15e108]
+              - cell "Beroperasi" [ref=f15e110]
+              - cell "KIMA.PERU-029/DIU/VI/2025 dan 0366A01000" [ref=f15e112]
+              - cell "2026-06-01" [ref=f15e113]
+              - cell "2027-05-31" [ref=f15e114]
+              - cell "11 Bln" [ref=f15e115]
+              - cell "35 Core" [ref=f15e116]
+              - cell "Rp 934.500.000" [ref=f15e117]
+              - cell "Rp 0" [ref=f15e118]
+              - cell "Rp 77.875.000" [ref=f15e119]
+              - cell "Rp 934.500.000" [ref=f15e120]
+              - cell [ref=f15e121]:
+                - link "Drive" [ref=f15e122] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1qO61uVKGtxOwoPC-MHfNMJIevJNnfRSt
+              - cell [ref=f15e128]:
+                - generic [ref=f15e129]:
+                  - button "Edit Kontrak" [ref=f15e130]
+                  - button "Hapus Kontrak" [ref=f15e134]
+                  - button "Perpanjang Kontrak" [ref=f15e138]
+                  - button "Upgrade Paket Kontrak" [ref=f15e141]
+            - row [ref=f15e144]:
+              - cell "2" [ref=f15e145]
+              - cell "Indosat Tbk" [ref=f15e146]
+              - cell "Core" [ref=f15e148]
+              - cell "9 Bln 6 Hr" [ref=f15e150]
+              - cell "Diperpanjang" [ref=f15e152]
+              - cell "KIMA.PERU-030/DIU/VI/2025 dan 0087A03000" [ref=f15e154]
+              - cell "2026-04-25" [ref=f15e155]
+              - cell "2027-04-24" [ref=f15e156]
+              - cell "12 Bln" [ref=f15e157]
+              - cell "15 Core" [ref=f15e158]
+              - cell "Rp 400.500.000" [ref=f15e159]
+              - cell "Rp 0" [ref=f15e160]
+              - cell "Rp 33.375.000" [ref=f15e161]
+              - cell "Rp 400.500.000" [ref=f15e162]
+              - cell [ref=f15e163]:
+                - link "Drive" [ref=f15e164] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1QH66XIFCJrszgI_9tf692NiNmQ4f_FJ2
+              - cell [ref=f15e170]:
+                - generic [ref=f15e171]:
+                  - button "Edit Kontrak" [ref=f15e172]
+                  - button "Hapus Kontrak" [ref=f15e176]
+                  - button "Perpanjang Kontrak" [ref=f15e180]
+                  - button "Upgrade Paket Kontrak" [ref=f15e183]
+            - row [ref=f15e186]:
+              - cell "3" [ref=f15e187]
+              - cell "Indosat Tbk" [ref=f15e188]
+              - cell "Core" [ref=f15e190]
+              - cell "Berakhir" [ref=f15e192]
+              - cell "Diperpanjang" [ref=f15e194]
+              - cell "KIMA.PERU-029/DIU/VI/2025 dan 0366A01000" [ref=f15e196]
+              - cell "2025-06-01" [ref=f15e197]
+              - cell "2026-05-31" [ref=f15e198]
+              - cell "12 Bln" [ref=f15e199]
+              - cell "35 Core" [ref=f15e200]
+              - cell "Rp 882.000.000" [ref=f15e201]
+              - cell "Rp 0" [ref=f15e202]
+              - cell "Rp 73.500.000" [ref=f15e203]
+              - cell "Rp 882.000.000" [ref=f15e204]
+              - cell [ref=f15e205]:
+                - link "Drive" [ref=f15e206] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1GvMqOcK5DUGkSkv2dsRq8tgFngE_p3Rv
+              - cell [ref=f15e212]:
+                - generic [ref=f15e213]:
+                  - button "Edit Kontrak" [ref=f15e214]
+                  - button "Hapus Kontrak" [ref=f15e218]
+                  - button "Perpanjang Kontrak" [ref=f15e222]
+                  - button "Upgrade Paket Kontrak" [ref=f15e225]
+            - row [ref=f15e228]:
+              - cell "4" [ref=f15e229]
+              - cell "Indosat Tbk" [ref=f15e230]
+              - cell "Core" [ref=f15e232]
+              - cell "Berakhir" [ref=f15e234]
+              - cell "Diperpanjang" [ref=f15e236]
+              - cell "KIMA.PERU-030/DIU/VI/2025 dan 0087A03000" [ref=f15e238]
+              - cell "2025-04-25" [ref=f15e239]
+              - cell "2026-04-24" [ref=f15e240]
+              - cell "12 Bln" [ref=f15e241]
+              - cell "15 Core" [ref=f15e242]
+              - cell "Rp 378.000.000" [ref=f15e243]
+              - cell "Rp 0" [ref=f15e244]
+              - cell "Rp 31.500.000" [ref=f15e245]
+              - cell "Rp 378.000.000" [ref=f15e246]
+              - cell [ref=f15e247]:
+                - link "Drive" [ref=f15e248] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/19BzTynDjL4uiZFqsYqVWwMXeaTvo-PVa
+              - cell [ref=f15e254]:
+                - generic [ref=f15e255]:
+                  - button "Edit Kontrak" [ref=f15e256]
+                  - button "Hapus Kontrak" [ref=f15e260]
+                  - button "Perpanjang Kontrak" [ref=f15e264]
+                  - button "Upgrade Paket Kontrak" [ref=f15e267]
+            - row [ref=f15e270]:
+              - cell "5" [ref=f15e271]
+              - cell "Indosat Tbk" [ref=f15e272]
+              - cell "Core" [ref=f15e274]
+              - cell "Berakhir" [ref=f15e276]
+              - cell "Diperpanjang" [ref=f15e278]
+              - cell "KIMA.PERU-069/DIU/X/2024 dan 0366000000" [ref=f15e280]
+              - cell "2024-06-01" [ref=f15e281]
+              - cell "2025-05-31" [ref=f15e282]
+              - cell "12 Bln" [ref=f15e283]
+              - cell "35 Core" [ref=f15e284]
+              - cell "Rp 882.000.000" [ref=f15e285]
+              - cell "Rp 0" [ref=f15e286]
+              - cell "Rp 73.500.000" [ref=f15e287]
+              - cell "Rp 882.000.000" [ref=f15e288]
+              - cell [ref=f15e289]:
+                - link "Drive" [ref=f15e290] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1e98p8BaqT0q-gs_Q-fkOKUB5LttTjkEZ
+              - cell [ref=f15e296]:
+                - generic [ref=f15e297]:
+                  - button "Edit Kontrak" [ref=f15e298]
+                  - button "Hapus Kontrak" [ref=f15e302]
+                  - button "Perpanjang Kontrak" [ref=f15e306]
+                  - button "Upgrade Paket Kontrak" [ref=f15e309]
+            - row [ref=f15e312]:
+              - cell "6" [ref=f15e313]
+              - cell "Indosat Tbk" [ref=f15e314]
+              - cell "Core" [ref=f15e316]
+              - cell "Berakhir" [ref=f15e318]
+              - cell "Diperpanjang" [ref=f15e320]
+              - cell "KIMA.BAK- 169/DIU/VI/2024" [ref=f15e322]
+              - cell "2024-04-25" [ref=f15e323]
+              - cell "2025-04-24" [ref=f15e324]
+              - cell "12 Bln" [ref=f15e325]
+              - cell "15 Core" [ref=f15e326]
+              - cell "Rp 378.000.000" [ref=f15e327]
+              - cell "Rp 0" [ref=f15e328]
+              - cell "Rp 31.500.000" [ref=f15e329]
+              - cell "Rp 378.000.000" [ref=f15e330]
+              - cell [ref=f15e331]:
+                - link "Drive" [ref=f15e332] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1W39W46k8iebMzvK_FoJBmtAMWlcV_HxP
+              - cell [ref=f15e338]:
+                - generic [ref=f15e339]:
+                  - button "Edit Kontrak" [ref=f15e340]
+                  - button "Hapus Kontrak" [ref=f15e344]
+                  - button "Perpanjang Kontrak" [ref=f15e348]
+                  - button "Upgrade Paket Kontrak" [ref=f15e351]
+            - row [ref=f15e354]:
+              - cell "7" [ref=f15e355]
+              - cell "Indosat Tbk" [ref=f15e356]
+              - cell "PT Paragon Technology And Innovation" [ref=f15e358]
+              - cell "1 Bln 10 Hr" [ref=f15e360]
+              - cell "Beroperasi" [ref=f15e362]
+              - cell "KIMA.BAK-19/DBO/FO/IV/2025" [ref=f15e364]
+              - cell "2025-08-01" [ref=f15e365]
+              - cell "2026-08-31" [ref=f15e366]
+              - cell "13 Bln" [ref=f15e367]
+              - cell "1 Core" [ref=f15e368]
+              - cell "Rp 25.200.000" [ref=f15e369]
+              - cell "Rp 0" [ref=f15e370]
+              - cell "Rp 2.100.000" [ref=f15e371]
+              - cell "Rp 27.300.000" [ref=f15e372]
+              - cell [ref=f15e373]:
+                - link "Drive" [ref=f15e374] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1GAXb2Csf8lzvQHpQesN63z-FzIxmXyJy
+              - cell [ref=f15e380]:
+                - generic [ref=f15e381]:
+                  - button "Edit Kontrak" [ref=f15e382]
+                  - button "Hapus Kontrak" [ref=f15e386]
+                  - button "Perpanjang Kontrak" [ref=f15e390]
+                  - button "Upgrade Paket Kontrak" [ref=f15e393]
+            - row [ref=f15e396]:
+              - cell "8" [ref=f15e397]
+              - cell "Indosat Tbk" [ref=f15e398]
+              - cell "PT Paragon Technology And Innovation" [ref=f15e400]
+              - cell "Berakhir" [ref=f15e402]
+              - cell "Diperpanjang" [ref=f15e404]
+              - cell "KIMA.BAK-53/DBO/FO/VIII/2024" [ref=f15e406]
+              - cell "2024-08-01" [ref=f15e407]
+              - cell "2025-08-31" [ref=f15e408]
+              - cell "13 Bln" [ref=f15e409]
+              - cell "1 Core" [ref=f15e410]
+              - cell "Rp 25.200.000" [ref=f15e411]
+              - cell "Rp 0" [ref=f15e412]
+              - cell "Rp 2.100.000" [ref=f15e413]
+              - cell "Rp 27.300.000" [ref=f15e414]
+              - cell [ref=f15e415]:
+                - link "Drive" [ref=f15e416] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1d3pvACUEybaBeWZy-6J2S9xBVwIzRYVQ
+              - cell [ref=f15e422]:
+                - generic [ref=f15e423]:
+                  - button "Edit Kontrak" [ref=f15e424]
+                  - button "Hapus Kontrak" [ref=f15e428]
+                  - button "Perpanjang Kontrak" [ref=f15e432]
+                  - button "Upgrade Paket Kontrak" [ref=f15e435]
+            - row [ref=f15e438]:
+              - cell "9" [ref=f15e439]
+              - cell "Indosat Tbk" [ref=f15e440]
+              - cell "PT Paragon Technology And Innovation" [ref=f15e442]
+              - cell "Berakhir" [ref=f15e444]
+              - cell "Diperpanjang" [ref=f15e446]
+              - cell "KIMA.BAK-32/DBO/FO/VII/2023" [ref=f15e448]
+              - cell "2023-08-01" [ref=f15e449]
+              - cell "2024-08-31" [ref=f15e450]
+              - cell "13 Bln" [ref=f15e451]
+              - cell "1 Core" [ref=f15e452]
+              - cell "Rp 25.200.000" [ref=f15e453]
+              - cell "Rp 0" [ref=f15e454]
+              - cell "Rp 2.100.000" [ref=f15e455]
+              - cell "Rp 27.300.000" [ref=f15e456]
+              - cell [ref=f15e457]:
+                - link "Drive" [ref=f15e458] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1wY4757MAwThshL77gOfMV0PzkWvJtUYe
+              - cell [ref=f15e464]:
+                - generic [ref=f15e465]:
+                  - button "Edit Kontrak" [ref=f15e466]
+                  - button "Hapus Kontrak" [ref=f15e470]
+                  - button "Perpanjang Kontrak" [ref=f15e474]
+                  - button "Upgrade Paket Kontrak" [ref=f15e477]
+            - row [ref=f15e480]:
+              - cell "10" [ref=f15e481]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e482]
+              - cell "Core" [ref=f15e484]
+              - cell "5 Bln 25 Hr" [ref=f15e486]
+              - cell "Beroperasi" [ref=f15e488]
+              - cell "KIMA.BAK-37/DOP/FO/VI/2024" [ref=f15e490]
+              - cell "2026-01-14" [ref=f15e491]
+              - cell "2027-01-13" [ref=f15e492]
+              - cell "12 Bln" [ref=f15e493]
+              - cell "6 Core" [ref=f15e494]
+              - cell "Rp 396.000.000" [ref=f15e495]
+              - cell "Rp 0" [ref=f15e496]
+              - cell "Rp 33.000.000" [ref=f15e497]
+              - cell "Rp 396.000.000" [ref=f15e498]
+              - cell [ref=f15e499]:
+                - link "Drive" [ref=f15e500] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1rihIEL9qjeZy4WD71ApgPUSTZF4b_TUv
+              - cell [ref=f15e506]:
+                - generic [ref=f15e507]:
+                  - button "Edit Kontrak" [ref=f15e508]
+                  - button "Hapus Kontrak" [ref=f15e512]
+                  - button "Perpanjang Kontrak" [ref=f15e516]
+                  - button "Upgrade Paket Kontrak" [ref=f15e519]
+            - row [ref=f15e522]:
+              - cell "11" [ref=f15e523]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e524]
+              - cell "Core" [ref=f15e526]
+              - cell "Berakhir" [ref=f15e528]
+              - cell "Diperpanjang" [ref=f15e530]
+              - cell "KIMA.BAK-37/DOP/FO/VI/2024" [ref=f15e532]
+              - cell "2025-01-14" [ref=f15e533]
+              - cell "2026-01-13" [ref=f15e534]
+              - cell "12 Bln" [ref=f15e535]
+              - cell "6 Core" [ref=f15e536]
+              - cell "Rp 352.800.000" [ref=f15e537]
+              - cell "Rp 0" [ref=f15e538]
+              - cell "Rp 29.400.000" [ref=f15e539]
+              - cell "Rp 352.800.000" [ref=f15e540]
+              - cell [ref=f15e541]:
+                - link "Drive" [ref=f15e542] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1AEwi5bvnlACWbcqGY67x4Bv9SiVaVCzV
+              - cell [ref=f15e548]:
+                - generic [ref=f15e549]:
+                  - button "Edit Kontrak" [ref=f15e550]
+                  - button "Hapus Kontrak" [ref=f15e554]
+                  - button "Perpanjang Kontrak" [ref=f15e558]
+                  - button "Upgrade Paket Kontrak" [ref=f15e561]
+            - row [ref=f15e564]:
+              - cell "12" [ref=f15e565]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e566]
+              - cell "PT Anugerah Pharmindo Lestari 1" [ref=f15e568]
+              - cell "Berakhir" [ref=f15e570]
+              - cell "Berakhir" [ref=f15e572]
+              - cell "KIMA.BAK-38/DBO/FO/VIII/2025" [ref=f15e574]
+              - cell "2025-03-25" [ref=f15e575]
+              - cell "2026-03-24" [ref=f15e576]
+              - cell "12 Bln" [ref=f15e577]
+              - cell "Sharing 1/32" [ref=f15e578]
+              - cell "Rp 3.000.000" [ref=f15e580]
+              - cell "Rp 0" [ref=f15e581]
+              - cell "Rp 250.000" [ref=f15e582]
+              - cell "Rp 3.000.000" [ref=f15e583]
+              - cell [ref=f15e584]:
+                - link "Drive" [ref=f15e585] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1bI8XRpr7ptqdyyynZEo1g4NVMxdtFRPG
+              - cell [ref=f15e591]:
+                - generic [ref=f15e592]:
+                  - button "Edit Kontrak" [ref=f15e593]
+                  - button "Hapus Kontrak" [ref=f15e597]
+                  - button "Perpanjang Kontrak" [ref=f15e601]
+                  - button "Upgrade Paket Kontrak" [ref=f15e604]
+            - row [ref=f15e607]:
+              - cell "13" [ref=f15e608]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e609]
+              - cell "PT Anugerah Pharmindo Lestari 1" [ref=f15e611]
+              - cell "Berakhir" [ref=f15e613]
+              - cell "Diperpanjang" [ref=f15e615]
+              - cell "—" [ref=f15e617]
+              - cell "2024-03-25" [ref=f15e618]
+              - cell "2025-03-24" [ref=f15e619]
+              - cell "12 Bln" [ref=f15e620]
+              - cell "Sharing 1/32" [ref=f15e621]
+              - cell "Rp 3.000.000" [ref=f15e623]
+              - cell "Rp 0" [ref=f15e624]
+              - cell "Rp 250.000" [ref=f15e625]
+              - cell "Rp 3.000.000" [ref=f15e626]
+              - cell [ref=f15e627]:
+                - link "Drive" [ref=f15e628] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1UT9XKdHv17KMaT2Yidxzg9S6FHA2qPPC
+              - cell [ref=f15e634]:
+                - generic [ref=f15e635]:
+                  - button "Edit Kontrak" [ref=f15e636]
+                  - button "Hapus Kontrak" [ref=f15e640]
+                  - button "Perpanjang Kontrak" [ref=f15e644]
+                  - button "Upgrade Paket Kontrak" [ref=f15e647]
+            - row [ref=f15e650]:
+              - cell "14" [ref=f15e651]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e652]
+              - cell "PT Anugerah Pharmindo Lestari 1" [ref=f15e654]
+              - cell "Berakhir" [ref=f15e656]
+              - cell "Diperpanjang" [ref=f15e658]
+              - cell "KIMA.BAK-06/DBO/FO/III/2023" [ref=f15e660]
+              - cell "2023-03-25" [ref=f15e661]
+              - cell "2024-03-24" [ref=f15e662]
+              - cell "12 Bln" [ref=f15e663]
+              - cell "Sharing 1/32" [ref=f15e664]
+              - cell "Rp 3.000.000" [ref=f15e666]
+              - cell "Rp 0" [ref=f15e667]
+              - cell "Rp 250.000" [ref=f15e668]
+              - cell "Rp 3.000.000" [ref=f15e669]
+              - cell [ref=f15e670]:
+                - link "Drive" [ref=f15e671] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1nV8uSYJ2SDnKZUZEPYIkIZAalwPEZ6GP
+              - cell [ref=f15e677]:
+                - generic [ref=f15e678]:
+                  - button "Edit Kontrak" [ref=f15e679]
+                  - button "Hapus Kontrak" [ref=f15e683]
+                  - button "Perpanjang Kontrak" [ref=f15e687]
+                  - button "Upgrade Paket Kontrak" [ref=f15e690]
+            - row [ref=f15e693]:
+              - cell "15" [ref=f15e694]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e695]
+              - cell "PT Anugerah Pharmindo Lestari 2" [ref=f15e697]
+              - cell "Berakhir" [ref=f15e699]
+              - cell "Berakhir" [ref=f15e701]
+              - cell "KIMA.BAK-07/DBO/FO/III/2023" [ref=f15e703]
+              - cell "2023-03-25" [ref=f15e704]
+              - cell "2024-03-24" [ref=f15e705]
+              - cell "12 Bln" [ref=f15e706]
+              - cell "Sharing 1/32" [ref=f15e707]
+              - cell "Rp 3.000.000" [ref=f15e709]
+              - cell "Rp 0" [ref=f15e710]
+              - cell "Rp 250.000" [ref=f15e711]
+              - cell "Rp 3.000.000" [ref=f15e712]
+              - cell [ref=f15e713]:
+                - link "Drive" [ref=f15e714] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1mUjBfSAru2OBC9OinCVMCAIGAPnIornY
+              - cell [ref=f15e720]:
+                - generic [ref=f15e721]:
+                  - button "Edit Kontrak" [ref=f15e722]
+                  - button "Hapus Kontrak" [ref=f15e726]
+                  - button "Perpanjang Kontrak" [ref=f15e730]
+                  - button "Upgrade Paket Kontrak" [ref=f15e733]
+            - row [ref=f15e736]:
+              - cell "16" [ref=f15e737]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e738]
+              - cell "PT Anugerah Pharmindo Lestari/Hipernet Indodata" [ref=f15e740]
+              - cell "3 Bln 28 Hr" [ref=f15e742]
+              - cell "Beroperasi" [ref=f15e744]
+              - cell "KIMA.BAK-09/DBO/FO/II/2026" [ref=f15e746]
+              - cell "2025-11-18" [ref=f15e747]
+              - cell "2026-11-17" [ref=f15e748]
+              - cell "12 Bln" [ref=f15e749]
+              - cell "Sharing 1/16" [ref=f15e750]
+              - cell "Rp 6.000.000" [ref=f15e752]
+              - cell "Rp 2.500.000" [ref=f15e753]
+              - cell "Rp 500.000" [ref=f15e754]
+              - cell "Rp 6.000.000" [ref=f15e755]
+              - cell [ref=f15e756]:
+                - link "Drive" [ref=f15e757] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1qgclABQqNohgujwg5ZdQxL8bP_K72tQ7
+              - cell [ref=f15e763]:
+                - generic [ref=f15e764]:
+                  - button "Edit Kontrak" [ref=f15e765]
+                  - button "Hapus Kontrak" [ref=f15e769]
+                  - button "Perpanjang Kontrak" [ref=f15e773]
+                  - button "Upgrade Paket Kontrak" [ref=f15e776]
+            - row [ref=f15e779]:
+              - cell "17" [ref=f15e780]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e781]
+              - cell "PT Cargil Indonesia" [ref=f15e783]
+              - cell "Berakhir" [ref=f15e785]
+              - cell "Berakhir" [ref=f15e787]
+              - cell "KIMA.BAK-29/DBO/FO/VI/2023" [ref=f15e789]
+              - cell "2023-07-08" [ref=f15e790]
+              - cell "2024-07-07" [ref=f15e791]
+              - cell "12 Bln" [ref=f15e792]
+              - cell "Sharing 1/32" [ref=f15e793]
+              - cell "Rp 3.000.000" [ref=f15e795]
+              - cell "Rp 0" [ref=f15e796]
+              - cell "Rp 250.000" [ref=f15e797]
+              - cell "Rp 3.000.000" [ref=f15e798]
+              - cell [ref=f15e799]:
+                - link "Drive" [ref=f15e800] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/15NxDaPnQVse69bUWxtyPLldgzcyzhhTz
+              - cell [ref=f15e806]:
+                - generic [ref=f15e807]:
+                  - button "Edit Kontrak" [ref=f15e808]
+                  - button "Hapus Kontrak" [ref=f15e812]
+                  - button "Perpanjang Kontrak" [ref=f15e816]
+                  - button "Upgrade Paket Kontrak" [ref=f15e819]
+            - row [ref=f15e822]:
+              - cell "18" [ref=f15e823]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e824]
+              - cell "PT Cargil Indonesia" [ref=f15e826]
+              - cell "Berakhir" [ref=f15e828]
+              - cell "Diperpanjang" [ref=f15e830]
+              - cell "-" [ref=f15e832]
+              - cell "2022-07-08" [ref=f15e833]
+              - cell "2023-07-07" [ref=f15e834]
+              - cell "12 Bln" [ref=f15e835]
+              - cell "Sharing 1/32" [ref=f15e836]
+              - cell "Rp 3.000.000" [ref=f15e838]
+              - cell "Rp 0" [ref=f15e839]
+              - cell "Rp 250.000" [ref=f15e840]
+              - cell "Rp 3.000.000" [ref=f15e841]
+              - cell [ref=f15e842]:
+                - link "Drive" [ref=f15e843] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/14cQs2-zaOmsvMq5CPwTekMhWdi1Zb6nP
+              - cell [ref=f15e849]:
+                - generic [ref=f15e850]:
+                  - button "Edit Kontrak" [ref=f15e851]
+                  - button "Hapus Kontrak" [ref=f15e855]
+                  - button "Perpanjang Kontrak" [ref=f15e859]
+                  - button "Upgrade Paket Kontrak" [ref=f15e862]
+            - row [ref=f15e865]:
+              - cell "19" [ref=f15e866]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e867]
+              - cell "PT Charoen Pokphand Indonesia" [ref=f15e869]
+              - cell "Berakhir" [ref=f15e871]
+              - cell "Berakhir" [ref=f15e873]
+              - cell "KIMA.BAK-11/DBO/FO/III/2023" [ref=f15e875]
+              - cell "2023-03-15" [ref=f15e876]
+              - cell "2026-03-14" [ref=f15e877]
+              - cell "36 Bln" [ref=f15e878]
+              - cell "Sharing 1/16" [ref=f15e879]
+              - cell "Rp 6.000.000" [ref=f15e881]
+              - cell "Rp 0" [ref=f15e882]
+              - cell "Rp 500.000" [ref=f15e883]
+              - cell "Rp 18.000.000" [ref=f15e884]
+              - cell [ref=f15e885]:
+                - link "Drive" [ref=f15e886] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1PGwbQqEKJlpF5WgiIPmTVnhvzanqoCO3
+              - cell [ref=f15e892]:
+                - generic [ref=f15e893]:
+                  - button "Edit Kontrak" [ref=f15e894]
+                  - button "Hapus Kontrak" [ref=f15e898]
+                  - button "Perpanjang Kontrak" [ref=f15e902]
+                  - button "Upgrade Paket Kontrak" [ref=f15e905]
+            - row [ref=f15e908]:
+              - cell "20" [ref=f15e909]
+              - cell "PT Aplikanusa Lintasarta" [ref=f15e910]
+              - cell "PT Enseval Putra Megatrading Tbk" [ref=f15e912]
+              - cell "Berakhir" [ref=f15e914]
+              - cell "Berakhir" [ref=f15e916]
+              - cell "KIMA.BAK-33/DBO/FO/VI/2024" [ref=f15e918]
+              - cell "2024-04-29" [ref=f15e919]
+              - cell "2025-04-28" [ref=f15e920]
+              - cell "13 Bln" [ref=f15e921]
+              - cell "Sharing 1/32" [ref=f15e922]
+              - cell "Rp 3.000.000" [ref=f15e924]
+              - cell "Rp 0" [ref=f15e925]
+              - cell "Rp 250.000" [ref=f15e926]
+              - cell "Rp 3.250.000" [ref=f15e927]
+              - cell [ref=f15e928]:
+                - link "Drive" [ref=f15e929] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/15Y-NAjR8PRrH7B96r0IbBT0dM16oj3i0
+              - cell [ref=f15e935]:
+                - generic [ref=f15e936]:
+                  - button "Edit Kontrak" [ref=f15e937]
+                  - button "Hapus Kontrak" [ref=f15e941]
+                  - button "Perpanjang Kontrak" [ref=f15e945]
+                  - button "Upgrade Paket Kontrak" [ref=f15e948]
+        - generic [ref=f15e951]:
+          - generic [ref=f15e952]: Menampilkan 1 - 20 dari 269 data
+          - generic [ref=f15e953]:
+            - generic [ref=f15e954]:
+              - generic [ref=f15e955]: "Tampilkan:"
+              - combobox [ref=f15e956] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+            - generic [ref=f15e957]:
+              - button "Halaman Pertama" [disabled] [ref=f15e958]
+              - button "Halaman Sebelumnya" [disabled] [ref=f15e962]
+              - button "1" [ref=f15e965]
+              - button "2" [ref=f15e966]
+              - generic [ref=f15e967]: ...
+              - button "14" [ref=f15e968]
+              - button "Halaman Berikutnya" [ref=f15e969]
+              - button "Halaman Terakhir" [ref=f15e972]
+      - generic [ref=f15e978]:
+        - generic [ref=f15e979]:
+          - generic [ref=f15e980]:
+            - heading "Tambah Kontrak Baru" [level=2] [ref=f15e981]
+            - paragraph [ref=f15e982]: Lengkapi informasi kontrak
+          - button [ref=f15e983]
+        - generic [ref=f15e987]:
+          - generic [ref=f15e988]:
+            - generic [ref=f15e989]:
+              - heading "Informasi Utama" [level=3] [ref=f15e990]
+              - generic [ref=f15e991]:
+                - generic [ref=f15e992]: Kode Kontrak *
+                - generic [ref=f15e993]:
+                  - textbox [ref=f15e994]: CTR-2026-0029
+                  - button "Generate kode baru" [ref=f15e995]
+              - generic [ref=f15e1001]:
+                - generic [ref=f15e1002]: Pelanggan *
+                - combobox [ref=f15e1003]:
+                  - option "Pilih Pelanggan" [selected]
+                  - option "Indosat Tbk"
+                  - option "PT Aplikanusa Lintasarta"
+                  - option "PT Cendikia Global Solusi"
+                  - option "PT Citra Prima Media"
+                  - option "PT Fiber Network Indonesia"
+                  - option "PT Iforte Solusi Infotek"
+                  - option "PT Indonesia Comnets Plus"
+                  - option "PT Inet Global"
+                  - option "PT Jenius Lintas Nusantara"
+                  - option "PT Lado Tekno Parkir"
+                  - option "PT Medialink Global Mandiri"
+                  - option "PT Mora Telematika Indonesia"
+                  - option "PT Multitech Infomedia"
+                  - option "PT Panca Karsa Sejahtera"
+                  - option "PT XL Axiata Tbk"
+                  - option "Telkom Indonesia (Persero) Tbk"
+              - generic [ref=f15e1004]:
+                - generic [ref=f15e1005]: Nama Lokasi *
+                - 'textbox "Contoh: Tower Jakarta Selatan" [ref=f15e1006]'
+              - generic [ref=f15e1007]:
+                - generic [ref=f15e1008]:
+                  - generic [ref=f15e1009]: Periode Awal *
+                  - textbox [ref=f15e1010]
+                - generic [ref=f15e1011]:
+                  - generic [ref=f15e1012]: Durasi (Bulan) *
+                  - spinbutton "12" [ref=f15e1013]
+                - generic [ref=f15e1014]:
+                  - generic [ref=f15e1015]: Periode Berakhir
+                  - textbox [ref=f15e1016]
+            - generic [ref=f15e1017]:
+              - heading "Detail Kontrak" [level=3] [ref=f15e1018]
+              - generic [ref=f15e1019]:
+                - generic [ref=f15e1020]:
+                  - generic [ref=f15e1021]: Status
+                  - combobox [ref=f15e1022]:
+                    - option "Beroperasi"
+                    - option "Belum Beroperasi" [selected]
+                    - option "Berakhir"
+                    - option "Diperpanjang"
+                    - option "Di-upgrade"
+                    - option "Berhenti"
+                - generic [ref=f15e1023]:
+                  - generic [ref=f15e1024]: Kategori
+                  - 'textbox "Contoh: Premium" [ref=f15e1025]'
+                - generic [ref=f15e1026]:
+                  - generic [ref=f15e1027]: Core (Manual Input)
+                  - 'textbox "Contoh: 1 Core, 4 Core" [ref=f15e1028]'
+                - generic [ref=f15e1029]:
+                  - generic [ref=f15e1030]: Sharing Core
+                  - combobox [ref=f15e1031]:
+                    - option "Tidak Ada (Direct Core)" [selected]
+                    - option "1/2"
+                    - option "1/4"
+                    - option "1/8"
+                    - option "1/16"
+                    - option "1/32"
+              - generic [ref=f15e1032]:
+                - generic [ref=f15e1033]: No. Kontrak
+                - 'textbox "Contoh: 001/SPK/VI/2024" [ref=f15e1034]'
+            - generic [ref=f15e1035]:
+              - heading "Informasi Keuangan" [level=3] [ref=f15e1036]
+              - generic [ref=f15e1037]:
+                - generic [ref=f15e1038]:
+                  - generic [ref=f15e1039]: Nilai Kontrak
+                  - generic [ref=f15e1040]:
+                    - generic [ref=f15e1041]: Rp
+                    - spinbutton "0" [ref=f15e1042]
+                - generic [ref=f15e1043]:
+                  - generic [ref=f15e1044]: Biaya Aktivasi
+                  - generic [ref=f15e1045]:
+                    - generic [ref=f15e1046]: Rp
+                    - spinbutton "0" [ref=f15e1047]
+                - generic [ref=f15e1048]:
+                  - generic [ref=f15e1049]: Per Bulan
+                  - generic [ref=f15e1050]:
+                    - generic [ref=f15e1051]: Rp
+                    - spinbutton "0" [ref=f15e1052]
+                - generic [ref=f15e1053]:
+                  - generic [ref=f15e1054]: Nilai Periode Aktif
+                  - generic [ref=f15e1055]:
+                    - generic [ref=f15e1056]: Rp
+                    - spinbutton "0" [ref=f15e1057]
+            - generic [ref=f15e1058]:
+              - heading "Keterangan" [level=3] [ref=f15e1059]
+              - textbox "Tambahkan keterangan jika diperlukan..." [ref=f15e1061]
+            - generic [ref=f15e1062]:
+              - heading "Upload Dokumen Kontrak (Opsional)" [level=3] [ref=f15e1063]
+              - generic [ref=f15e1064]:
+                - generic [ref=f15e1065]: Folder Tujuan
+                - combobox [ref=f15e1066]:
+                  - option "Pilih Folder Tujuan" [selected]
+                  - option "Kontrak"
+                  - option "BAK-PKS"
+                  - option "Dokumen Lain"
+              - generic [ref=f15e1067]:
+                - generic [ref=f15e1068]: Pilih File
+                - generic [ref=f15e1069]: Klik untuk pilih berkas kontrak atau drag & drop
+          - generic [ref=f15e1074]:
+            - button "Batal" [ref=f15e1075]
+            - button "Simpan Kontrak" [ref=f15e1076]

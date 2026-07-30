@@ -4,56 +4,42 @@ fn sanitize_identifier(value: &str) -> String {
     value.replace('`', "``")
 }
 
-pub async fn ensure_application_schema(database: &MySqlPool) -> Result<(), sqlx::Error> {
-    sqlx::raw_sql(include_str!(
-        "../migrations/000017_user_pelanggan_access.sql"
-    ))
-    .execute(database)
-    .await?;
-    reset_contract_status_constraints(database).await?;
-    ensure_operational_columns(database).await?;
-    sqlx::raw_sql(include_str!(
-        "../migrations/000018_operational_schema_sync.sql"
-    ))
-    .execute(database)
-    .await?;
+pub async fn ensure_application_schema(
+    database: &MySqlPool,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    // Versi 17–26 dahulu dijalankan langsung saat setiap startup dan karenanya
+    // mungkin belum tercatat. Persiapan ini hanya dibutuhkan sebelum versi 18
+    // pertama kali dicatat oleh SQLx.
+    if !migration_is_applied(database, 18).await? {
+        reset_contract_status_constraints(database).await?;
+        ensure_operational_columns(database).await?;
+    }
 
-    // Update billing status constraint sesuai dokumentasi
-    sqlx::raw_sql(include_str!(
-        "../migrations/000019_billing_status_constraint.sql"
-    ))
-    .execute(database)
-    .await?;
-
-    // Normalisasi format core column
-    sqlx::raw_sql(include_str!(
-        "../migrations/000020_normalize_core_format.sql"
-    ))
-    .execute(database)
-    .await?;
-
-    // Adjust titik_pelanggan to reference lokasi_id (per-contract)
-    ensure_titik_peta_lokasi_migration(database).await?;
-
-    // Titik ISP provider (kantor/cabang ISP)
-    sqlx::raw_sql(include_str!("../migrations/000023_titik_isp.sql"))
-        .execute(database)
-        .await?;
-
-    // Banyak titik detail untuk satu lokasi/kontrak.
-    sqlx::raw_sql(include_str!("../migrations/000024_titik_lokasi_detail.sql"))
-        .execute(database)
-        .await?;
-
-    sqlx::raw_sql(include_str!("../migrations/000025_backup_jobs.sql"))
-        .execute(database)
-        .await?;
-
-    sqlx::raw_sql(include_str!("../migrations/000026_backup_restore_jobs.sql"))
-        .execute(database)
-        .await?;
-
+    let mut migrator = sqlx::migrate!("./migrations");
+    // Snapshot produksi masih menyimpan histori versi 1–16, sedangkan source
+    // migrasi yang tersedia di repo ini dimulai dari versi 17.
+    migrator.set_ignore_missing(true);
+    migrator.run(database).await?;
     Ok(())
+}
+
+async fn migration_is_applied(database: &MySqlPool, version: i64) -> Result<bool, sqlx::Error> {
+    let table_exists: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM information_schema.tables \
+         WHERE table_schema = DATABASE() AND table_name = '_sqlx_migrations'",
+    )
+    .fetch_one(database)
+    .await?;
+    if table_exists == 0 {
+        return Ok(false);
+    }
+
+    sqlx::query_scalar(
+        "SELECT COUNT(*) > 0 FROM _sqlx_migrations WHERE version = ? AND success = TRUE",
+    )
+    .bind(version)
+    .fetch_one(database)
+    .await
 }
 
 async fn ensure_operational_columns(database: &MySqlPool) -> Result<(), sqlx::Error> {
@@ -136,24 +122,6 @@ async fn ensure_operational_columns(database: &MySqlPool) -> Result<(), sqlx::Er
             .execute(database)
             .await?;
         }
-    }
-    Ok(())
-}
-
-async fn ensure_titik_peta_lokasi_migration(database: &MySqlPool) -> Result<(), sqlx::Error> {
-    let exists: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM information_schema.columns \
-         WHERE table_schema = DATABASE() AND table_name = 'titik_pelanggan' AND column_name = 'lokasi_id'",
-    )
-    .fetch_one(database)
-    .await?;
-
-    if exists == 0 {
-        sqlx::raw_sql(include_str!(
-            "../migrations/000022_titik_peta_per_lokasi.sql"
-        ))
-        .execute(database)
-        .await?;
     }
     Ok(())
 }

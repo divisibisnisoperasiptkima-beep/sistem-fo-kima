@@ -1,0 +1,102 @@
+- main [ref=e3]:
+  - complementary [ref=e6]:
+    - generic [ref=e7]: KIMA
+    - navigation [ref=e9]:
+      - button [ref=e10]
+      - button [ref=e17]
+      - button [ref=e24]
+      - button [ref=e29]
+      - button [ref=e34]
+      - button [ref=e41]
+  - generic [ref=e46]:
+    - button [ref=e49]:
+      - img "Profile" [ref=e50]
+      - generic [ref=e51]:
+        - paragraph [ref=e52]: admin
+        - paragraph [ref=e53]: Admin
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - paragraph [ref=e60]: Manajemen GIS & Lokasi
+          - heading "Titik Peta FO KIMA" [level=1] [ref=e61]
+        - generic [ref=e62]:
+          - button "+ Set Titik Peta Baru" [ref=e63]
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - paragraph [ref=e68]: Total Lokasi
+              - paragraph [ref=e69]: "0"
+            - generic [ref=e71]:
+              - paragraph [ref=e72]: Terpetakan
+              - paragraph [ref=e73]: "0"
+            - generic [ref=e75]:
+              - paragraph [ref=e76]: Belum Terpetakan
+              - paragraph [ref=e77]: "0"
+            - generic [ref=e79]: 0% Coverage
+          - textbox "Cari pelanggan / lokasi..." [ref=e84]
+          - generic [ref=e85]:
+            - button "Berdampingan" [ref=e86]
+            - button "Tabel" [ref=e93]
+            - button "Peta" [ref=e97]
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - heading [level=2]
+                - paragraph [ref=e107]: 0 data
+              - button "Muat ulang" [ref=e108]
+            - table [ref=e113]:
+              - rowgroup [ref=e114]:
+                - row [ref=e115]:
+                  - columnheader "#" [ref=e116]
+                  - columnheader "Nama Pelanggan" [ref=e117]
+                  - columnheader "Nama Lokasi" [ref=e118]
+                  - columnheader "Koordinat" [ref=e119]
+                  - columnheader "Aksi Peta" [ref=e120]
+              - rowgroup [ref=e121]:
+                - row [ref=e122]:
+                  - cell "Memuat..." [ref=e123]
+          - button "Titik Kantor ISP (0) ▼" [ref=e128]:
+            - generic [ref=e133]: Titik Kantor ISP (0)
+            - generic [ref=e134]: ▼
+        - generic [ref=e136]:
+          - generic:
+            - generic:
+              - generic:
+                - generic: Titik Peta
+                - button
+              - generic:
+                - generic:
+                  - textbox "Cari ISP / lokasi..."
+              - generic:
+                - generic:
+                  - button "Titik ISP (0)"
+                  - generic: Tidak ada ISP
+                - generic:
+                  - button "Titik Lokasi (0)"
+                  - generic: Tidak ada lokasi
+          - button "Buka Sidebar" [ref=e137]
+          - generic [ref=e141]:
+            - textbox "Pilih / cari pelanggan..." [ref=e148]
+            - generic [ref=e149]:
+              - generic [ref=e150]: Pilih pelanggan untuk tentukan titik
+              - generic [ref=e151]:
+                - button "Jalan" [ref=e152]
+                - button "Satelit" [ref=e153]
+              - button "Fullscreen" [ref=e154]
+          - generic [ref=e162]:
+            - generic:
+              - generic [ref=e163]:
+                - button "Zoom in" [ref=e164] [cursor=pointer]: +
+                - button "Zoom out" [ref=e165] [cursor=pointer]: −
+              - generic [ref=e166]:
+                - link "Leaflet" [ref=e167] [cursor=pointer]:
+                  - /url: https://leafletjs.com
+                - text: "| ©"
+                - link "OpenStreetMap" [ref=e172] [cursor=pointer]:
+                  - /url: https://www.openstreetmap.org/copyright
+          - generic [ref=e173]:
+            - generic [ref=e175]:
+              - text: Peta FO KIMA —
+              - generic [ref=e176]: 0 Titik Terpasang
+            - generic [ref=e177]: Arahkan kursor pada peta

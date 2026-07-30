@@ -113,6 +113,13 @@ User MySQL dibuat untuk `127.0.0.1` karena URL koneksi backend menggunakan alama
 
 > **Penting:** migration pada repository ini dimulai dari `000017` dan merupakan migration incremental. Migration tersebut mengacu pada tabel inti seperti `users`, `pelanggan`, `lokasi`, `billing`, dan `titik_pelanggan`; migration ini bukan bootstrap untuk database kosong. Untuk deployment baru, siapkan dan restore baseline schema/data yang disetujui pemilik sistem sebelum menyalakan backend.
 
+Backend memakai migrator SQLx dan mencatat migration yang berhasil pada tabel
+`_sqlx_migrations`. Pada upgrade pertama dari versi lama, migration `000017`–`000026`
+yang sebelumnya belum tercatat akan dijalankan satu kali. Startup berikutnya tidak
+mengulang DDL tersebut; SQLx hanya menjalankan migration baru yang belum tercatat.
+Karena upgrade pertama dapat mengubah constraint dan kolom, buat backup database
+sebelum menyalakan versi backend baru.
+
 Jika memiliki dump database terkompresi, restore setelah database dibuat:
 
 ```bash
@@ -170,6 +177,10 @@ DATABASE_URL=mysql://fo_kima_user:PASSWORD_DATABASE_URL_ENCODED@127.0.0.1:3306/f
 JWT_SECRET=SECRET_ACAK_PANJANG_UNTUK_ENVIRONMENT_INI
 BIND_ADDR=127.0.0.1:8080
 CORS_ALLOWED_ORIGIN=https://app.example.com
+TRUST_PROXY_HEADERS=true
+LOGIN_RATE_LIMIT=5
+LOGIN_RATE_WINDOW_SECS=60
+LOGIN_RATE_MAX_IPS=10000
 RUST_LOG=info,tower_http=info
 
 # Google Drive OAuth server-side

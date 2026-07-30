@@ -1,0 +1,45 @@
+- generic [ref=e144]:
+  - generic [ref=e145]:
+    - generic [ref=e146]:
+      - generic [ref=e147]:
+        - heading "Bantuan Akses" [level=3] [ref=e150]
+        - paragraph [ref=e151]: Pemulihan akun memerlukan verifikasi Administrator TI. Silakan hubungi unit terkait.
+      - button "← Kembali ke Halaman Login" [ref=e152] [cursor=pointer]
+    - generic [ref=e153]:
+      - heading "Sign In" [level=3] [ref=e157]
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - generic [ref=e160]: Email
+          - textbox "nama@kima.co.id" [ref=e161]
+        - generic [ref=e162]:
+          - generic [ref=e163]: Password
+          - generic [ref=e164]:
+            - textbox "••••••••" [ref=e165]
+            - button [ref=e166] [cursor=pointer]
+          - button "Lupa Password?" [ref=e171] [cursor=pointer]
+        - button "Masuk" [ref=e172] [cursor=pointer]
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - generic [ref=e175]:
+            - paragraph [ref=e176]: Dev Access
+            - paragraph [ref=e177]: Quick login untuk uji role
+          - generic [ref=e178]: Dev
+        - generic [ref=e179]:
+          - button [ref=e180] [cursor=pointer]:
+            - paragraph [ref=e181]: Admin
+            - paragraph [ref=e182]: Akses penuh
+          - button [ref=e183] [cursor=pointer]:
+            - paragraph [ref=e184]: Teknisi
+            - paragraph [ref=e185]: Operasional
+          - button [ref=e186] [cursor=pointer]:
+            - paragraph [ref=e187]: ISP
+            - paragraph [ref=e188]: Mitra
+      - generic [ref=e189]: Connect
+    - generic [ref=e192]:
+      - generic [ref=e193]:
+        - img "Logo PT KIMA" [ref=e194]
+        - generic [ref=e195]:
+          - heading "Selamat Datang di Digital Archive" [level=2] [ref=e196]: Selamat Datang diDigital Archive
+          - paragraph [ref=e198]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+      - paragraph [ref=e200]: © 2026 PT Kawasan Industri Makassar.
+  - paragraph [ref=e202]: Powered by IT Support KIMA

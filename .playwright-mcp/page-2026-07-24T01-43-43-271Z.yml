@@ -1,0 +1,248 @@
+- generic [active] [ref=f2e1]:
+  - main [ref=f2e10310]:
+    - complementary [ref=f2e10313]:
+      - generic [ref=f2e10314]: KIMA
+      - navigation [ref=f2e10316]:
+        - button [ref=f2e10317]
+        - button [ref=f2e10324]
+        - button [ref=f2e10331]
+        - button [ref=f2e10336]
+        - button [ref=f2e10341]
+        - button [ref=f2e10348]
+    - generic [ref=f2e10353]:
+      - button [ref=f2e10356]:
+        - img "Profile" [ref=f2e10357]
+        - generic [ref=f2e10358]:
+          - paragraph [ref=f2e10359]: admin
+          - paragraph [ref=f2e10360]: Admin
+      - generic [ref=f2e10977]:
+        - generic [ref=f2e10978]:
+          - generic [ref=f2e10979]:
+            - paragraph [ref=f2e10982]: Manajemen Kontrak
+            - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f2e10983]
+          - generic [ref=f2e10984]:
+            - textbox "Cari kontrak..." [ref=f2e10989]: UAT Lokasi Perpanjangan
+            - button "Filter Status (Semua)" [ref=f2e10991] [cursor=pointer]:
+              - generic [ref=f2e10994]: Filter Status
+              - generic [ref=f2e10995]: (Semua)
+            - button "Tambah Kontrak" [ref=f2e10998]
+        - generic [ref=f2e11002]:
+          - generic [ref=f2e11003]:
+            - generic [ref=f2e11004]:
+              - heading [level=2]
+              - paragraph [ref=f2e11005]: 2 data
+            - button "Muat ulang" [ref=f2e11006]
+          - table [ref=f2e11011]:
+            - rowgroup [ref=f2e11012]:
+              - row [ref=f2e11013]:
+                - columnheader "No" [ref=f2e11014]
+                - columnheader "Pelanggan" [ref=f2e11015]
+                - columnheader "Lokasi" [ref=f2e11016]
+                - columnheader "Sisa Waktu" [ref=f2e11017]
+                - columnheader "Status" [ref=f2e11018]
+                - columnheader "No. Kontrak" [ref=f2e11019]
+                - columnheader "Periode Awal" [ref=f2e11020]
+                - columnheader "Periode Berakhir" [ref=f2e11021]
+                - columnheader "Durasi" [ref=f2e11022]
+                - columnheader "Kapasitas Core" [ref=f2e11023]
+                - columnheader "Nilai Kontrak" [ref=f2e11024]
+                - columnheader "Biaya Aktivasi" [ref=f2e11025]
+                - columnheader "Biaya / Bln" [ref=f2e11026]
+                - columnheader "Periode Aktif" [ref=f2e11027]
+                - columnheader "Folder Berkas" [ref=f2e11028]
+                - columnheader "Aksi" [ref=f2e11029]
+            - rowgroup [ref=f2e11030]:
+              - row [ref=f2e11905]:
+                - cell "1" [ref=f2e11906]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e11907]
+                - cell "UAT Lokasi Perpanjangan" [ref=f2e11909]
+                - cell "12 Bln 4 Hr" [ref=f2e11911]
+                - cell "Diperpanjang" [ref=f2e11913]
+                - cell "UAT/EXT/2026/0724" [ref=f2e11915]
+                - cell "2026-07-24" [ref=f2e11916]
+                - cell "2027-07-24" [ref=f2e11917]
+                - cell "12 Bln" [ref=f2e11918]
+                - cell "1 Core" [ref=f2e11919]
+                - cell "Rp 12.000.000" [ref=f2e11920]
+                - cell "Rp 0" [ref=f2e11921]
+                - cell "Rp 1.000.000" [ref=f2e11922]
+                - cell "Rp 12.000.000" [ref=f2e11923]
+                - cell [ref=f2e11924]:
+                  - link "Drive" [ref=f2e11925] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1JPHFDlOViKIcD0mwd_bJNDG_Z-fK4IbT
+                - cell [ref=f2e11931]:
+                  - generic [ref=f2e11932]:
+                    - button "Edit Kontrak" [ref=f2e11933]
+                    - button "Hapus Kontrak" [ref=f2e11937]
+                    - button "Perpanjang Kontrak" [ref=f2e11941]
+                    - button "Upgrade Paket Kontrak" [ref=f2e11944]
+              - row [ref=f2e11947]:
+                - cell "2" [ref=f2e11948]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e11949]
+                - cell "UAT Lokasi Perpanjangan" [ref=f2e11951]
+                - cell "24 Bln 11 Hr" [ref=f2e11953]
+                - cell "Belum Beroperasi" [ref=f2e11955]
+                - cell "UAT/EXT/RENEW/2027" [ref=f2e11957]
+                - cell "2027-07-25" [ref=f2e11958]
+                - cell "2028-07-25" [ref=f2e11959]
+                - cell "12 Bln" [ref=f2e11960]
+                - cell "1 Core" [ref=f2e11961]
+                - cell "Rp 12.000.000" [ref=f2e11962]
+                - cell "Rp 0" [ref=f2e11963]
+                - cell "Rp 1.000.000" [ref=f2e11964]
+                - cell "Rp 12.000.000" [ref=f2e11965]
+                - cell [ref=f2e11966]:
+                  - link "Drive" [ref=f2e11967] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1I-VVA3_3LnSaGoRICvHavlMHIIfTdPfX
+                - cell [ref=f2e11973]:
+                  - generic [ref=f2e11974]:
+                    - button "Edit Kontrak" [ref=f2e11975]
+                    - button "Hapus Kontrak" [ref=f2e11979]
+                    - button "Perpanjang Kontrak" [ref=f2e11983]
+                    - button "Upgrade Paket Kontrak" [ref=f2e11986]
+          - generic [ref=f2e11880]:
+            - generic [ref=f2e11881]: Menampilkan 1 - 2 dari 2 data
+            - generic [ref=f2e11883]:
+              - generic [ref=f2e11884]: "Tampilkan:"
+              - combobox [ref=f2e11885] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+        - generic [ref=f2e11991]:
+          - generic [ref=f2e11992]:
+            - generic [ref=f2e11993]:
+              - heading "Edit Kontrak" [level=2] [ref=f2e11994]
+              - paragraph [ref=f2e11995]: Ubah informasi kontrak
+            - button [ref=f2e11996]
+          - generic [ref=f2e12000]:
+            - generic [ref=f2e12001]:
+              - generic [ref=f2e12002]:
+                - heading "Informasi Utama" [level=3] [ref=f2e12003]
+                - generic [ref=f2e12004]:
+                  - generic [ref=f2e12005]: Kode Kontrak
+                  - textbox [ref=f2e12006]: CTR-2026-0029
+                - generic [ref=f2e12007]:
+                  - generic [ref=f2e12008]: Pelanggan *
+                  - combobox [ref=f2e12009]:
+                    - option "Pilih Pelanggan"
+                    - option "Indosat Tbk"
+                    - option "PT Aplikanusa Lintasarta"
+                    - option "PT Cendikia Global Solusi"
+                    - option "PT Citra Prima Media"
+                    - option "PT Fiber Network Indonesia"
+                    - option "PT Iforte Solusi Infotek"
+                    - option "PT Indonesia Comnets Plus"
+                    - option "PT Inet Global"
+                    - option "PT Jenius Lintas Nusantara"
+                    - option "PT Lado Tekno Parkir"
+                    - option "PT Medialink Global Mandiri"
+                    - option "PT Mora Telematika Indonesia"
+                    - option "PT Multitech Infomedia"
+                    - option "PT Panca Karsa Sejahtera"
+                    - option "PT XL Axiata Tbk"
+                    - option "Telkom Indonesia (Persero) Tbk"
+                    - option "UAT_DESKTOP_20260724" [selected]
+                - generic [ref=f2e12010]:
+                  - generic [ref=f2e12011]: Nama Lokasi *
+                  - 'textbox "Contoh: Tower Jakarta Selatan" [ref=f2e12012]': UAT Lokasi Perpanjangan
+                - generic [ref=f2e12013]:
+                  - generic [ref=f2e12014]:
+                    - generic [ref=f2e12015]: Periode Awal *
+                    - textbox [ref=f2e12016]: 2026-07-24
+                  - generic [ref=f2e12017]:
+                    - generic [ref=f2e12018]: Durasi (Bulan) *
+                    - spinbutton "12" [ref=f2e12019]
+                  - generic [ref=f2e12020]:
+                    - generic [ref=f2e12021]: Periode Berakhir
+                    - textbox [ref=f2e12022]: 2027-07-24
+              - generic [ref=f2e12023]:
+                - heading "Detail Kontrak" [level=3] [ref=f2e12024]
+                - generic [ref=f2e12025]:
+                  - generic [ref=f2e12026]:
+                    - generic [ref=f2e12027]: Status
+                    - combobox [ref=f2e12028]:
+                      - option "Beroperasi"
+                      - option "Belum Beroperasi"
+                      - option "Proses Perpanjangan"
+                      - option "Diperpanjang" [selected]
+                      - option "Di-upgrade"
+                      - option "Berhenti"
+                  - generic [ref=f2e12029]:
+                    - generic [ref=f2e12030]: Kategori
+                    - 'textbox "Contoh: Premium" [ref=f2e12031]': UAT
+                  - generic [ref=f2e12032]:
+                    - generic [ref=f2e12033]: Core (Manual Input)
+                    - 'textbox "Contoh: 1 Core, 4 Core" [ref=f2e12034]': 1 Core
+                  - generic [ref=f2e12035]:
+                    - generic [ref=f2e12036]: Sharing Core
+                    - combobox [disabled] [ref=f2e12037]:
+                      - option "Tidak Ada (Direct Core)" [selected]
+                      - option "1/2"
+                      - option "1/4"
+                      - option "1/8"
+                      - option "1/16"
+                      - option "1/32"
+                    - paragraph [ref=f2e12038]: Nonaktif (Core manual diisi)
+                - generic [ref=f2e12039]:
+                  - generic [ref=f2e12040]: No. Kontrak
+                  - 'textbox "Contoh: 001/SPK/VI/2024" [ref=f2e12041]': UAT/EXT/2026/0724
+              - generic [ref=f2e12042]:
+                - heading "Informasi Keuangan" [level=3] [ref=f2e12043]
+                - generic [ref=f2e12044]:
+                  - generic [ref=f2e12045]:
+                    - generic [ref=f2e12046]: Nilai Kontrak
+                    - generic [ref=f2e12047]:
+                      - generic [ref=f2e12048]: Rp
+                      - spinbutton "0" [ref=f2e12049]: "12000000"
+                  - generic [ref=f2e12050]:
+                    - generic [ref=f2e12051]: Biaya Aktivasi
+                    - generic [ref=f2e12052]:
+                      - generic [ref=f2e12053]: Rp
+                      - spinbutton "0" [ref=f2e12054]
+                  - generic [ref=f2e12055]:
+                    - generic [ref=f2e12056]: Per Bulan
+                    - generic [ref=f2e12057]:
+                      - generic [ref=f2e12058]: Rp
+                      - spinbutton "0" [ref=f2e12059]: "1000000"
+                  - generic [ref=f2e12060]:
+                    - generic [ref=f2e12061]: Nilai Periode Aktif
+                    - generic [ref=f2e12062]:
+                      - generic [ref=f2e12063]: Rp
+                      - spinbutton "0" [ref=f2e12064]: "12000000"
+              - generic [ref=f2e12065]:
+                - heading "Keterangan" [level=3] [ref=f2e12066]
+                - textbox "Tambahkan keterangan jika diperlukan..." [ref=f2e12068]
+              - generic [ref=f2e12069]:
+                - generic [ref=f2e12070]:
+                  - heading "Dokumen Terunggah" [level=3] [ref=f2e12071]
+                  - generic [ref=f2e12072]: 1 berkas
+                - generic [ref=f2e12074]:
+                  - generic [ref=f2e12078]:
+                    - paragraph [ref=f2e12079]: UAT-Dokumen-20260724.txt
+                    - generic [ref=f2e12080]:
+                      - generic [ref=f2e12081]: Kontrak
+                      - generic [ref=f2e12082]: 0 KB
+                      - generic [ref=f2e12083]: 2026-07-24
+                  - generic [ref=f2e12084]:
+                    - link "Buka di Google Drive" [ref=f2e12085] [cursor=pointer]:
+                      - /url: https://drive.google.com/file/d/1m4GEKX1aad-Arb9QU5wF66XZ8d158eJl/view?usp=drivesdk
+                    - generic [ref=f2e12110]:
+                      - button "Hapus" [ref=f2e12111]
+                      - button "Batal" [ref=f2e12112]
+              - generic [ref=f2e12094]:
+                - heading "Upload Dokumen Baru (Opsional)" [level=3] [ref=f2e12095]
+                - generic [ref=f2e12096]:
+                  - generic [ref=f2e12097]: Folder Tujuan
+                  - combobox [ref=f2e12098]:
+                    - option "Pilih Folder Tujuan" [selected]
+                    - option "Kontrak"
+                    - option "BAK-PKS"
+                    - option "Dokumen Lain"
+                - generic [ref=f2e12099]:
+                  - generic [ref=f2e12100]: Pilih File
+                  - generic [ref=f2e12101]: Klik untuk pilih berkas atau drag & drop
+            - generic [ref=f2e12106]:
+              - button "Batal" [ref=f2e12107]
+              - button "Simpan Perubahan" [ref=f2e12108]
+  - generic [ref=f2e351]: "0"

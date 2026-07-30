@@ -1,0 +1,5 @@
+[     502ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=30ad515a:14337
+[  263725ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:968
+[ 3267308ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=c73dcc40:14337
+[ 3268745ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8080/api/kontrak-lengkap?page=1&page_size=20:0
+[10067726ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:968

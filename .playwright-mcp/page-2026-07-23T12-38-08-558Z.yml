@@ -1,0 +1,115 @@
+- generic [ref=f1e1]:
+  - main [ref=f1e496]:
+    - complementary [ref=f1e499]:
+      - generic [ref=f1e500]: KIMA
+      - navigation [ref=f1e502]:
+        - button [ref=f1e503]
+        - button [ref=f1e510]
+        - button [ref=f1e517]
+        - button [ref=f1e522]
+        - button [ref=f1e527]
+        - button [ref=f1e534]
+    - generic [ref=f1e539]:
+      - button [ref=f1e542]:
+        - img "Profile" [ref=f1e543]
+        - generic [ref=f1e544]:
+          - paragraph [ref=f1e545]: admin
+          - paragraph [ref=f1e546]: Admin
+      - generic [ref=f1e895]:
+        - generic [ref=f1e896]:
+          - generic [ref=f1e897]:
+            - paragraph [ref=f1e900]: Manajemen Sistem
+            - heading "Kelola Pengguna FO KIMA" [level=1] [ref=f1e901]
+          - generic [ref=f1e902]:
+            - textbox "Cari pengguna..." [ref=f1e907]
+            - button "Tambah Pengguna" [active] [ref=f1e908]
+        - generic [ref=f1e912]:
+          - generic [ref=f1e913]:
+            - generic [ref=f1e914]:
+              - heading [level=2]
+              - paragraph [ref=f1e915]: 3 data
+            - button "Muat ulang" [ref=f1e916]
+          - table [ref=f1e921]:
+            - rowgroup [ref=f1e922]:
+              - row [ref=f1e923]:
+                - columnheader "Email" [ref=f1e924]
+                - columnheader "Role" [ref=f1e925]
+                - columnheader "Status" [ref=f1e926]
+                - columnheader "Login Terakhir" [ref=f1e927]
+                - columnheader "Gagal Login" [ref=f1e928]
+                - columnheader "Terkunci Sampai" [ref=f1e929]
+                - columnheader "Dibuat" [ref=f1e930]
+                - columnheader "Aksi" [ref=f1e931]
+            - rowgroup [ref=f1e932]:
+              - row [ref=f1e933]:
+                - cell "teknisi@kima.dev" [ref=f1e934]
+                - cell "Teknisi" [ref=f1e935]
+                - cell [ref=f1e937]
+                - cell "23/07/2026 12.33" [ref=f1e940]
+                - cell "0" [ref=f1e942]
+                - cell "--" [ref=f1e943]
+                - cell "23/07/2026 11.12" [ref=f1e944]
+                - cell [ref=f1e946]:
+                  - generic [ref=f1e947]:
+                    - button "Edit Pengguna" [ref=f1e948]
+                    - button "Reset Password" [ref=f1e952]
+                    - button "Nonaktifkan Pengguna" [ref=f1e957]
+              - row [ref=f1e961]:
+                - cell "admin@kima.dev" [ref=f1e962]
+                - cell "Admin" [ref=f1e963]
+                - cell [ref=f1e965]
+                - cell "23/07/2026 12.34" [ref=f1e968]
+                - cell "0" [ref=f1e970]
+                - cell "--" [ref=f1e971]
+                - cell "18/07/2026 19.24" [ref=f1e972]
+                - cell [ref=f1e974]:
+                  - generic [ref=f1e975]:
+                    - button "Edit Pengguna" [ref=f1e976]
+                    - button "Reset Password" [ref=f1e980]
+                    - button "Nonaktifkan Pengguna" [ref=f1e985]
+              - row [ref=f1e989]:
+                - cell "kevin@gmail.com" [ref=f1e990]
+                - cell "Teknisi" [ref=f1e991]
+                - cell [ref=f1e993]
+                - cell "--" [ref=f1e996]
+                - cell "0" [ref=f1e997]
+                - cell "--" [ref=f1e998]
+                - cell "16/07/2026 04.02" [ref=f1e999]
+                - cell [ref=f1e1001]:
+                  - generic [ref=f1e1002]:
+                    - button "Edit Pengguna" [ref=f1e1003]
+                    - button "Reset Password" [ref=f1e1007]
+                    - button "Nonaktifkan Pengguna" [ref=f1e1012]
+          - generic [ref=f1e1016]:
+            - generic [ref=f1e1017]: Menampilkan 1 - 3 dari 3 data
+            - generic [ref=f1e1019]:
+              - generic [ref=f1e1020]: "Tampilkan:"
+              - combobox [ref=f1e1021] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+        - generic [ref=f1e1024]:
+          - generic [ref=f1e1025]:
+            - generic [ref=f1e1031]:
+              - heading "Tambah Pengguna Baru" [level=2] [ref=f1e1032]
+              - paragraph [ref=f1e1033]: Buat akun sistem baru
+            - button [ref=f1e1034]
+          - generic [ref=f1e1038]:
+            - generic [ref=f1e1039]:
+              - generic [ref=f1e1040]:
+                - generic [ref=f1e1041]: Email *
+                - textbox "email@kima.co.id" [ref=f1e1042]
+              - generic [ref=f1e1043]:
+                - generic [ref=f1e1044]: Password *
+                - textbox "Minimal 6 karakter" [ref=f1e1045]
+              - generic [ref=f1e1046]:
+                - generic [ref=f1e1047]: Role *
+                - combobox [ref=f1e1048]:
+                  - option "Admin - Akses Penuh"
+                  - option "Teknisi - Operasional" [selected]
+                  - option "ISP - Mitra"
+            - generic [ref=f1e1049]:
+              - button "Batal" [ref=f1e1050]
+              - button "Buat Pengguna" [ref=f1e1051]
+  - generic [ref=f1e783]: "0"

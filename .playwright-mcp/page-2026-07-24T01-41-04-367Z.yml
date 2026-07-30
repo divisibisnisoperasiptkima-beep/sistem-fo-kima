@@ -1,0 +1,113 @@
+- generic [ref=f2e1]:
+  - main [ref=f2e10310]:
+    - complementary [ref=f2e10313]:
+      - generic [ref=f2e10314]: KIMA
+      - navigation [ref=f2e10316]:
+        - button [ref=f2e10317]
+        - button [ref=f2e10324]
+        - button [ref=f2e10331]
+        - button [ref=f2e10336]
+        - button [ref=f2e10341]
+        - button [ref=f2e10348]
+    - generic [ref=f2e10353]:
+      - button [ref=f2e10356]:
+        - img "Profile" [ref=f2e10357]
+        - generic [ref=f2e10358]:
+          - paragraph [ref=f2e10359]: admin
+          - paragraph [ref=f2e10360]: Admin
+      - generic [ref=f2e10550]:
+        - generic [ref=f2e10551]:
+          - generic [ref=f2e10552]:
+            - paragraph [ref=f2e10555]: Manajemen GIS & Lokasi
+            - heading "Titik Peta FO KIMA" [level=1] [ref=f2e10556]
+          - searchbox "Cari pelanggan / lokasi..." [ref=f2e10561]: UAT_DESKTOP_20260724
+        - generic [ref=f2e10563]:
+          - generic [ref=f2e10564]:
+            - generic [ref=f2e10565]:
+              - heading [level=2]
+              - paragraph [ref=f2e10566]: 2 data
+            - button "Muat ulang" [ref=f2e10567]
+          - table [ref=f2e10572]:
+            - rowgroup [ref=f2e10573]:
+              - row [ref=f2e10574]:
+                - columnheader "#" [ref=f2e10575]
+                - columnheader "Nama Pelanggan" [ref=f2e10576]
+                - columnheader "Nama Lokasi" [ref=f2e10577]
+                - columnheader "Koordinat" [ref=f2e10578]
+                - columnheader "Aksi" [ref=f2e10579]
+            - rowgroup [ref=f2e10580]:
+              - row [ref=f2e10806]:
+                - cell "1" [ref=f2e10807]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e10808]
+                - cell "UAT Lokasi Perpanjangan" [ref=f2e10809]
+                - cell "Belum ditentukan" [ref=f2e10810]
+                - cell [ref=f2e10811]:
+                  - button "Buka Peta" [ref=f2e10812]
+              - row [ref=f2e10816]:
+                - cell "2" [ref=f2e10817]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e10818]
+                - cell "UAT Lokasi Upgrade" [ref=f2e10819]
+                - cell "Belum ditentukan" [ref=f2e10820]
+                - cell [ref=f2e10821]:
+                  - button "Buka Peta" [ref=f2e10822]
+          - generic [ref=f2e10781]:
+            - generic [ref=f2e10782]: Menampilkan 1 - 2 dari 2 data
+            - generic [ref=f2e10784]:
+              - generic [ref=f2e10785]: "Tampilkan:"
+              - combobox [ref=f2e10786] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+        - generic [ref=f2e10827]:
+          - generic [ref=f2e10828]:
+            - generic:
+              - generic:
+                - button "KIMA":
+                  - img "KIMA"
+            - generic:
+              - generic [ref=f2e10829]:
+                - button "Zoom in" [ref=f2e10830] [cursor=pointer]: +
+                - button "Zoom out" [ref=f2e10831] [cursor=pointer]: −
+              - generic [ref=f2e10832]:
+                - link "Leaflet" [ref=f2e10833] [cursor=pointer]:
+                  - /url: https://leafletjs.com
+                - text: "| © OpenStreetMap contributors"
+          - complementary [ref=f2e10838]:
+            - generic [ref=f2e10839]:
+              - generic [ref=f2e10840]:
+                - paragraph [ref=f2e10846]: Konteks Pelanggan / Kontrak
+                - paragraph [ref=f2e10847]: UAT_DESKTOP_20260724
+                - paragraph [ref=f2e10848]: UAT Lokasi Perpanjangan
+              - generic [ref=f2e10849]:
+                - generic [ref=f2e10850]:
+                  - generic [ref=f2e10851]:
+                    - generic [ref=f2e10852]: Titik Lokasi / Kontrak
+                    - generic [ref=f2e10857]: "0"
+                  - paragraph [ref=f2e10859]: Belum ada titik lokasi.
+                  - button "Tambah Titik Lokasi" [active] [ref=f2e10860]
+                - generic [ref=f2e10862]:
+                  - generic [ref=f2e10863]:
+                    - generic [ref=f2e10864]: Titik Tetap Pelanggan / ISP
+                    - generic [ref=f2e10870]: "0"
+                  - paragraph [ref=f2e10872]: Belum ada titik tetap.
+                  - button "Tambah Titik Tetap" [ref=f2e10873]
+          - button "Sembunyikan sidebar" [ref=f2e10875]
+          - generic [ref=f2e10879]:
+            - generic [ref=f2e10880]:
+              - paragraph [ref=f2e10881]: UAT_DESKTOP_20260724
+              - paragraph [ref=f2e10882]: UAT Lokasi Perpanjangan
+            - generic [ref=f2e10883]:
+              - generic [ref=f2e10884]:
+                - button "Jalan" [ref=f2e10885]
+                - button "Satelit" [ref=f2e10886]
+              - button "Pusatkan ke KIMA" [ref=f2e10887]
+              - button "Tutup peta" [ref=f2e10891]
+          - generic [ref=f2e10895]:
+            - paragraph [ref=f2e10896]: Klik peta untuk menentukan titik lokasi / kontrak.
+            - generic [ref=f2e10897]: Label titik *
+            - generic [ref=f2e10898]:
+              - 'textbox "Contoh: POP Makassar, ODP Gudang" [ref=f2e10899]': UAT Lokasi Perpanjangan
+              - button "Batal" [ref=f2e10900]
+              - button "Simpan" [disabled] [ref=f2e10901]
+  - generic [ref=f2e351]: "0"

@@ -1,0 +1,41 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - heading "Sign In" [level=3] [ref=e11]
+      - generic [ref=e12]:
+        - generic [ref=e57]: Failed to fetch
+        - generic [ref=e13]:
+          - generic [ref=e14]: Email
+          - textbox "nama@kima.co.id" [ref=e15]: admin@kima.dev
+        - generic [ref=e16]:
+          - generic [ref=e17]: Password
+          - generic [ref=e18]:
+            - textbox "••••••••" [ref=e19]: admin123
+            - button [ref=e20] [cursor=pointer]
+          - button "Lupa Password?" [ref=e25] [cursor=pointer]
+        - button "Masuk" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - paragraph [ref=e30]: Dev Access
+            - paragraph [ref=e31]: Quick login untuk uji role
+          - generic [ref=e32]: Dev
+        - generic [ref=e33]:
+          - button [ref=e34] [cursor=pointer]:
+            - paragraph [ref=e35]: Admin
+            - paragraph [ref=e36]: Akses penuh
+          - button [ref=e37] [cursor=pointer]:
+            - paragraph [ref=e38]: Teknisi
+            - paragraph [ref=e39]: Operasional
+          - button [ref=e40] [cursor=pointer]:
+            - paragraph [ref=e41]: ISP
+            - paragraph [ref=e42]: Mitra
+      - generic [ref=e43]: Connect
+    - generic [ref=e46]:
+      - generic [ref=e47]:
+        - img "Logo PT KIMA" [ref=e48]
+        - generic [ref=e49]:
+          - heading "Selamat Datang di Digital Archive" [level=2] [ref=e50]: Selamat Datang diDigital Archive
+          - paragraph [ref=e52]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+      - paragraph [ref=e54]: © 2026 PT Kawasan Industri Makassar.
+  - paragraph [ref=e56]: Powered by IT Support KIMA

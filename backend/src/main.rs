@@ -69,7 +69,7 @@ use crate::{
         create_user, delete_user, list_user_pelanggan_access, list_users, reset_password,
         update_user, update_user_pelanggan_access,
     },
-    util::{optional_env_u64, optional_env_usize, required_env},
+    util::{optional_env_bool, optional_env_u64, optional_env_usize, required_env},
 };
 
 #[tokio::main]
@@ -123,11 +123,16 @@ async fn main() {
         max_upload_bytes: optional_env_usize("MAX_UPLOAD_BYTES", 25 * 1024 * 1024) as usize,
         max_string_length: optional_env_usize("MAX_STRING_LENGTH", 500) as usize,
         token_expiry_seconds: optional_env_u64("TOKEN_EXPIRY_SECONDS", 60 * 60 * 8),
-        login_rate_limit: optional_env_usize("LOGIN_RATE_LIMIT", 5) as usize,
-        login_rate_window_secs: optional_env_u64("LOGIN_RATE_WINDOW_SECS", 60),
+        login_rate_limit: optional_env_usize("LOGIN_RATE_LIMIT", 5).max(1),
+        login_rate_max_ips: optional_env_usize("LOGIN_RATE_MAX_IPS", 10_000).max(1),
+        login_rate_window_secs: optional_env_u64("LOGIN_RATE_WINDOW_SECS", 60).max(1),
         login_max_failed_attempts: optional_env_u64("LOGIN_MAX_FAILED_ATTEMPTS", 5) as u32,
         login_lockout_minutes: optional_env_u64("LOGIN_LOCKOUT_MINUTES", 15) as u32,
+        trust_proxy_headers: optional_env_bool("TRUST_PROXY_HEADERS", false),
     });
+    // Beri ruang untuk header dan field multipart; ukuran file tetap divalidasi
+    // secara tepat terhadap MAX_UPLOAD_BYTES di handler upload.
+    let request_body_limit = state.max_upload_bytes.saturating_add(1024 * 1024);
 
     if let Err(error) = recover_interrupted_backup_jobs(&state.database).await {
         tracing::error!(%error, "Gagal memulihkan status backup yang terhenti");
@@ -263,7 +268,7 @@ async fn main() {
         .route("/api/auth/change-password", post(change_password))
         .route("/api/auth/session", get(current_session))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
-        .layer(RequestBodyLimitLayer::new(10 * 1024 * 1024));
+        .layer(RequestBodyLimitLayer::new(request_body_limit));
 
     let allowed_origin =
         env::var("CORS_ALLOWED_ORIGIN").unwrap_or_else(|_| "http://localhost:5173".to_owned());

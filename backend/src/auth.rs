@@ -7,7 +7,7 @@ use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{
     Extension, Json,
     extract::{ConnectInfo, Request, State},
-    http::header,
+    http::{HeaderMap, header},
     middleware::Next,
     response::Response,
 };
@@ -69,11 +69,12 @@ fn issue_session(
 pub async fn login(
     State(state): State<Arc<AppState>>,
     ConnectInfo(addr): ConnectInfo<std::net::SocketAddr>,
+    headers: HeaderMap,
     Json(input): Json<LoginRequest>,
 ) -> Result<Json<LoginResponse>, ApiError> {
-    let ip = addr.ip().to_string();
+    let ip = client_ip(addr.ip(), &headers, state.trust_proxy_headers);
 
-    if !state.rate_limit_check(&ip) {
+    if !state.rate_limit_check(&ip).await {
         return Err(ApiError::too_many_requests(
             "Terlalu banyak percobaan login. Silakan coba lagi nanti.",
         ));
@@ -161,6 +162,34 @@ pub async fn login(
         .map_err(ApiError::database)?;
 
     Ok(Json(response))
+}
+
+fn client_ip(peer_ip: std::net::IpAddr, headers: &HeaderMap, trust_proxy_headers: bool) -> String {
+    if trust_proxy_headers {
+        // X-Real-IP diprioritaskan karena konfigurasi Nginx produksi menimpanya
+        // dengan $remote_addr, bukan meneruskan nilai dari klien.
+        if let Some(ip) = headers
+            .get("x-real-ip")
+            .and_then(|value| value.to_str().ok())
+            .map(str::trim)
+            .and_then(|value| value.parse::<std::net::IpAddr>().ok())
+        {
+            return ip.to_string();
+        }
+
+        // Untuk satu reverse proxy tepercaya, elemen terakhir ditambahkan oleh
+        // proxy dan tidak dapat dipalsukan melalui prefix kiriman klien.
+        if let Some(ip) = headers
+            .get("x-forwarded-for")
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| value.split(',').next_back())
+            .map(str::trim)
+            .and_then(|value| value.parse::<std::net::IpAddr>().ok())
+        {
+            return ip.to_string();
+        }
+    }
+    peer_ip.to_string()
 }
 
 pub async fn require_auth(
@@ -299,7 +328,9 @@ pub async fn change_password(
 
 #[cfg(test)]
 mod tests {
-    use super::{CHANGE_PASSWORD_PATH, blocks_pending_password_change};
+    use axum::http::{HeaderMap, HeaderValue};
+
+    use super::{CHANGE_PASSWORD_PATH, blocks_pending_password_change, client_ip};
 
     #[test]
     fn pending_password_change_only_allows_its_own_endpoint() {
@@ -308,5 +339,18 @@ mod tests {
         assert!(blocks_pending_password_change(true, "/api/dashboard"));
         assert!(blocks_pending_password_change(true, "/api/auth/session"));
         assert!(!blocks_pending_password_change(false, "/api/dashboard"));
+    }
+
+    #[test]
+    fn proxy_headers_are_only_used_when_explicitly_trusted() {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            "x-forwarded-for",
+            HeaderValue::from_static("198.51.100.7, 203.0.113.9"),
+        );
+        let peer = "127.0.0.1".parse().unwrap();
+
+        assert_eq!(client_ip(peer, &headers, false), "127.0.0.1");
+        assert_eq!(client_ip(peer, &headers, true), "203.0.113.9");
     }
 }

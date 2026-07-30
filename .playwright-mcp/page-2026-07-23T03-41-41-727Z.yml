@@ -1,0 +1,703 @@
+- main [ref=f7e3]:
+  - complementary [ref=f7e6]:
+    - generic [ref=f7e7]: KIMA
+    - navigation [ref=f7e9]:
+      - button [ref=f7e10]
+      - button [ref=f7e17]
+      - button [ref=f7e24]
+      - button [ref=f7e29]
+      - button [ref=f7e34]
+      - button [ref=f7e41]
+  - generic [ref=f7e46]:
+    - button [ref=f7e49]:
+      - img "Profile" [ref=f7e50]
+      - generic [ref=f7e51]:
+        - paragraph [ref=f7e52]: admin
+        - paragraph [ref=f7e53]: Admin
+    - generic [ref=f7e340]:
+      - generic [ref=f7e341]:
+        - generic [ref=f7e342]:
+          - paragraph [ref=f7e345]: Manajemen GIS & Lokasi
+          - heading "Titik Peta FO KIMA" [level=1] [ref=f7e346]
+        - generic [ref=f7e347]:
+          - button "+ Set Titik Peta Baru" [ref=f7e348]
+          - generic [ref=f7e351]:
+            - generic [ref=f7e352]:
+              - paragraph [ref=f7e353]: Total Lokasi
+              - paragraph [ref=f7e354]: "112"
+            - generic [ref=f7e356]:
+              - paragraph [ref=f7e357]: Terpetakan
+              - paragraph [ref=f7e358]: "0"
+            - generic [ref=f7e360]:
+              - paragraph [ref=f7e361]: Belum Terpetakan
+              - paragraph [ref=f7e362]: "112"
+            - generic [ref=f7e364]: 0% Coverage
+          - textbox "Cari pelanggan / lokasi..." [ref=f7e369]
+          - generic [ref=f7e370]:
+            - button "Berdampingan" [ref=f7e371]
+            - button "Tabel" [ref=f7e378]
+            - button "Peta" [ref=f7e382]
+      - generic [ref=f7e386]:
+        - generic [ref=f7e387]:
+          - generic [ref=f7e389]:
+            - generic [ref=f7e390]:
+              - generic [ref=f7e391]:
+                - heading [level=2]
+                - paragraph [ref=f7e392]: 112 data
+              - button "Muat ulang" [ref=f7e393]
+            - table [ref=f7e398]:
+              - rowgroup [ref=f7e399]:
+                - row [ref=f7e400]:
+                  - columnheader "#" [ref=f7e401]
+                  - columnheader "Nama Pelanggan" [ref=f7e402]
+                  - columnheader "Nama Lokasi" [ref=f7e403]
+                  - columnheader "Koordinat" [ref=f7e404]
+                  - columnheader "Aksi Peta" [ref=f7e405]
+              - rowgroup [ref=f7e406]:
+                - row [ref=f7e407] [cursor=pointer]:
+                  - cell "1" [ref=f7e408]
+                  - cell "Indosat Tbk" [ref=f7e409]
+                  - cell "Core 15C" [ref=f7e410]
+                  - cell "Belum ditentukan" [ref=f7e411]
+                  - cell [ref=f7e412]:
+                    - button "+ Tentukan Titik" [ref=f7e414]
+                - row [ref=f7e416] [cursor=pointer]:
+                  - cell "2" [ref=f7e417]
+                  - cell "Indosat Tbk" [ref=f7e418]
+                  - cell "Core 35C" [ref=f7e419]
+                  - cell "Belum ditentukan" [ref=f7e420]
+                  - cell [ref=f7e421]:
+                    - button "+ Tentukan Titik" [ref=f7e423]
+                - row [ref=f7e425] [cursor=pointer]:
+                  - cell "3" [ref=f7e426]
+                  - cell "Indosat Tbk" [ref=f7e427]
+                  - cell "PT Paragon Technology And Innovation" [ref=f7e428]
+                  - cell "Belum ditentukan" [ref=f7e429]
+                  - cell [ref=f7e430]:
+                    - button "+ Tentukan Titik" [ref=f7e432]
+                - row [ref=f7e434] [cursor=pointer]:
+                  - cell "4" [ref=f7e435]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e436]
+                  - cell "Core" [ref=f7e437]
+                  - cell "Belum ditentukan" [ref=f7e438]
+                  - cell [ref=f7e439]:
+                    - button "+ Tentukan Titik" [ref=f7e441]
+                - row [ref=f7e443] [cursor=pointer]:
+                  - cell "5" [ref=f7e444]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e445]
+                  - cell "PT Anugerah Pharmindo Lestari 1" [ref=f7e446]
+                  - cell "Belum ditentukan" [ref=f7e447]
+                  - cell [ref=f7e448]:
+                    - button "+ Tentukan Titik" [ref=f7e450]
+                - row [ref=f7e452] [cursor=pointer]:
+                  - cell "6" [ref=f7e453]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e454]
+                  - cell "PT Anugerah Pharmindo Lestari 2" [ref=f7e455]
+                  - cell "Belum ditentukan" [ref=f7e456]
+                  - cell [ref=f7e457]:
+                    - button "+ Tentukan Titik" [ref=f7e459]
+                - row [ref=f7e461] [cursor=pointer]:
+                  - cell "7" [ref=f7e462]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e463]
+                  - cell "PT Anugerah Pharmindo Lestari/Hipernet Indodata" [ref=f7e464]
+                  - cell "Belum ditentukan" [ref=f7e465]
+                  - cell [ref=f7e466]:
+                    - button "+ Tentukan Titik" [ref=f7e468]
+                - row [ref=f7e470] [cursor=pointer]:
+                  - cell "8" [ref=f7e471]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e472]
+                  - cell "PT Cargil Indonesia" [ref=f7e473]
+                  - cell "Belum ditentukan" [ref=f7e474]
+                  - cell [ref=f7e475]:
+                    - button "+ Tentukan Titik" [ref=f7e477]
+                - row [ref=f7e479] [cursor=pointer]:
+                  - cell "9" [ref=f7e480]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e481]
+                  - cell "PT Charoen Pokphand Indonesia" [ref=f7e482]
+                  - cell "Belum ditentukan" [ref=f7e483]
+                  - cell [ref=f7e484]:
+                    - button "+ Tentukan Titik" [ref=f7e486]
+                - row [ref=f7e488] [cursor=pointer]:
+                  - cell "10" [ref=f7e489]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e490]
+                  - cell "PT Enseval Putra Megatrading Tbk" [ref=f7e491]
+                  - cell "Belum ditentukan" [ref=f7e492]
+                  - cell [ref=f7e493]:
+                    - button "+ Tentukan Titik" [ref=f7e495]
+                - row [ref=f7e497] [cursor=pointer]:
+                  - cell "11" [ref=f7e498]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e499]
+                  - cell "PT Hexindo Adiperkasa Tbk" [ref=f7e500]
+                  - cell "Belum ditentukan" [ref=f7e501]
+                  - cell [ref=f7e502]:
+                    - button "+ Tentukan Titik" [ref=f7e504]
+                - row [ref=f7e506] [cursor=pointer]:
+                  - cell "12" [ref=f7e507]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e508]
+                  - cell "PT Indoarsip Kertas Karya" [ref=f7e509]
+                  - cell "Belum ditentukan" [ref=f7e510]
+                  - cell [ref=f7e511]:
+                    - button "+ Tentukan Titik" [ref=f7e513]
+                - row [ref=f7e515] [cursor=pointer]:
+                  - cell "13" [ref=f7e516]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e517]
+                  - cell "PT Kamadjaja Logistics" [ref=f7e518]
+                  - cell "Belum ditentukan" [ref=f7e519]
+                  - cell [ref=f7e520]:
+                    - button "+ Tentukan Titik" [ref=f7e522]
+                - row [ref=f7e524] [cursor=pointer]:
+                  - cell "14" [ref=f7e525]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e526]
+                  - cell "PT Kamadjaja Logistics 1" [ref=f7e527]
+                  - cell "Belum ditentukan" [ref=f7e528]
+                  - cell [ref=f7e529]:
+                    - button "+ Tentukan Titik" [ref=f7e531]
+                - row [ref=f7e533] [cursor=pointer]:
+                  - cell "15" [ref=f7e534]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e535]
+                  - cell "PT Mars Symbioscience Indonesia 1" [ref=f7e536]
+                  - cell "Belum ditentukan" [ref=f7e537]
+                  - cell [ref=f7e538]:
+                    - button "+ Tentukan Titik" [ref=f7e540]
+                - row [ref=f7e542] [cursor=pointer]:
+                  - cell "16" [ref=f7e543]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e544]
+                  - cell "PT Mars Symbioscience Indonesia 2" [ref=f7e545]
+                  - cell "Belum ditentukan" [ref=f7e546]
+                  - cell [ref=f7e547]:
+                    - button "+ Tentukan Titik" [ref=f7e549]
+                - row [ref=f7e551] [cursor=pointer]:
+                  - cell "17" [ref=f7e552]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e553]
+                  - cell "PT Mars Symbioscience Indonesia/Telekomunikasi Indonesia International" [ref=f7e554]
+                  - cell "Belum ditentukan" [ref=f7e555]
+                  - cell [ref=f7e556]:
+                    - button "+ Tentukan Titik" [ref=f7e558]
+                - row [ref=f7e560] [cursor=pointer]:
+                  - cell "18" [ref=f7e561]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e562]
+                  - cell "PT Merapi Utama Pharma" [ref=f7e563]
+                  - cell "Belum ditentukan" [ref=f7e564]
+                  - cell [ref=f7e565]:
+                    - button "+ Tentukan Titik" [ref=f7e567]
+                - row [ref=f7e569] [cursor=pointer]:
+                  - cell "19" [ref=f7e570]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e571]
+                  - cell "PT Prima Indo Papua" [ref=f7e572]
+                  - cell "Belum ditentukan" [ref=f7e573]
+                  - cell [ref=f7e574]:
+                    - button "+ Tentukan Titik" [ref=f7e576]
+                - row [ref=f7e578] [cursor=pointer]:
+                  - cell "20" [ref=f7e579]
+                  - cell "PT Aplikanusa Lintasarta" [ref=f7e580]
+                  - cell "PT Primacom Interbuana" [ref=f7e581]
+                  - cell "Belum ditentukan" [ref=f7e582]
+                  - cell [ref=f7e583]:
+                    - button "+ Tentukan Titik" [ref=f7e585]
+            - generic [ref=f7e587]:
+              - generic [ref=f7e588]: Menampilkan 1 - 20 dari 112 data
+              - generic [ref=f7e589]:
+                - generic [ref=f7e590]:
+                  - generic [ref=f7e591]: "Tampilkan:"
+                  - combobox [ref=f7e592] [cursor=pointer]:
+                    - option "10"
+                    - option "20" [selected]
+                    - option "50"
+                    - option "100"
+                - generic [ref=f7e593]:
+                  - button "Halaman Pertama" [disabled] [ref=f7e594]
+                  - button "Halaman Sebelumnya" [disabled] [ref=f7e598]
+                  - button "1" [ref=f7e601]
+                  - button "2" [ref=f7e602]
+                  - generic [ref=f7e603]: ...
+                  - button "6" [ref=f7e604]
+                  - button "Halaman Berikutnya" [ref=f7e605]
+                  - button "Halaman Terakhir" [ref=f7e608]
+          - button "Titik Kantor ISP (0) ▼" [ref=f7e613]:
+            - generic [ref=f7e618]: Titik Kantor ISP (0)
+            - generic [ref=f7e619]: ▼
+        - generic [ref=f7e621]:
+          - generic:
+            - generic:
+              - generic:
+                - generic: Titik Peta
+                - button
+              - generic:
+                - generic:
+                  - textbox "Cari ISP / lokasi..."
+              - generic:
+                - generic:
+                  - button "Titik ISP (0)"
+                  - generic:
+                    - generic:
+                      - button "Indosat Tbk + Set":
+                        - generic: Indosat Tbk
+                        - generic: + Set
+                    - generic:
+                      - button "PT Aplikanusa Lintasarta + Set":
+                        - generic: PT Aplikanusa Lintasarta
+                        - generic: + Set
+                    - generic:
+                      - button "PT Cendikia Global Solusi + Set":
+                        - generic: PT Cendikia Global Solusi
+                        - generic: + Set
+                    - generic:
+                      - button "PT Citra Prima Media + Set":
+                        - generic: PT Citra Prima Media
+                        - generic: + Set
+                    - generic:
+                      - button "PT Fiber Network Indonesia + Set":
+                        - generic: PT Fiber Network Indonesia
+                        - generic: + Set
+                    - generic:
+                      - button "PT Iforte Solusi Infotek + Set":
+                        - generic: PT Iforte Solusi Infotek
+                        - generic: + Set
+                    - generic:
+                      - button "PT Indonesia Comnets Plus + Set":
+                        - generic: PT Indonesia Comnets Plus
+                        - generic: + Set
+                    - generic:
+                      - button "PT Inet Global + Set":
+                        - generic: PT Inet Global
+                        - generic: + Set
+                    - generic:
+                      - button "PT Jenius Lintas Nusantara + Set":
+                        - generic: PT Jenius Lintas Nusantara
+                        - generic: + Set
+                    - generic:
+                      - button "PT Lado Tekno Parkir + Set":
+                        - generic: PT Lado Tekno Parkir
+                        - generic: + Set
+                    - generic:
+                      - button "PT Medialink Global Mandiri + Set":
+                        - generic: PT Medialink Global Mandiri
+                        - generic: + Set
+                - generic:
+                  - button "Titik Lokasi (100)"
+                  - generic:
+                    - button "Core 15C Indosat Tbk":
+                      - generic:
+                        - paragraph: Core 15C
+                        - paragraph: Indosat Tbk
+                    - button "Core 35C Indosat Tbk":
+                      - generic:
+                        - paragraph: Core 35C
+                        - paragraph: Indosat Tbk
+                    - button "PT Paragon Technology And Innovation Indosat Tbk":
+                      - generic:
+                        - paragraph: PT Paragon Technology And Innovation
+                        - paragraph: Indosat Tbk
+                    - button "Core PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: Core
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Anugerah Pharmindo Lestari 1 PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Anugerah Pharmindo Lestari 1
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Anugerah Pharmindo Lestari 2 PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Anugerah Pharmindo Lestari 2
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Anugerah Pharmindo Lestari/Hipernet Indodata PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Anugerah Pharmindo Lestari/Hipernet Indodata
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Cargil Indonesia PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Cargil Indonesia
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Charoen Pokphand Indonesia PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Charoen Pokphand Indonesia
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Enseval Putra Megatrading Tbk PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Enseval Putra Megatrading Tbk
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Hexindo Adiperkasa Tbk PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Hexindo Adiperkasa Tbk
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Indoarsip Kertas Karya PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Indoarsip Kertas Karya
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Kamadjaja Logistics PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Kamadjaja Logistics
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Kamadjaja Logistics 1 PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Kamadjaja Logistics 1
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Mars Symbioscience Indonesia 1 PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Mars Symbioscience Indonesia 1
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Mars Symbioscience Indonesia 2 PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Mars Symbioscience Indonesia 2
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Mars Symbioscience Indonesia/Telekomunikasi Indonesia International PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Mars Symbioscience Indonesia/Telekomunikasi Indonesia International
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Merapi Utama Pharma PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Merapi Utama Pharma
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Prima Indo Papua PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Prima Indo Papua
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Primacom Interbuana PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Primacom Interbuana
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Toyota Kalla/Mega Akses Persada PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Toyota Kalla/Mega Akses Persada
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "PT Tunas Kreasi Perkasa Express PT Aplikanusa Lintasarta":
+                      - generic:
+                        - paragraph: PT Tunas Kreasi Perkasa Express
+                        - paragraph: PT Aplikanusa Lintasarta
+                    - button "BSC XL (Kima 9) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: BSC XL (Kima 9)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "MSC PT Indosat Tbk (Kima 13) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: MSC PT Indosat Tbk (Kima 13)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "MSC PT Indosat Tbk (Kima 9) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: MSC PT Indosat Tbk (Kima 9)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Agrinesia Raya PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Agrinesia Raya
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Bank Tabungan Negara (Persero) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Bank Tabungan Negara (Persero)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Bumi Menara Internusa (Jl Kima 15) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Bumi Menara Internusa (Jl Kima 15)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Bumi Menara Internusa (Jl Kima 9) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Bumi Menara Internusa (Jl Kima 9)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Bumi Menara Internusa Plant 1 PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Bumi Menara Internusa Plant 1
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Bumi Menara Internusa Plant 2 PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Bumi Menara Internusa Plant 2
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Bumi Sarana Beton PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Bumi Sarana Beton
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Cargill PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Cargill
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Charoen Pokphand Indonesia PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Charoen Pokphand Indonesia
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Dwira Masagena PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Dwira Masagena
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Enseval Putra Megatrading Tbk PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Enseval Putra Megatrading Tbk
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Global Retailindo Pratama PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Global Retailindo Pratama
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Indofood CBP Sukses Makmur Tbk PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Indofood CBP Sukses Makmur Tbk
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Indomarco Prismatama PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Indomarco Prismatama
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Indomarco Prismatama (Kima 6) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Indomarco Prismatama (Kima 6)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Karya Teknik Mulia (PT Wastec International) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Karya Teknik Mulia (PT Wastec International)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Karya Teknik Mulia 2 PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Karya Teknik Mulia 2
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Kemasan Cipta Nusantara PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Kemasan Cipta Nusantara
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Makassar Kulina Utama PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Makassar Kulina Utama
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Malindo Feedmil PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Malindo Feedmil
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Maruki International Indonesia PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Maruki International Indonesia
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Merapi Utama Pharma PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Merapi Utama Pharma
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Multisari Makassar PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Multisari Makassar
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Nippon Indosari Corpindo Tbk PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Nippon Indosari Corpindo Tbk
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Ocean Champ Seafood PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Ocean Champ Seafood
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Samator Indo Gas Tbk PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Samator Indo Gas Tbk
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Sinar Sejahtera Sentosa PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Sinar Sejahtera Sentosa
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Sumber Alfaria Trijaya Tbk PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Sumber Alfaria Trijaya Tbk
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Toarco Jaya PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Toarco Jaya
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Traktor Nusantara PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Traktor Nusantara
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "PT Wastec International (Kima Raya 1) PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: PT Wastec International (Kima Raya 1)
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "Rudi Cahyadi PT Cendikia Global Solusi":
+                      - generic:
+                        - paragraph: Rudi Cahyadi
+                        - paragraph: PT Cendikia Global Solusi
+                    - button "Core PT Citra Prima Media":
+                      - generic:
+                        - paragraph: Core
+                        - paragraph: PT Citra Prima Media
+                    - button "PT Bumi Menara Internusa PT Fiber Network Indonesia":
+                      - generic:
+                        - paragraph: PT Bumi Menara Internusa
+                        - paragraph: PT Fiber Network Indonesia
+                    - button "PT Bumi Menara Internusa (Jl. Kima 9) PT Fiber Network Indonesia":
+                      - generic:
+                        - paragraph: PT Bumi Menara Internusa (Jl. Kima 9)
+                        - paragraph: PT Fiber Network Indonesia
+                    - button "PT Bumi Sarana Beton PT Fiber Network Indonesia":
+                      - generic:
+                        - paragraph: PT Bumi Sarana Beton
+                        - paragraph: PT Fiber Network Indonesia
+                    - button "PT Grand Kakao Indonesia PT Fiber Network Indonesia":
+                      - generic:
+                        - paragraph: PT Grand Kakao Indonesia
+                        - paragraph: PT Fiber Network Indonesia
+                    - button "PT Makassar Kulina Utama PT Fiber Network Indonesia":
+                      - generic:
+                        - paragraph: PT Makassar Kulina Utama
+                        - paragraph: PT Fiber Network Indonesia
+                    - button "PT Sinar Sejahtera Sentosa PT Fiber Network Indonesia":
+                      - generic:
+                        - paragraph: PT Sinar Sejahtera Sentosa
+                        - paragraph: PT Fiber Network Indonesia
+                    - button "PT Wahyu Pradana Binamulia PT Fiber Network Indonesia":
+                      - generic:
+                        - paragraph: PT Wahyu Pradana Binamulia
+                        - paragraph: PT Fiber Network Indonesia
+                    - button "PT Enseval Putra Megatrading Tbk PT Iforte Solusi Infotek":
+                      - generic:
+                        - paragraph: PT Enseval Putra Megatrading Tbk
+                        - paragraph: PT Iforte Solusi Infotek
+                    - button "PT Kemasan Cipta Nusantara PT Iforte Solusi Infotek":
+                      - generic:
+                        - paragraph: PT Kemasan Cipta Nusantara
+                        - paragraph: PT Iforte Solusi Infotek
+                    - button "Wika Beton- Makassar PT Iforte Solusi Infotek":
+                      - generic:
+                        - paragraph: Wika Beton- Makassar
+                        - paragraph: PT Iforte Solusi Infotek
+                    - button "Wika Beton- Makassar Kima 20 PT Iforte Solusi Infotek":
+                      - generic:
+                        - paragraph: Wika Beton- Makassar Kima 20
+                        - paragraph: PT Iforte Solusi Infotek
+                    - button "Core PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: Core
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Andiarta Muzizat PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Andiarta Muzizat
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Anugrah Pharmindo Lestari PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Anugrah Pharmindo Lestari
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Astra International PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Astra International
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Bina Agung Cipta Bersama PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Bina Agung Cipta Bersama
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Charoen Pokphand Indonesia PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Charoen Pokphand Indonesia
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Eastlync Technology Indonesia PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Eastlync Technology Indonesia
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Indofood CBP Sukses Makmur Tbk PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Indofood CBP Sukses Makmur Tbk
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Indomarco Prismatama PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Indomarco Prismatama
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Indomarco Prismatama (IDM Kasir) PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Indomarco Prismatama (IDM Kasir)
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Indonesian Satellite Corporation (PT Indosat Tbk) Kendari PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Indonesian Satellite Corporation (PT Indosat Tbk) Kendari
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Indonesian Satellite Corporation (PT Indosat Tbk) KIMA PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Indonesian Satellite Corporation (PT Indosat Tbk) KIMA
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Indoroti Prima Cemerlang PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Indoroti Prima Cemerlang
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Malindo Feedmill Tbk PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Malindo Feedmill Tbk
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Mars Symbioscience Indonesia PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Mars Symbioscience Indonesia
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Olam Indonesia PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Olam Indonesia
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Sumber Alfaria Trijaya Tbk PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Sumber Alfaria Trijaya Tbk
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Wijaya Karya Beton PT Indonesia Comnets Plus":
+                      - generic:
+                        - paragraph: PT Wijaya Karya Beton
+                        - paragraph: PT Indonesia Comnets Plus
+                    - button "PT Nippon Indosari Corpindo Tbk PT Inet Global":
+                      - generic:
+                        - paragraph: PT Nippon Indosari Corpindo Tbk
+                        - paragraph: PT Inet Global
+                    - button "Core PT Jenius Lintas Nusantara":
+                      - generic:
+                        - paragraph: Core
+                        - paragraph: PT Jenius Lintas Nusantara
+                    - button "Pos 1 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 1
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "Pos 10 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 10
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "Pos 2 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 2
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "Pos 3 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 3
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "Pos 4 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 4
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "Pos 5 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 5
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "Pos 7 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 7
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "Pos 8 PT Lado Tekno Parkir":
+                      - generic:
+                        - paragraph: Pos 8
+                        - paragraph: PT Lado Tekno Parkir
+                    - button "PT Andiarta Muzizat PT Medialink Global Mandiri":
+                      - generic:
+                        - paragraph: PT Andiarta Muzizat
+                        - paragraph: PT Medialink Global Mandiri
+                    - button "PT Globallink PT Medialink Global Mandiri":
+                      - generic:
+                        - paragraph: PT Globallink
+                        - paragraph: PT Medialink Global Mandiri
+                    - button "PT Merapi Utama Pharma PT Medialink Global Mandiri":
+                      - generic:
+                        - paragraph: PT Merapi Utama Pharma
+                        - paragraph: PT Medialink Global Mandiri
+          - button "Buka Sidebar" [ref=f7e622]
+          - generic [ref=f7e626]:
+            - textbox "Pilih / cari pelanggan..." [ref=f7e633]
+            - generic [ref=f7e634]:
+              - generic [ref=f7e635]: Pilih pelanggan untuk tentukan titik
+              - generic [ref=f7e636]:
+                - button "Jalan" [ref=f7e637]
+                - button "Satelit" [ref=f7e638]
+              - button "Fullscreen" [ref=f7e639]
+          - generic [ref=f7e647]:
+            - generic:
+              - generic [ref=f7e648]:
+                - button "Zoom in" [ref=f7e649] [cursor=pointer]: +
+                - button "Zoom out" [ref=f7e650] [cursor=pointer]: −
+              - generic [ref=f7e651]:
+                - link "Leaflet" [ref=f7e652] [cursor=pointer]:
+                  - /url: https://leafletjs.com
+                - text: "| ©"
+                - link "OpenStreetMap" [ref=f7e657] [cursor=pointer]:
+                  - /url: https://www.openstreetmap.org/copyright
+          - generic [ref=f7e658]:
+            - generic [ref=f7e660]:
+              - text: Peta FO KIMA —
+              - generic [ref=f7e661]: 0 Titik Terpasang
+            - generic [ref=f7e662]: Arahkan kursor pada peta

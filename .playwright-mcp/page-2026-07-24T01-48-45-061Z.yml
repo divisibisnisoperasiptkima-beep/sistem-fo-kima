@@ -1,0 +1,71 @@
+- generic [ref=f2e1]:
+  - main [ref=f2e10310]:
+    - complementary [ref=f2e10313]:
+      - generic [ref=f2e10314]: KIMA
+      - navigation [ref=f2e10316]:
+        - button "Dashboard" [ref=f2e10317]
+        - button "Pelanggan" [ref=f2e10324]
+        - button "Kontrak Lengkap" [ref=f2e10331]
+        - button "Monitoring Kontrak" [ref=f2e10336]
+        - button "Kelola Pengguna" [ref=f2e10341]
+        - button "Titik Peta" [ref=f2e10348]
+    - generic [ref=f2e10353]:
+      - button [ref=f2e10356]:
+        - img "Profile" [ref=f2e10357]
+        - generic [ref=f2e10358]:
+          - paragraph [ref=f2e10359]: admin
+          - paragraph [ref=f2e10360]: Admin
+      - generic [ref=f2e12377]:
+        - generic [ref=f2e12378]:
+          - generic [ref=f2e12379]:
+            - paragraph [ref=f2e12382]: Manajemen Data
+            - heading "Daftar Pelanggan FO KIMA" [level=1] [ref=f2e12383]
+          - generic [ref=f2e12384]:
+            - textbox "Cari pelanggan..." [active] [ref=f2e12389]: UAT_DESKTOP_20260724
+            - button "Tambah Pelanggan" [ref=f2e12390]
+        - generic [ref=f2e12394]:
+          - generic [ref=f2e12395]:
+            - generic [ref=f2e12396]:
+              - heading [level=2]
+              - paragraph [ref=f2e12397]: 1 data
+            - button "Muat ulang" [ref=f2e12398]
+          - table [ref=f2e12403]:
+            - rowgroup [ref=f2e12404]:
+              - row [ref=f2e12405]:
+                - columnheader "No" [ref=f2e12406]
+                - columnheader "Kode" [ref=f2e12407]
+                - columnheader "Nama Pelanggan" [ref=f2e12408]
+                - columnheader "PIC" [ref=f2e12409]
+                - columnheader "Telepon" [ref=f2e12410]
+                - columnheader "Email" [ref=f2e12411]
+                - columnheader "Beroperasi" [ref=f2e12412]
+                - columnheader "Belum Beroperasi" [ref=f2e12413]
+                - columnheader "Folder" [ref=f2e12414]
+                - columnheader "Aksi" [ref=f2e12415]
+            - rowgroup [ref=f2e12416]:
+              - row [ref=f2e12814]:
+                - cell "1" [ref=f2e12815]
+                - cell "PLG-F8X634" [ref=f2e12816]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e12817]
+                - cell "Penguji UAT" [ref=f2e12818]
+                - cell "081234567890" [ref=f2e12819]
+                - cell "uat.desktop.20260724@example.test" [ref=f2e12820]
+                - cell "0" [ref=f2e12821]
+                - cell "0" [ref=f2e12822]
+                - cell [ref=f2e12823]:
+                  - link "Buka folder Google Drive" [ref=f2e12824] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1pI65MRLnIoaOhtNP0mInV7mc9LMLDP4n
+                - cell [ref=f2e12827]:
+                  - generic [ref=f2e12828]:
+                    - button "Edit Pelanggan" [ref=f2e12829]
+                    - button "Hapus Pelanggan" [ref=f2e12833]
+          - generic [ref=f2e12808]:
+            - generic [ref=f2e12809]: Menampilkan 1 - 1 dari 1 data
+            - generic [ref=f2e12811]:
+              - generic [ref=f2e12812]: "Tampilkan:"
+              - combobox [ref=f2e12813] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+  - generic [ref=f2e351]: "0"

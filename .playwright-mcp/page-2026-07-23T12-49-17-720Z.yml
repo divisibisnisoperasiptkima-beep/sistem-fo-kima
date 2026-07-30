@@ -1,0 +1,162 @@
+- generic [ref=f1e1]:
+  - main [ref=f1e1400]:
+    - complementary [ref=f1e1403]:
+      - generic [ref=f1e1404]: KIMA
+      - navigation [ref=f1e1406]:
+        - button [ref=f1e1407]
+        - button [ref=f1e1414]
+        - button [ref=f1e1421]
+        - button [ref=f1e1426]
+        - button [ref=f1e1431]
+        - button [ref=f1e1438]
+    - generic [ref=f1e1443]:
+      - button [ref=f1e1446]:
+        - img "Profile" [ref=f1e1447]
+        - generic [ref=f1e1448]:
+          - paragraph [ref=f1e1449]: admin
+          - paragraph [ref=f1e1450]: Admin
+      - generic [ref=f1e2527]:
+        - generic [ref=f1e2528]:
+          - generic [ref=f1e2529]:
+            - paragraph [ref=f1e2532]: Manajemen Kontrak
+            - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f1e2533]
+          - generic [ref=f1e2534]:
+            - textbox "Cari kontrak..." [ref=f1e2539]: Lokasi UAT Lifecycle
+            - button "Filter Status (Semua)" [ref=f1e2541] [cursor=pointer]:
+              - generic [ref=f1e2544]: Filter Status
+              - generic [ref=f1e2545]: (Semua)
+            - button "Tambah Kontrak" [ref=f1e2548]
+        - generic [ref=f1e2552]:
+          - generic [ref=f1e2553]:
+            - generic [ref=f1e2554]:
+              - heading [level=2]
+              - paragraph [ref=f1e2555]: 1 data
+            - button "Muat ulang" [ref=f1e2556]
+          - table [ref=f1e2561]:
+            - rowgroup [ref=f1e2562]:
+              - row [ref=f1e2563]:
+                - columnheader "No" [ref=f1e2564]
+                - columnheader "Pelanggan" [ref=f1e2565]
+                - columnheader "Lokasi" [ref=f1e2566]
+                - columnheader "Sisa Waktu" [ref=f1e2567]
+                - columnheader "Status" [ref=f1e2568]
+                - columnheader "No. Kontrak" [ref=f1e2569]
+                - columnheader "Periode Awal" [ref=f1e2570]
+                - columnheader "Periode Berakhir" [ref=f1e2571]
+                - columnheader "Durasi" [ref=f1e2572]
+                - columnheader "Kapasitas Core" [ref=f1e2573]
+                - columnheader "Nilai Kontrak" [ref=f1e2574]
+                - columnheader "Biaya Aktivasi" [ref=f1e2575]
+                - columnheader "Biaya / Bln" [ref=f1e2576]
+                - columnheader "Periode Aktif" [ref=f1e2577]
+                - columnheader "Folder Berkas" [ref=f1e2578]
+                - columnheader "Aksi" [ref=f1e2579]
+            - rowgroup [ref=f1e2580]:
+              - row [ref=f1e4408]:
+                - cell "1" [ref=f1e4409]
+                - cell "UAT Lifecycle 20260723" [ref=f1e4410]
+                - cell "Lokasi UAT Lifecycle" [ref=f1e4412]
+                - cell "8 Hari" [ref=f1e4414]
+                - cell "Beroperasi" [ref=f1e4416]
+                - cell "UAT/CTR/2026/0723" [ref=f1e4418]
+                - cell "2026-07-01" [ref=f1e4419]
+                - cell "2026-08-01" [ref=f1e4420]
+                - cell "1 Bln" [ref=f1e4421]
+                - cell "1 Core" [ref=f1e4422]
+                - cell "Rp 1.000.000" [ref=f1e4423]
+                - cell "Rp 0" [ref=f1e4424]
+                - cell "Rp 1.000.000" [ref=f1e4425]
+                - cell "Rp 1.000.000" [ref=f1e4426]
+                - cell [ref=f1e4427]:
+                  - link "Drive" [ref=f1e4428] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/17VH9JwjJMyE2sBcGWnMfprKoVU8UjMG7
+                - cell [ref=f1e4434]:
+                  - generic [ref=f1e4435]:
+                    - button "Edit Kontrak" [ref=f1e4436]
+                    - button "Hapus Kontrak" [ref=f1e4440]
+                    - button "Perpanjang Kontrak" [active] [ref=f1e4444]
+                    - button "Upgrade Paket Kontrak" [ref=f1e4447]
+          - generic [ref=f1e3430]:
+            - generic [ref=f1e3431]: Menampilkan 1 - 1 dari 1 data
+            - generic [ref=f1e3433]:
+              - generic [ref=f1e3434]: "Tampilkan:"
+              - combobox [ref=f1e3435] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+        - generic [ref=f1e4452]:
+          - generic [ref=f1e4453]:
+            - generic [ref=f1e4458]:
+              - heading "Perpanjang Kontrak" [level=2] [ref=f1e4459]
+              - paragraph [ref=f1e4460]: UAT Lifecycle 20260723 — Lokasi UAT Lifecycle
+            - button [ref=f1e4461]
+          - generic [ref=f1e4465]:
+            - generic [ref=f1e4466]:
+              - generic [ref=f1e4467]:
+                - generic [ref=f1e4468]:
+                  - generic [ref=f1e4469]: "Kontrak Induk / Saat Ini:"
+                  - generic [ref=f1e4470]: CTR-2026-0029
+                - generic [ref=f1e4471]:
+                  - generic [ref=f1e4472]: "Periode Lama:"
+                  - generic [ref=f1e4473]: 2026-07-01 s.d. 2026-08-01
+              - generic [ref=f1e4474]:
+                - heading "Periode Perpanjangan Baru" [level=3] [ref=f1e4475]
+                - generic [ref=f1e4476]:
+                  - generic [ref=f1e4477]:
+                    - generic [ref=f1e4478]: Kode Kontrak Baru *
+                    - textbox [ref=f1e4480]: CTR-2026-0030
+                  - generic [ref=f1e4481]:
+                    - generic [ref=f1e4482]: No. Kontrak Baru
+                    - textbox [ref=f1e4483]: UAT/CTR/2026/0723
+                - generic [ref=f1e4484]:
+                  - generic [ref=f1e4485]:
+                    - generic [ref=f1e4486]: Periode Awal Baru *
+                    - textbox [ref=f1e4487]: 2026-08-02
+                  - generic [ref=f1e4488]:
+                    - generic [ref=f1e4489]: Durasi (Bulan) *
+                    - spinbutton [ref=f1e4490]: "12"
+                  - generic [ref=f1e4491]:
+                    - generic [ref=f1e4492]: Periode Berakhir Baru *
+                    - textbox [ref=f1e4493]: 2027-08-02
+              - generic [ref=f1e4494]:
+                - heading "Detail Kapasitas" [level=3] [ref=f1e4495]
+                - generic [ref=f1e4496]:
+                  - generic [ref=f1e4497]:
+                    - generic [ref=f1e4498]: Core (Manual Input)
+                    - 'textbox "Contoh: 1 Core, 4 Core" [ref=f1e4499]': 1 Core
+                  - generic [ref=f1e4500]:
+                    - generic [ref=f1e4501]: Sharing Core
+                    - combobox [disabled] [ref=f1e4502]:
+                      - option "Tidak Ada (Direct Core)" [selected]
+                      - option "1/2"
+                      - option "1/4"
+                      - option "1/8"
+                      - option "1/16"
+                      - option "1/32"
+                    - paragraph [ref=f1e4503]: Nonaktif (Core manual diisi)
+              - generic [ref=f1e4504]:
+                - heading "Informasi Keuangan Perpanjangan" [level=3] [ref=f1e4505]
+                - generic [ref=f1e4506]:
+                  - generic [ref=f1e4507]:
+                    - generic [ref=f1e4508]: Nilai Kontrak (Rp)
+                    - spinbutton [ref=f1e4509]: "1000000"
+                  - generic [ref=f1e4510]:
+                    - generic [ref=f1e4511]: Biaya Per Bulan (Rp)
+                    - spinbutton [ref=f1e4512]: "1000000"
+              - generic [ref=f1e4513]:
+                - heading "Upload Dokumen Perpanjangan (Opsional)" [level=3] [ref=f1e4514]
+                - generic [ref=f1e4515]:
+                  - generic [ref=f1e4516]: Folder Tujuan
+                  - combobox [ref=f1e4517]:
+                    - option "Pilih Folder Tujuan" [selected]
+                    - option "Kontrak"
+                    - option "BAK-PKS"
+                    - option "Dokumen Lain"
+                - generic [ref=f1e4518]:
+                  - generic [ref=f1e4519]: Pilih Berkas Perpanjangan (PDF)
+                  - generic [ref=f1e4520]: Klik untuk pilih berkas perpanjangan PKS
+            - generic [ref=f1e4525]:
+              - button "Batal" [ref=f1e4526]
+              - button "Perpanjang Kontrak" [ref=f1e4527]
+  - generic [ref=f1e783]: "0"

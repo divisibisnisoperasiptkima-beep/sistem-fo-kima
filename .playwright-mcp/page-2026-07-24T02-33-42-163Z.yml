@@ -1,0 +1,71 @@
+- generic [active] [ref=e1]:
+  - iframe [ref=e2]:
+    
+  - region
+  - generic [ref=e4]:
+    - navigation [ref=e5]:
+      - button "Langsung ke konten utama" [ref=e7] [cursor=pointer]
+      - button "Pintasan keyboard" [ref=e11] [cursor=pointer]
+      - button "Masukan aksesibilitas" [ref=e15] [cursor=pointer]
+    - banner [ref=e19]:
+      - generic [ref=e20]:
+        - link "Drive" [ref=e24] [cursor=pointer]:
+          - /url: https://drive.google.com/?tab=oo
+        - generic [ref=e28]:
+          - button "Aplikasi Google" [ref=e32] [cursor=pointer]
+          - link "Login" [ref=e36] [cursor=pointer]:
+            - /url: https://accounts.google.com/ServiceLogin?hl=id&passive=true&continue=https://drive.google.com/drive/folders/186v7dHPcVHVICyqPc85e6IWwEdSsyY68&service=writely&ec=GAZAMQ
+    - generic [ref=e37]:
+      - generic [ref=e46]:
+        - generic [ref=e48]:
+          - generic:
+            - navigation:
+              - heading "Jalur Folder" [ref=e49]
+              - list "Jalur Folder"
+        - toolbar [ref=e50]:
+          - radiogroup "Tata Letak Daftar atau Petak (Alt+V kemudian L)" [ref=e55]:
+            - generic [ref=e56]:
+              - radio "Daftar" [checked] [ref=e57] [cursor=pointer]
+              - radio "Kotak" [ref=e66] [cursor=pointer]
+      - main [ref=e76]:
+        - region [ref=e82]:
+          - generic [ref=e83]:
+            - grid "Daftar Item" [ref=e86]:
+              - rowgroup [ref=e87]:
+                - generic [ref=e88] [cursor=pointer]: Nama
+                - text: Pemilik
+                - generic [ref=e92] [cursor=pointer]: Tanggal diubah
+                - text: Ukuran file
+                - generic [ref=e98]:
+                  - button "Urutkan" [ref=e99] [cursor=pointer]
+                  - tooltip [ref=e104]: Lihat opsi pengurutan
+              - rowgroup [ref=e105]:
+                - row [ref=e106]:
+                  - gridcell [ref=e107]:
+                    - generic "BAK-PKS Shared folder" [ref=e121]:
+                      - strong [ref=e124]: BAK-PKS
+                  - gridcell [ref=e125]:
+                    - generic "Modified 10.32" [ref=e129]: "10.32"
+                  - gridcell [ref=e131]:
+                    - generic "Size not available" [ref=e135]: —
+                  - gridcell [ref=e137]
+                - row [ref=e139]:
+                  - gridcell [ref=e140]:
+                    - generic "Dokumen Lain Shared folder" [ref=e154]:
+                      - strong [ref=e157]: Dokumen Lain
+                  - gridcell [ref=e158]:
+                    - generic "Modified 10.32" [ref=e162]: "10.32"
+                  - gridcell [ref=e164]:
+                    - generic "Size not available" [ref=e168]: —
+                  - gridcell [ref=e170]
+                - row [ref=e172]:
+                  - gridcell [ref=e173]:
+                    - generic "Kontrak Shared folder" [ref=e187]:
+                      - strong [ref=e190]: Kontrak
+                  - gridcell [ref=e191]:
+                    - generic "Modified 10.32" [ref=e195]: "10.32"
+                  - gridcell [ref=e197]:
+                    - generic "Size not available" [ref=e201]: —
+                  - gridcell [ref=e203]
+            - progressbar [ref=e207]
+  - region

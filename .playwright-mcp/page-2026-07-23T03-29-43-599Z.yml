@@ -1,0 +1,212 @@
+- main [ref=f4e3]:
+  - complementary [ref=f4e6]:
+    - generic [ref=f4e7]: KIMA
+    - navigation [ref=f4e9]:
+      - button [ref=f4e10]
+      - button [ref=f4e17]
+      - button [ref=f4e24]
+      - button [ref=f4e29]
+      - button [ref=f4e34]
+      - button [ref=f4e41]
+  - generic [ref=f4e46]:
+    - button [ref=f4e49]:
+      - img "Profile" [ref=f4e50]
+      - generic [ref=f4e51]:
+        - paragraph [ref=f4e52]: admin
+        - paragraph [ref=f4e53]: Admin
+    - generic [ref=f4e55]:
+      - generic [ref=f4e56]:
+        - generic [ref=f4e57]:
+          - paragraph [ref=f4e60]: Manajemen GIS & Lokasi
+          - heading "Titik Peta FO KIMA" [level=1] [ref=f4e61]
+        - generic [ref=f4e62]:
+          - generic [ref=f4e63]:
+            - generic [ref=f4e64]:
+              - paragraph [ref=f4e65]: Total Lokasi
+              - paragraph [ref=f4e66]: "112"
+            - generic [ref=f4e68]:
+              - paragraph [ref=f4e69]: Terpetakan
+              - paragraph [ref=f4e70]: "0"
+            - generic [ref=f4e72]:
+              - paragraph [ref=f4e73]: Belum Terpetakan
+              - paragraph [ref=f4e74]: "112"
+            - generic [ref=f4e76]: 0% Coverage
+          - textbox "Cari pelanggan / lokasi..." [ref=f4e81]
+      - generic [ref=f4e83]:
+        - generic [ref=f4e85]:
+          - generic [ref=f4e86]:
+            - generic [ref=f4e87]:
+              - heading [level=2]
+              - paragraph [ref=f4e88]: 112 data
+            - button "Muat ulang" [ref=f4e89]
+          - table [ref=f4e94]:
+            - rowgroup [ref=f4e95]:
+              - row [ref=f4e96]:
+                - columnheader "#" [ref=f4e97]
+                - columnheader "Nama Pelanggan" [ref=f4e98]
+                - columnheader "Nama Lokasi" [ref=f4e99]
+                - columnheader "Koordinat" [ref=f4e100]
+                - columnheader "Aksi Peta" [ref=f4e101]
+            - rowgroup [ref=f4e102]:
+              - row [ref=f4e103] [cursor=pointer]:
+                - cell "1" [ref=f4e104]
+                - cell "Indosat Tbk" [ref=f4e105]
+                - cell "Core 15C" [ref=f4e106]
+                - cell "Belum ditentukan" [ref=f4e107]
+                - cell [ref=f4e108]:
+                  - button "Lihat Peta" [ref=f4e110]
+              - row [ref=f4e112] [cursor=pointer]:
+                - cell "2" [ref=f4e113]
+                - cell "Indosat Tbk" [ref=f4e114]
+                - cell "Core 35C" [ref=f4e115]
+                - cell "Belum ditentukan" [ref=f4e116]
+                - cell [ref=f4e117]:
+                  - button "Lihat Peta" [ref=f4e119]
+              - row [ref=f4e121] [cursor=pointer]:
+                - cell "3" [ref=f4e122]
+                - cell "Indosat Tbk" [ref=f4e123]
+                - cell "PT Paragon Technology And Innovation" [ref=f4e124]
+                - cell "Belum ditentukan" [ref=f4e125]
+                - cell [ref=f4e126]:
+                  - button "Lihat Peta" [ref=f4e128]
+              - row [ref=f4e130] [cursor=pointer]:
+                - cell "4" [ref=f4e131]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e132]
+                - cell "Core" [ref=f4e133]
+                - cell "Belum ditentukan" [ref=f4e134]
+                - cell [ref=f4e135]:
+                  - button "Lihat Peta" [ref=f4e137]
+              - row [ref=f4e139] [cursor=pointer]:
+                - cell "5" [ref=f4e140]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e141]
+                - cell "PT Anugerah Pharmindo Lestari 1" [ref=f4e142]
+                - cell "Belum ditentukan" [ref=f4e143]
+                - cell [ref=f4e144]:
+                  - button "Lihat Peta" [ref=f4e146]
+              - row [ref=f4e148] [cursor=pointer]:
+                - cell "6" [ref=f4e149]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e150]
+                - cell "PT Anugerah Pharmindo Lestari 2" [ref=f4e151]
+                - cell "Belum ditentukan" [ref=f4e152]
+                - cell [ref=f4e153]:
+                  - button "Lihat Peta" [ref=f4e155]
+              - row [ref=f4e157] [cursor=pointer]:
+                - cell "7" [ref=f4e158]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e159]
+                - cell "PT Anugerah Pharmindo Lestari/Hipernet Indodata" [ref=f4e160]
+                - cell "Belum ditentukan" [ref=f4e161]
+                - cell [ref=f4e162]:
+                  - button "Lihat Peta" [ref=f4e164]
+              - row [ref=f4e166] [cursor=pointer]:
+                - cell "8" [ref=f4e167]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e168]
+                - cell "PT Cargil Indonesia" [ref=f4e169]
+                - cell "Belum ditentukan" [ref=f4e170]
+                - cell [ref=f4e171]:
+                  - button "Lihat Peta" [ref=f4e173]
+              - row [ref=f4e175] [cursor=pointer]:
+                - cell "9" [ref=f4e176]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e177]
+                - cell "PT Charoen Pokphand Indonesia" [ref=f4e178]
+                - cell "Belum ditentukan" [ref=f4e179]
+                - cell [ref=f4e180]:
+                  - button "Lihat Peta" [ref=f4e182]
+              - row [ref=f4e184] [cursor=pointer]:
+                - cell "10" [ref=f4e185]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e186]
+                - cell "PT Enseval Putra Megatrading Tbk" [ref=f4e187]
+                - cell "Belum ditentukan" [ref=f4e188]
+                - cell [ref=f4e189]:
+                  - button "Lihat Peta" [ref=f4e191]
+              - row [ref=f4e193] [cursor=pointer]:
+                - cell "11" [ref=f4e194]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e195]
+                - cell "PT Hexindo Adiperkasa Tbk" [ref=f4e196]
+                - cell "Belum ditentukan" [ref=f4e197]
+                - cell [ref=f4e198]:
+                  - button "Lihat Peta" [ref=f4e200]
+              - row [ref=f4e202] [cursor=pointer]:
+                - cell "12" [ref=f4e203]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e204]
+                - cell "PT Indoarsip Kertas Karya" [ref=f4e205]
+                - cell "Belum ditentukan" [ref=f4e206]
+                - cell [ref=f4e207]:
+                  - button "Lihat Peta" [ref=f4e209]
+              - row [ref=f4e211] [cursor=pointer]:
+                - cell "13" [ref=f4e212]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e213]
+                - cell "PT Kamadjaja Logistics" [ref=f4e214]
+                - cell "Belum ditentukan" [ref=f4e215]
+                - cell [ref=f4e216]:
+                  - button "Lihat Peta" [ref=f4e218]
+              - row [ref=f4e220] [cursor=pointer]:
+                - cell "14" [ref=f4e221]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e222]
+                - cell "PT Kamadjaja Logistics 1" [ref=f4e223]
+                - cell "Belum ditentukan" [ref=f4e224]
+                - cell [ref=f4e225]:
+                  - button "Lihat Peta" [ref=f4e227]
+              - row [ref=f4e229] [cursor=pointer]:
+                - cell "15" [ref=f4e230]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e231]
+                - cell "PT Mars Symbioscience Indonesia 1" [ref=f4e232]
+                - cell "Belum ditentukan" [ref=f4e233]
+                - cell [ref=f4e234]:
+                  - button "Lihat Peta" [ref=f4e236]
+              - row [ref=f4e238] [cursor=pointer]:
+                - cell "16" [ref=f4e239]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e240]
+                - cell "PT Mars Symbioscience Indonesia 2" [ref=f4e241]
+                - cell "Belum ditentukan" [ref=f4e242]
+                - cell [ref=f4e243]:
+                  - button "Lihat Peta" [ref=f4e245]
+              - row [ref=f4e247] [cursor=pointer]:
+                - cell "17" [ref=f4e248]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e249]
+                - cell "PT Mars Symbioscience Indonesia/Telekomunikasi Indonesia International" [ref=f4e250]
+                - cell "Belum ditentukan" [ref=f4e251]
+                - cell [ref=f4e252]:
+                  - button "Lihat Peta" [ref=f4e254]
+              - row [ref=f4e256] [cursor=pointer]:
+                - cell "18" [ref=f4e257]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e258]
+                - cell "PT Merapi Utama Pharma" [ref=f4e259]
+                - cell "Belum ditentukan" [ref=f4e260]
+                - cell [ref=f4e261]:
+                  - button "Lihat Peta" [ref=f4e263]
+              - row [ref=f4e265] [cursor=pointer]:
+                - cell "19" [ref=f4e266]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e267]
+                - cell "PT Prima Indo Papua" [ref=f4e268]
+                - cell "Belum ditentukan" [ref=f4e269]
+                - cell [ref=f4e270]:
+                  - button "Lihat Peta" [ref=f4e272]
+              - row [ref=f4e274] [cursor=pointer]:
+                - cell "20" [ref=f4e275]
+                - cell "PT Aplikanusa Lintasarta" [ref=f4e276]
+                - cell "PT Primacom Interbuana" [ref=f4e277]
+                - cell "Belum ditentukan" [ref=f4e278]
+                - cell [ref=f4e279]:
+                  - button "Lihat Peta" [ref=f4e281]
+          - generic [ref=f4e283]:
+            - generic [ref=f4e284]: Menampilkan 1 - 20 dari 112 data
+            - generic [ref=f4e285]:
+              - generic [ref=f4e286]:
+                - generic [ref=f4e287]: "Tampilkan:"
+                - combobox [ref=f4e288] [cursor=pointer]:
+                  - option "10"
+                  - option "20" [selected]
+                  - option "50"
+                  - option "100"
+              - generic [ref=f4e289]:
+                - button "Halaman Pertama" [disabled] [ref=f4e290]
+                - button "Halaman Sebelumnya" [disabled] [ref=f4e294]
+                - button "1" [ref=f4e297]
+                - button "2" [ref=f4e298]
+                - generic [ref=f4e299]: ...
+                - button "6" [ref=f4e300]
+                - button "Halaman Berikutnya" [ref=f4e301]
+                - button "Halaman Terakhir" [ref=f4e304]
+        - button "Titik Kantor ISP (0) ▼" [ref=f4e309]:
+          - generic [ref=f4e314]: Titik Kantor ISP (0)
+          - generic [ref=f4e315]: ▼

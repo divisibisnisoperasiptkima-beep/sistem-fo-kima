@@ -1,0 +1,293 @@
+- main [ref=e108]:
+  - complementary [ref=e111]:
+    - generic [ref=e112]: KIMA
+    - navigation [ref=e114]:
+      - button [ref=e115]
+      - button [ref=e122]
+      - button [ref=e129]
+  - generic [ref=e134]:
+    - button [ref=e137]:
+      - img "Profile" [ref=e138]
+      - generic [ref=e139]:
+        - paragraph [ref=e140]: admin
+        - paragraph [ref=e141]: Admin
+    - generic [ref=e143]:
+      - generic [ref=e144]:
+        - heading "Daftar Pelanggan" [level=1] [ref=e145]
+        - button "Tambah Pelanggan" [ref=e146]
+      - generic [ref=e150]:
+        - generic [ref=e151]:
+          - generic [ref=e152]:
+            - heading [level=2]
+            - paragraph [ref=e153]: 16 data
+          - button "Muat ulang" [ref=e154]
+        - table [ref=e159]:
+          - rowgroup [ref=e160]:
+            - row [ref=e161]:
+              - columnheader "No" [ref=e162]
+              - columnheader "Kode" [ref=e163]
+              - columnheader "Nama Pelanggan" [ref=e164]
+              - columnheader "PIC" [ref=e165]
+              - columnheader "Telepon" [ref=e166]
+              - columnheader "Email" [ref=e167]
+              - columnheader "Beroperasi" [ref=e168]
+              - columnheader "Belum Beroperasi" [ref=e169]
+              - columnheader "Folder" [ref=e170]
+              - columnheader "Aksi" [ref=e171]
+          - rowgroup [ref=e172]:
+            - row [ref=e173]:
+              - cell "1" [ref=e174]
+              - cell "PLG-TSIL1S" [ref=e175]
+              - cell "Indosat Tbk" [ref=e176]
+              - cell "—" [ref=e177]
+              - cell "—" [ref=e178]
+              - cell "—" [ref=e179]
+              - cell "2" [ref=e180]
+              - cell "1" [ref=e181]
+              - cell [ref=e182]:
+                - link "Buka folder Google Drive" [ref=e183] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1lc6avi60bA00_P_rkpJHsFowIjfdPv-E
+              - cell [ref=e186]:
+                - generic [ref=e187]:
+                  - button "Edit Pelanggan" [ref=e188]
+                  - button "Hapus Pelanggan" [ref=e192]
+            - row [ref=e196]:
+              - cell "2" [ref=e197]
+              - cell "PLG-7T10F2" [ref=e198]
+              - cell "PT Aplikanusa Lintasarta" [ref=e199]
+              - cell "—" [ref=e200]
+              - cell "—" [ref=e201]
+              - cell "—" [ref=e202]
+              - cell "10" [ref=e203]
+              - cell "0" [ref=e204]
+              - cell [ref=e205]:
+                - link "Buka folder Google Drive" [ref=e206] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1GwC5XLvxXJbNAhfE-1qN7gl32YRI0yTR
+              - cell [ref=e209]:
+                - generic [ref=e210]:
+                  - button "Edit Pelanggan" [ref=e211]
+                  - button "Hapus Pelanggan" [ref=e215]
+            - row [ref=e219]:
+              - cell "3" [ref=e220]
+              - cell "PLG-P1XHVZ" [ref=e221]
+              - cell "PT Cendikia Global Solusi" [ref=e222]
+              - cell "—" [ref=e223]
+              - cell "—" [ref=e224]
+              - cell "—" [ref=e225]
+              - cell "11" [ref=e226]
+              - cell "0" [ref=e227]
+              - cell [ref=e228]:
+                - link "Buka folder Google Drive" [ref=e229] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1bQoO1qql1JFZgoNdwxrLvt5zH6VgirTB
+              - cell [ref=e232]:
+                - generic [ref=e233]:
+                  - button "Edit Pelanggan" [ref=e234]
+                  - button "Hapus Pelanggan" [ref=e238]
+            - row [ref=e242]:
+              - cell "4" [ref=e243]
+              - cell "PLG-1AZR75" [ref=e244]
+              - cell "PT Citra Prima Media" [ref=e245]
+              - cell "—" [ref=e246]
+              - cell "—" [ref=e247]
+              - cell "—" [ref=e248]
+              - cell "0" [ref=e249]
+              - cell "0" [ref=e250]
+              - cell [ref=e251]:
+                - link "Buka folder Google Drive" [ref=e252] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1FZ0IwAAhbGMZVs8xXLZL8xqxfhstnt8t
+              - cell [ref=e255]:
+                - generic [ref=e256]:
+                  - button "Edit Pelanggan" [ref=e257]
+                  - button "Hapus Pelanggan" [ref=e261]
+            - row [ref=e265]:
+              - cell "5" [ref=e266]
+              - cell "PLG-ST473H" [ref=e267]
+              - cell "PT Fiber Network Indonesia" [ref=e268]
+              - cell "—" [ref=e269]
+              - cell "—" [ref=e270]
+              - cell "—" [ref=e271]
+              - cell "4" [ref=e272]
+              - cell "0" [ref=e273]
+              - cell [ref=e274]:
+                - link "Buka folder Google Drive" [ref=e275] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1fvK0tS6RPoI6yn_1nCoK_7ipci7N9xz0
+              - cell [ref=e278]:
+                - generic [ref=e279]:
+                  - button "Edit Pelanggan" [ref=e280]
+                  - button "Hapus Pelanggan" [ref=e284]
+            - row [ref=e288]:
+              - cell "6" [ref=e289]
+              - cell "PLG-YAR25B" [ref=e290]
+              - cell "PT Iforte Solusi Infotek" [ref=e291]
+              - cell "—" [ref=e292]
+              - cell "—" [ref=e293]
+              - cell "—" [ref=e294]
+              - cell "2" [ref=e295]
+              - cell "0" [ref=e296]
+              - cell [ref=e297]:
+                - link "Buka folder Google Drive" [ref=e298] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1jFOd-p3cY1c-UKcKYOEnPvT1WfIhcOYr
+              - cell [ref=e301]:
+                - generic [ref=e302]:
+                  - button "Edit Pelanggan" [ref=e303]
+                  - button "Hapus Pelanggan" [ref=e307]
+            - row [ref=e311]:
+              - cell "7" [ref=e312]
+              - cell "PLG-WEC2A0" [ref=e313]
+              - cell "PT Indonesia Comnets Plus" [ref=e314]
+              - cell "—" [ref=e315]
+              - cell "—" [ref=e316]
+              - cell "—" [ref=e317]
+              - cell "11" [ref=e318]
+              - cell "0" [ref=e319]
+              - cell [ref=e320]:
+                - link "Buka folder Google Drive" [ref=e321] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1v9sdwWI7tbHOpswUQ95R1RMlb0eX5KVd
+              - cell [ref=e324]:
+                - generic [ref=e325]:
+                  - button "Edit Pelanggan" [ref=e326]
+                  - button "Hapus Pelanggan" [ref=e330]
+            - row [ref=e334]:
+              - cell "8" [ref=e335]
+              - cell "PLG-UIGRN3" [ref=e336]
+              - cell "PT Inet Global" [ref=e337]
+              - cell "—" [ref=e338]
+              - cell "—" [ref=e339]
+              - cell "—" [ref=e340]
+              - cell "0" [ref=e341]
+              - cell "0" [ref=e342]
+              - cell [ref=e343]:
+                - link "Buka folder Google Drive" [ref=e344] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/10nd3pOo7dMpzlbRoKTVSv6vXqusb7PJM
+              - cell [ref=e347]:
+                - generic [ref=e348]:
+                  - button "Edit Pelanggan" [ref=e349]
+                  - button "Hapus Pelanggan" [ref=e353]
+            - row [ref=e357]:
+              - cell "9" [ref=e358]
+              - cell "PLG-YHJV15" [ref=e359]
+              - cell "PT Jenius Lintas Nusantara" [ref=e360]
+              - cell "—" [ref=e361]
+              - cell "—" [ref=e362]
+              - cell "—" [ref=e363]
+              - cell "0" [ref=e364]
+              - cell "0" [ref=e365]
+              - cell [ref=e366]:
+                - link "Buka folder Google Drive" [ref=e367] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1PCSkW9C8aCos7WIjSIc30XXyo8JRgZ74
+              - cell [ref=e370]:
+                - generic [ref=e371]:
+                  - button "Edit Pelanggan" [ref=e372]
+                  - button "Hapus Pelanggan" [ref=e376]
+            - row [ref=e380]:
+              - cell "10" [ref=e381]
+              - cell "PLG-XRF0PJ" [ref=e382]
+              - cell "PT Lado Tekno Parkir" [ref=e383]
+              - cell "—" [ref=e384]
+              - cell "—" [ref=e385]
+              - cell "—" [ref=e386]
+              - cell "8" [ref=e387]
+              - cell "0" [ref=e388]
+              - cell [ref=e389]:
+                - link "Buka folder Google Drive" [ref=e390] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1rTC_HBt7h2x7iWGGItprLB4zQIE8Vzlz
+              - cell [ref=e393]:
+                - generic [ref=e394]:
+                  - button "Edit Pelanggan" [ref=e395]
+                  - button "Hapus Pelanggan" [ref=e399]
+            - row [ref=e403]:
+              - cell "11" [ref=e404]
+              - cell "PLG-PMXWYQ" [ref=e405]
+              - cell "PT Medialink Global Mandiri" [ref=e406]
+              - cell "—" [ref=e407]
+              - cell "—" [ref=e408]
+              - cell "—" [ref=e409]
+              - cell "2" [ref=e410]
+              - cell "0" [ref=e411]
+              - cell [ref=e412]:
+                - link "Buka folder Google Drive" [ref=e413] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1ZiOJKW8b0kYGDasakAY333QXwOhcaxus
+              - cell [ref=e416]:
+                - generic [ref=e417]:
+                  - button "Edit Pelanggan" [ref=e418]
+                  - button "Hapus Pelanggan" [ref=e422]
+            - row [ref=e426]:
+              - cell "12" [ref=e427]
+              - cell "PLG-NN1I0X" [ref=e428]
+              - cell "PT Mora Telematika Indonesia" [ref=e429]
+              - cell "—" [ref=e430]
+              - cell "—" [ref=e431]
+              - cell "—" [ref=e432]
+              - cell "2" [ref=e433]
+              - cell "0" [ref=e434]
+              - cell [ref=e435]:
+                - link "Buka folder Google Drive" [ref=e436] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1d9jtkzWSonJAxrNVELhScJ9areSYP2s8
+              - cell [ref=e439]:
+                - generic [ref=e440]:
+                  - button "Edit Pelanggan" [ref=e441]
+                  - button "Hapus Pelanggan" [ref=e445]
+            - row [ref=e449]:
+              - cell "13" [ref=e450]
+              - cell "PLG-IANDE4" [ref=e451]
+              - cell "PT Multitech Infomedia" [ref=e452]
+              - cell "—" [ref=e453]
+              - cell "—" [ref=e454]
+              - cell "—" [ref=e455]
+              - cell "1" [ref=e456]
+              - cell "0" [ref=e457]
+              - cell [ref=e458]:
+                - link "Buka folder Google Drive" [ref=e459] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1oIBeO0mu9xh3dJtkUmyOdvjoCLOShljj
+              - cell [ref=e462]:
+                - generic [ref=e463]:
+                  - button "Edit Pelanggan" [ref=e464]
+                  - button "Hapus Pelanggan" [ref=e468]
+            - row [ref=e472]:
+              - cell "14" [ref=e473]
+              - cell "PLG-5ZB3Q1" [ref=e474]
+              - cell "PT Panca Karsa Sejahtera" [ref=e475]
+              - cell "—" [ref=e476]
+              - cell "—" [ref=e477]
+              - cell "—" [ref=e478]
+              - cell "0" [ref=e479]
+              - cell "0" [ref=e480]
+              - cell [ref=e481]:
+                - link "Buka folder Google Drive" [ref=e482] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1G8OpmbhnYtNpNxGmR0apAk0pmSFURk24
+              - cell [ref=e485]:
+                - generic [ref=e486]:
+                  - button "Edit Pelanggan" [ref=e487]
+                  - button "Hapus Pelanggan" [ref=e491]
+            - row [ref=e495]:
+              - cell "15" [ref=e496]
+              - cell "PLG-35K389" [ref=e497]
+              - cell "PT XL Axiata Tbk" [ref=e498]
+              - cell "—" [ref=e499]
+              - cell "—" [ref=e500]
+              - cell "—" [ref=e501]
+              - cell "0" [ref=e502]
+              - cell "0" [ref=e503]
+              - cell [ref=e504]:
+                - link "Buka folder Google Drive" [ref=e505] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1ClS5jfn-rLusUAqI2pdZ_UGTSJM962cL
+              - cell [ref=e508]:
+                - generic [ref=e509]:
+                  - button "Edit Pelanggan" [ref=e510]
+                  - button "Hapus Pelanggan" [ref=e514]
+            - row [ref=e518]:
+              - cell "16" [ref=e519]
+              - cell "PLG-MDE6ER" [ref=e520]
+              - cell "Telkom Indonesia (Persero) Tbk" [ref=e521]
+              - cell "—" [ref=e522]
+              - cell "—" [ref=e523]
+              - cell "—" [ref=e524]
+              - cell "2" [ref=e525]
+              - cell "0" [ref=e526]
+              - cell [ref=e527]:
+                - link "Buka folder Google Drive" [ref=e528] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/13Xq-fmQMsTtwRgM5LLpZmrzO9L0iL86a
+              - cell [ref=e531]:
+                - generic [ref=e532]:
+                  - button "Edit Pelanggan" [ref=e533]
+                  - button "Hapus Pelanggan" [ref=e537]

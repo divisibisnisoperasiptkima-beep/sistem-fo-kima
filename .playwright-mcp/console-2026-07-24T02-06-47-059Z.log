@@ -1,0 +1,4 @@
+[    1525ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=30ad515a:14337
+[    2816ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/:0
+[   21114ms] [ERROR] Access to fetch at 'http://127.0.0.1:8080/api/auth/login' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The 'Access-Control-Allow-Origin' header has a value 'http://localhost:5173' that is not equal to the supplied origin. Have the server send the header with a valid value. @ http://127.0.0.1:5173/:0
+[   21133ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8080/api/auth/login:0

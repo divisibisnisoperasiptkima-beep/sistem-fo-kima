@@ -1,0 +1,112 @@
+- generic [active] [ref=f1e1]:
+  - main [ref=f1e1400]:
+    - complementary [ref=f1e1403]:
+      - generic [ref=f1e1404]: KIMA
+      - navigation [ref=f1e1406]:
+        - button [ref=f1e1407]
+        - button [ref=f1e1414]
+        - button [ref=f1e1421]
+        - button [ref=f1e1426]
+        - button [ref=f1e1431]
+        - button [ref=f1e1438]
+    - generic [ref=f1e1443]:
+      - button [ref=f1e1446]:
+        - img "Profile" [ref=f1e1447]
+        - generic [ref=f1e1448]:
+          - paragraph [ref=f1e1449]: admin
+          - paragraph [ref=f1e1450]: Admin
+      - generic [ref=f1e2527]:
+        - generic [ref=f1e2528]:
+          - generic [ref=f1e2529]:
+            - paragraph [ref=f1e2532]: Manajemen Kontrak
+            - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f1e2533]
+          - generic [ref=f1e2534]:
+            - textbox "Cari kontrak..." [ref=f1e2539]: Lokasi UAT Upgrade
+            - button "Filter Status (Semua)" [ref=f1e2541] [cursor=pointer]:
+              - generic [ref=f1e2544]: Filter Status
+              - generic [ref=f1e2545]: (Semua)
+            - button "Tambah Kontrak" [ref=f1e2548]
+        - generic [ref=f1e2552]:
+          - generic [ref=f1e2553]:
+            - generic [ref=f1e2554]:
+              - heading [level=2]
+              - paragraph [ref=f1e2555]: 2 data
+            - button "Muat ulang" [ref=f1e2556]
+          - table [ref=f1e2561]:
+            - rowgroup [ref=f1e2562]:
+              - row [ref=f1e2563]:
+                - columnheader "No" [ref=f1e2564]
+                - columnheader "Pelanggan" [ref=f1e2565]
+                - columnheader "Lokasi" [ref=f1e2566]
+                - columnheader "Sisa Waktu" [ref=f1e2567]
+                - columnheader "Status" [ref=f1e2568]
+                - columnheader "No. Kontrak" [ref=f1e2569]
+                - columnheader "Periode Awal" [ref=f1e2570]
+                - columnheader "Periode Berakhir" [ref=f1e2571]
+                - columnheader "Durasi" [ref=f1e2572]
+                - columnheader "Kapasitas Core" [ref=f1e2573]
+                - columnheader "Nilai Kontrak" [ref=f1e2574]
+                - columnheader "Biaya Aktivasi" [ref=f1e2575]
+                - columnheader "Biaya / Bln" [ref=f1e2576]
+                - columnheader "Periode Aktif" [ref=f1e2577]
+                - columnheader "Folder Berkas" [ref=f1e2578]
+                - columnheader "Aksi" [ref=f1e2579]
+            - rowgroup [ref=f1e2580]:
+              - row [ref=f1e5287]:
+                - cell "1" [ref=f1e5288]
+                - cell "UAT Lifecycle 20260723" [ref=f1e5289]
+                - cell "Lokasi UAT Upgrade" [ref=f1e5291]
+                - cell "4 Hari lewat" [ref=f1e5293]
+                - cell "Diperpanjang" [ref=f1e5295]
+                - cell "UAT/UPG/INDUK/2026" [ref=f1e5297]
+                - cell "2026-06-20" [ref=f1e5298]
+                - cell "2026-07-20" [ref=f1e5299]
+                - cell "1 Bln" [ref=f1e5300]
+                - cell "1 Core" [ref=f1e5301]
+                - cell "Rp 1.000.000" [ref=f1e5302]
+                - cell "Rp 0" [ref=f1e5303]
+                - cell "Rp 1.000.000" [ref=f1e5304]
+                - cell "Rp 1.000.000" [ref=f1e5305]
+                - cell [ref=f1e5306]:
+                  - link "Drive" [ref=f1e5307] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1M7hmHCR3XzvAMv1mfyU0HJg4xHNl0D47
+                - cell [ref=f1e5313]:
+                  - generic [ref=f1e5314]:
+                    - button "Edit Kontrak" [ref=f1e5315]
+                    - button "Hapus Kontrak" [ref=f1e5319]
+                    - button "Perpanjang Kontrak" [ref=f1e5323]
+                    - button "Upgrade Paket Kontrak" [ref=f1e5326]
+              - row [ref=f1e5329]:
+                - cell "2" [ref=f1e5330]
+                - cell "UAT Lifecycle 20260723" [ref=f1e5331]
+                - cell "Lokasi UAT Upgrade" [ref=f1e5333]
+                - cell "2 Hari lewat" [ref=f1e5335]
+                - cell "Di-upgrade" [ref=f1e5337]
+                - cell "UAT/UPG/EXT/2026" [ref=f1e5339]
+                - cell "2026-07-21" [ref=f1e5340]
+                - cell "2026-07-22" [ref=f1e5341]
+                - cell "1 Bln" [ref=f1e5342]
+                - cell "1 Core" [ref=f1e5343]
+                - cell "Rp 1.100.000" [ref=f1e5344]
+                - cell "Rp 0" [ref=f1e5345]
+                - cell "Rp 1.100.000" [ref=f1e5346]
+                - cell "Rp 1.000.000" [ref=f1e5347]
+                - cell [ref=f1e5348]:
+                  - link "Drive" [ref=f1e5349] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1TB1ikajozWrM2_jKYu0B-Q5HKg6PrlQw
+                - cell [ref=f1e5355]:
+                  - generic [ref=f1e5356]:
+                    - button "Edit Kontrak" [ref=f1e5357]
+                    - button "Hapus Kontrak" [ref=f1e5361]
+                    - button "Perpanjang Kontrak" [ref=f1e5365]
+                    - button "Upgrade Paket Kontrak" [ref=f1e5368]
+          - generic [ref=f1e3430]:
+            - generic [ref=f1e3431]: Menampilkan 1 - 2 dari 2 data
+            - generic [ref=f1e3433]:
+              - generic [ref=f1e3434]: "Tampilkan:"
+              - combobox [ref=f1e3435] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+  - generic [ref=f1e783]: "0"

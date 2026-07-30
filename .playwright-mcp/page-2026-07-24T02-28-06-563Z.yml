@@ -1,0 +1,86 @@
+- main [ref=f7e3]:
+  - complementary [ref=f7e6]:
+    - generic [ref=f7e7]: KIMA
+    - navigation [ref=f7e9]:
+      - button [ref=f7e10]
+      - button [ref=f7e17]
+      - button [ref=f7e24]
+      - button [ref=f7e29]
+      - button [ref=f7e34]
+      - button [ref=f7e41]
+  - generic [ref=f7e46]:
+    - button [ref=f7e49]:
+      - img "Profile" [ref=f7e50]
+      - generic [ref=f7e51]:
+        - paragraph [ref=f7e52]: admin
+        - paragraph [ref=f7e53]: Admin
+    - generic [ref=f7e55]:
+      - generic [ref=f7e56]:
+        - generic [ref=f7e57]:
+          - paragraph [ref=f7e60]: Manajemen Kontrak
+          - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f7e61]
+        - generic [ref=f7e62]:
+          - textbox "Cari kontrak..." [ref=f7e67]: CTR-UAT-20260724SC
+          - button "Filter Status (Semua)" [ref=f7e69] [cursor=pointer]:
+            - generic [ref=f7e72]: Filter Status
+            - generic [ref=f7e73]: (Semua)
+          - button "Tambah Kontrak" [ref=f7e76]
+      - generic [ref=f7e80]:
+        - generic [ref=f7e81]:
+          - generic [ref=f7e82]:
+            - heading [level=2]
+            - paragraph [ref=f7e83]: 1 data
+          - button "Muat ulang" [ref=f7e84]
+        - table [ref=f7e89]:
+          - rowgroup [ref=f7e90]:
+            - row [ref=f7e91]:
+              - columnheader "No" [ref=f7e92]
+              - columnheader "Pelanggan" [ref=f7e93]
+              - columnheader "Lokasi" [ref=f7e94]
+              - columnheader "Sisa Waktu" [ref=f7e95]
+              - columnheader "Status" [ref=f7e96]
+              - columnheader "No. Kontrak" [ref=f7e97]
+              - columnheader "Periode Awal" [ref=f7e98]
+              - columnheader "Periode Berakhir" [ref=f7e99]
+              - columnheader "Durasi" [ref=f7e100]
+              - columnheader "Kapasitas Core" [ref=f7e101]
+              - columnheader "Nilai Kontrak" [ref=f7e102]
+              - columnheader "Biaya Aktivasi" [ref=f7e103]
+              - columnheader "Biaya / Bln" [ref=f7e104]
+              - columnheader "Periode Aktif" [ref=f7e105]
+              - columnheader "Folder Berkas" [ref=f7e106]
+              - columnheader "Aksi" [ref=f7e107]
+          - rowgroup [ref=f7e108]:
+            - row [ref=f7e1130]:
+              - cell "1" [ref=f7e1131]
+              - cell "UAT Sharing Core 20260724SC" [ref=f7e1132]
+              - cell "UAT Lokasi Sharing Core" [ref=f7e1134]
+              - cell "2 Hari lewat" [ref=f7e1136]
+              - cell "Di-upgrade" [ref=f7e1138]
+              - cell "—" [ref=f7e1140]
+              - cell "2026-07-01" [ref=f7e1141]
+              - cell "2026-07-23" [ref=f7e1142]
+              - cell "1 Bln" [ref=f7e1143]
+              - cell "Sharing 1/16" [ref=f7e1144]
+              - cell "Rp 1.600.000" [ref=f7e1146]
+              - cell "Rp 0" [ref=f7e1147]
+              - cell "Rp 1.600.000" [ref=f7e1148]
+              - cell "Rp 1.600.000" [ref=f7e1149]
+              - cell [ref=f7e1150]:
+                - link "Drive" [ref=f7e1151] [cursor=pointer]:
+                  - /url: https://drive.google.com/drive/folders/1_gyP7bzEc6UTyF9uOoE_YDZoVy-V-Xs6
+              - cell [ref=f7e1157]:
+                - generic [ref=f7e1158]:
+                  - button "Edit Kontrak" [ref=f7e1159]
+                  - button "Hapus Kontrak" [ref=f7e1163]
+                  - button "Perpanjang Kontrak" [ref=f7e1167]
+                  - button "Upgrade Paket Kontrak" [ref=f7e1170]
+        - generic [ref=f7e963]:
+          - generic [ref=f7e964]: Menampilkan 1 - 1 dari 1 data
+          - generic [ref=f7e966]:
+            - generic [ref=f7e967]: "Tampilkan:"
+            - combobox [ref=f7e968] [cursor=pointer]:
+              - option "10"
+              - option "20" [selected]
+              - option "50"
+              - option "100"

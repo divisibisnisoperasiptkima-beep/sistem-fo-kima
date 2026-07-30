@@ -9,7 +9,6 @@ use axum::{
 use sqlx::Row;
 
 use crate::{
-    access::assert_pelanggan_access,
     drive::{ensure_pelanggan_tree, folder_url, parse_drive_folder_id, sanitize_folder_name},
     error::ApiError,
     kontrak::sync_expired_contract_statuses,
@@ -231,6 +230,7 @@ pub async fn create_customer(
         }
     }
 
+    let mut tx = state.database.begin().await.map_err(ApiError::database)?;
     let result = sqlx::query(
         "INSERT INTO pelanggan \
          (kode_pelanggan, nama_pelanggan, pic, telepon, email, keterangan) \
@@ -242,27 +242,33 @@ pub async fn create_customer(
     .bind(&telepon)
     .bind(&email)
     .bind(&keterangan)
-    .execute(&state.database)
+    .execute(&mut *tx)
     .await
     .map_err(ApiError::database)?;
     let id = result.last_insert_id();
 
-    let (_, berkas_id) = ensure_pelanggan_tree(
+    let (_, berkas_id) = match ensure_pelanggan_tree(
         &state.drive,
         kode_pelanggan.as_deref().unwrap_or(""),
         &nama_pelanggan,
     )
     .await
-    .map_err(ApiError::drive)?;
+    {
+        Ok(folder) => folder,
+        Err(error) => {
+            tx.rollback().await.map_err(ApiError::database)?;
+            return Err(ApiError::drive(error));
+        }
+    };
     let link = folder_url(&berkas_id);
     sqlx::query("UPDATE pelanggan SET link_folder_berkas = ? WHERE id = ?")
         .bind(&link)
         .bind(id)
-        .execute(&state.database)
+        .execute(&mut *tx)
         .await
         .map_err(ApiError::database)?;
 
-    assert_pelanggan_access(&state.database, auth.id, &auth.role, id).await?;
+    tx.commit().await.map_err(ApiError::database)?;
 
     Ok((
         StatusCode::CREATED,
@@ -423,11 +429,21 @@ pub async fn delete_customer(
 ) -> Result<StatusCode, ApiError> {
     require_admin(&auth.role)?;
 
-    // Check if customer has any contracts (lokasi)
+    let mut tx = state.database.begin().await.map_err(ApiError::database)?;
+
+    // Kunci pelanggan agar kontrak baru tidak dapat ditambahkan di tengah proses hapus.
+    let link_folder: Option<String> =
+        sqlx::query_scalar("SELECT link_folder_berkas FROM pelanggan WHERE id = ? FOR UPDATE")
+            .bind(id)
+            .fetch_optional(&mut *tx)
+            .await
+            .map_err(ApiError::database)?
+            .ok_or_else(|| ApiError::not_found("Pelanggan tidak ditemukan."))?;
+
     let contract_count: i64 =
         sqlx::query_scalar("SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = ?")
             .bind(id)
-            .fetch_one(&state.database)
+            .fetch_one(&mut *tx)
             .await
             .map_err(ApiError::database)?;
 
@@ -438,36 +454,20 @@ pub async fn delete_customer(
         )));
     }
 
-    // Ambil link_folder_berkas sebelum dihapus
-    let link_folder: Option<String> =
-        sqlx::query_scalar("SELECT link_folder_berkas FROM pelanggan WHERE id = ?")
-            .bind(id)
-            .fetch_optional(&state.database)
-            .await
-            .map_err(ApiError::database)?;
-
-    // Hapus folder di Google Drive jika ada
-    if let Some(link) = link_folder {
-        if let Some(folder_id) = parse_drive_folder_id(&link) {
-            if let Err(e) = state.drive.delete_file(&folder_id).await {
-                tracing::warn!(
-                    pelanggan_id = id,
-                    folder_id = %folder_id,
-                    error = ?e,
-                    "Gagal hapus folder Drive, tetap lanjutkan hapus customer"
-                );
-            } else {
-                tracing::info!(pelanggan_id = id, folder_id = %folder_id, "Folder Drive berhasil dihapus");
-            }
-        }
-    }
-
-    // Hapus customer dari database
     sqlx::query("DELETE FROM pelanggan WHERE id = ?")
         .bind(id)
-        .execute(&state.database)
+        .execute(&mut *tx)
         .await
         .map_err(ApiError::database)?;
 
+    if let Some(link) = link_folder
+        && let Some(folder_id) = parse_drive_folder_id(&link)
+        && let Err(error) = state.drive.delete_file(&folder_id).await
+    {
+        tx.rollback().await.map_err(ApiError::database)?;
+        return Err(ApiError::drive(error));
+    }
+
+    tx.commit().await.map_err(ApiError::database)?;
     Ok(StatusCode::NO_CONTENT)
 }

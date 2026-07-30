@@ -1,0 +1,43 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e7570]:
+    - generic [ref=f1e7571]:
+      - generic [ref=f1e7572]:
+        - heading "Sign In" [level=3] [ref=f1e7576]
+        - generic [ref=f1e7577]:
+          - generic [ref=f1e7622]: Sesi berakhir. Silakan login ulang.
+          - generic [ref=f1e7578]:
+            - generic [ref=f1e7579]: Email
+            - textbox "nama@kima.co.id" [ref=f1e7580]: isp@kima.dev
+          - generic [ref=f1e7581]:
+            - generic [ref=f1e7582]: Password
+            - generic [ref=f1e7583]:
+              - textbox "••••••••" [ref=f1e7584]: isp123
+              - button [ref=f1e7585] [cursor=pointer]
+            - button "Lupa Password?" [ref=f1e7590] [cursor=pointer]
+          - button "Masuk" [ref=f1e7591] [cursor=pointer]
+        - generic [ref=f1e7592]:
+          - generic [ref=f1e7593]:
+            - generic [ref=f1e7594]:
+              - paragraph [ref=f1e7595]: Dev Access
+              - paragraph [ref=f1e7596]: Quick login untuk uji role
+            - generic [ref=f1e7597]: Dev
+          - generic [ref=f1e7598]:
+            - button [ref=f1e7599] [cursor=pointer]:
+              - paragraph [ref=f1e7600]: Admin
+              - paragraph [ref=f1e7601]: Akses penuh
+            - button [ref=f1e7602] [cursor=pointer]:
+              - paragraph [ref=f1e7603]: Teknisi
+              - paragraph [ref=f1e7604]: Operasional
+            - button [ref=f1e7605] [cursor=pointer]:
+              - paragraph [ref=f1e7606]: ISP
+              - paragraph [ref=f1e7607]: Mitra
+        - generic [ref=f1e7608]: Connect
+      - generic [ref=f1e7611]:
+        - generic [ref=f1e7612]:
+          - img "Logo PT KIMA" [ref=f1e7613]
+          - generic [ref=f1e7614]:
+            - heading "Selamat Datang di Digital Archive" [level=2] [ref=f1e7615]: Selamat Datang diDigital Archive
+            - paragraph [ref=f1e7617]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+        - paragraph [ref=f1e7619]: © 2026 PT Kawasan Industri Makassar.
+    - paragraph [ref=f1e7621]: Powered by IT Support KIMA
+  - generic [ref=f1e783]: "0"

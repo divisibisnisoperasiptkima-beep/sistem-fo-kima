@@ -1,0 +1,5 @@
+INSERT INTO fo_kima.users (email,password_hash,`role`,is_active,disabled_at,last_login_at,session_version,must_change_password,failed_login_attempts,locked_until,created_at,updated_at) VALUES
+	 ('kevin@gmail.com','$2b$12$ntflakPQdf9ptdNAUSgSpOSZkUwrEF5TVYSEH0TOqejKZLBfPwXm2','teknisi',0,'2026-07-23 11:15:05',NULL,2,1,0,NULL,'2026-07-16 04:02:53','2026-07-23 11:15:05'),
+	 ('admin@kima.dev','$argon2id$v=19$m=19456,t=2,p=1$1lQX9s0+PHRyMc0fjXAnVw$n1opURRLAAzcRKmB+B2QFe1oa/BN/yJwymE3JN9CxRU','admin',1,NULL,'2026-07-23 13:09:34',1,0,0,NULL,'2026-07-18 19:24:18','2026-07-23 13:09:34'),
+	 ('teknisi@kima.dev','$argon2id$v=19$m=19456,t=2,p=1$WWy/dfJ2ekSDgtME66VBeg$cxdVQghq16/IRKV8+AtElBzt5n33on82Au1cOrhWl7c','teknisi',1,NULL,'2026-07-23 13:31:58',1,0,0,NULL,'2026-07-23 11:12:48','2026-07-23 13:31:58'),
+	 ('uat-nonaktif-20260723@kima.dev','$argon2id$v=19$m=19456,t=2,p=1$inXr3AAmQcWFd5aNkordEA$A9OIDiCFgheDKE3j872f9MUHuQyK3ivYNnQ4QPCF2c4','teknisi',0,'2026-07-23 12:39:04',NULL,2,0,0,NULL,'2026-07-23 12:38:38','2026-07-23 12:39:04');

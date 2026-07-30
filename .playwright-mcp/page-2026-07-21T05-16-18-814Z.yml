@@ -1,0 +1,45 @@
+- generic [ref=f1e127]:
+  - generic [ref=f1e128]:
+    - generic [ref=f1e129]:
+      - generic [ref=f1e130]:
+        - heading "Bantuan Akses" [level=3] [ref=f1e133]
+        - paragraph [ref=f1e134]: Pemulihan akun memerlukan verifikasi Administrator TI. Silakan hubungi unit terkait.
+      - button "← Kembali ke Halaman Login" [ref=f1e135] [cursor=pointer]
+    - generic [ref=f1e136]:
+      - heading "Sign In" [level=3] [ref=f1e140]
+      - generic [ref=f1e141]:
+        - generic [ref=f1e142]:
+          - generic [ref=f1e143]: Email
+          - textbox "nama@kima.co.id" [ref=f1e144]
+        - generic [ref=f1e145]:
+          - generic [ref=f1e146]: Password
+          - generic [ref=f1e147]:
+            - textbox "••••••••" [ref=f1e148]
+            - button [ref=f1e149] [cursor=pointer]
+          - button "Lupa Password?" [ref=f1e154] [cursor=pointer]
+        - button "Masuk" [ref=f1e155] [cursor=pointer]
+      - generic [ref=f1e156]:
+        - generic [ref=f1e157]:
+          - generic [ref=f1e158]:
+            - paragraph [ref=f1e159]: Dev Access
+            - paragraph [ref=f1e160]: Quick login untuk uji role
+          - generic [ref=f1e161]: Dev
+        - generic [ref=f1e162]:
+          - button [ref=f1e163] [cursor=pointer]:
+            - paragraph [ref=f1e164]: Admin
+            - paragraph [ref=f1e165]: Akses penuh
+          - button [ref=f1e166] [cursor=pointer]:
+            - paragraph [ref=f1e167]: Teknisi
+            - paragraph [ref=f1e168]: Operasional
+          - button [ref=f1e169] [cursor=pointer]:
+            - paragraph [ref=f1e170]: ISP
+            - paragraph [ref=f1e171]: Mitra
+      - generic [ref=f1e172]: Connect
+    - generic [ref=f1e175]:
+      - generic [ref=f1e176]:
+        - img "Logo PT KIMA" [ref=f1e177]
+        - generic [ref=f1e178]:
+          - heading "Selamat Datang di Digital Archive" [level=2] [ref=f1e179]: Selamat Datang diDigital Archive
+          - paragraph [ref=f1e181]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+      - paragraph [ref=f1e183]: © 2026 PT Kawasan Industri Makassar.
+  - paragraph [ref=f1e185]: Powered by IT Support KIMA

@@ -1,0 +1,160 @@
+- generic [ref=f2e1]:
+  - main [ref=f2e3615]:
+    - complementary [ref=f2e3618]:
+      - generic [ref=f2e3619]: KIMA
+      - navigation [ref=f2e3621]:
+        - button [ref=f2e3622]
+        - button [ref=f2e3629]
+        - button [ref=f2e3636]
+        - button [ref=f2e3641]
+        - button [ref=f2e3646]
+        - button [ref=f2e3653]
+    - generic [ref=f2e3658]:
+      - button [ref=f2e3661]:
+        - img "Profile" [ref=f2e3662]
+        - generic [ref=f2e3663]:
+          - paragraph [ref=f2e3664]: admin
+          - paragraph [ref=f2e3665]: Admin
+      - generic [ref=f2e5747]:
+        - generic [ref=f2e5748]:
+          - generic [ref=f2e5749]:
+            - paragraph [ref=f2e5752]: Manajemen Kontrak
+            - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f2e5753]
+          - generic [ref=f2e5754]:
+            - textbox "Cari kontrak..." [ref=f2e5759]: UAT Lokasi Upgrade
+            - button "Filter Status (Semua)" [ref=f2e5761] [cursor=pointer]:
+              - generic [ref=f2e5764]: Filter Status
+              - generic [ref=f2e5765]: (Semua)
+            - button "Tambah Kontrak" [ref=f2e5768]
+        - generic [ref=f2e5772]:
+          - generic [ref=f2e5773]:
+            - generic [ref=f2e5774]:
+              - heading [level=2]
+              - paragraph [ref=f2e5775]: 1 data
+            - button "Muat ulang" [ref=f2e5776]
+          - table [ref=f2e5781]:
+            - rowgroup [ref=f2e5782]:
+              - row [ref=f2e5783]:
+                - columnheader "No" [ref=f2e5784]
+                - columnheader "Pelanggan" [ref=f2e5785]
+                - columnheader "Lokasi" [ref=f2e5786]
+                - columnheader "Sisa Waktu" [ref=f2e5787]
+                - columnheader "Status" [ref=f2e5788]
+                - columnheader "No. Kontrak" [ref=f2e5789]
+                - columnheader "Periode Awal" [ref=f2e5790]
+                - columnheader "Periode Berakhir" [ref=f2e5791]
+                - columnheader "Durasi" [ref=f2e5792]
+                - columnheader "Kapasitas Core" [ref=f2e5793]
+                - columnheader "Nilai Kontrak" [ref=f2e5794]
+                - columnheader "Biaya Aktivasi" [ref=f2e5795]
+                - columnheader "Biaya / Bln" [ref=f2e5796]
+                - columnheader "Periode Aktif" [ref=f2e5797]
+                - columnheader "Folder Berkas" [ref=f2e5798]
+                - columnheader "Aksi" [ref=f2e5799]
+            - rowgroup [ref=f2e5800]:
+              - row [ref=f2e9667]:
+                - cell "1" [ref=f2e9668]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e9669]
+                - cell "UAT Lokasi Upgrade" [ref=f2e9671]
+                - cell "12 Bln 4 Hr" [ref=f2e9673]
+                - cell "Beroperasi" [ref=f2e9675]
+                - cell "UAT/UPG/2026/0724" [ref=f2e9677]
+                - cell "2026-07-24" [ref=f2e9678]
+                - cell "2027-07-24" [ref=f2e9679]
+                - cell "12 Bln" [ref=f2e9680]
+                - cell "1 Core" [ref=f2e9681]
+                - cell "Rp 12.000.000" [ref=f2e9682]
+                - cell "Rp 0" [ref=f2e9683]
+                - cell "Rp 1.000.000" [ref=f2e9684]
+                - cell "Rp 12.000.000" [ref=f2e9685]
+                - cell [ref=f2e9686]:
+                  - link "Drive" [ref=f2e9687] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1OV_Wrdqhu_sGFKbFAKTtYiTahOcEADk5
+                - cell [ref=f2e9693]:
+                  - generic [ref=f2e9694]:
+                    - button "Edit Kontrak" [ref=f2e9695]
+                    - button "Hapus Kontrak" [ref=f2e9699]
+                    - button "Perpanjang Kontrak" [ref=f2e9703]
+                    - button "Upgrade Paket Kontrak" [active] [ref=f2e9706]
+          - generic [ref=f2e6650]:
+            - generic [ref=f2e6651]: Menampilkan 1 - 1 dari 1 data
+            - generic [ref=f2e6653]:
+              - generic [ref=f2e6654]: "Tampilkan:"
+              - combobox [ref=f2e6655] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+        - generic [ref=f2e9711]:
+          - generic [ref=f2e9712]:
+            - generic [ref=f2e9717]:
+              - heading "Upgrade Paket Kontrak" [level=2] [ref=f2e9718]
+              - paragraph [ref=f2e9719]: UAT_DESKTOP_20260724 — UAT Lokasi Upgrade
+            - button [ref=f2e9720]
+          - generic [ref=f2e9724]:
+            - generic [ref=f2e9725]:
+              - generic [ref=f2e9726]:
+                - generic [ref=f2e9727]:
+                  - generic [ref=f2e9728]: "Kapasitas Paket Saat Ini:"
+                  - generic [ref=f2e9729]: 1 Core
+                - generic [ref=f2e9730]:
+                  - generic [ref=f2e9731]: "Tarif Per Bulan Saat Ini:"
+                  - generic [ref=f2e9732]: Rp 1.000.000
+              - generic [ref=f2e9733]:
+                - heading "Tanggal Efektif Upgrade" [level=3] [ref=f2e9734]
+                - generic [ref=f2e9735]:
+                  - generic [ref=f2e9736]:
+                    - generic [ref=f2e9737]: Tanggal Mulai Upgrade *
+                    - textbox [ref=f2e9738]: 2026-07-24
+                  - generic [ref=f2e9739]:
+                    - generic [ref=f2e9740]: Kode Kontrak Baru *
+                    - textbox [ref=f2e9742]: CTR-2026-0032
+              - generic [ref=f2e9743]:
+                - heading "Spesifikasi Kapasitas Baru" [level=3] [ref=f2e9744]
+                - generic [ref=f2e9745]:
+                  - generic [ref=f2e9746] [cursor=pointer]:
+                    - radio "Direct Core" [checked] [ref=f2e9747]
+                    - generic [ref=f2e9748]: Direct Core
+                  - generic [ref=f2e9749] [cursor=pointer]:
+                    - radio "Sharing Core" [ref=f2e9750]
+                    - generic [ref=f2e9751]: Sharing Core
+                - generic [ref=f2e9752]:
+                  - generic [ref=f2e9753]: Kapasitas Core Baru * (Manual Input)
+                  - 'textbox "Contoh: 1 Core, 4 Core, 16 Core" [ref=f2e9754]': 1 Core
+              - generic [ref=f2e9755]:
+                - heading "Informasi Keuangan Paket Baru" [level=3] [ref=f2e9756]
+                - generic [ref=f2e9757]:
+                  - generic [ref=f2e9758]:
+                    - generic [ref=f2e9759]: Nilai Kontrak Baru (Rp)
+                    - spinbutton [ref=f2e9760]: "18000000"
+                  - generic [ref=f2e9761]:
+                    - generic [ref=f2e9762]: Biaya Per Bulan Baru (Rp)
+                    - spinbutton [ref=f2e9763]: "1500000"
+              - generic [ref=f2e9764]:
+                - generic [ref=f2e9765]: Estimasi Billing Prorata (Juli 2026)
+                - generic [ref=f2e9769]:
+                  - generic [ref=f2e9770]:
+                    - paragraph [ref=f2e9771]: "Paket Lama (23 hari):"
+                    - paragraph [ref=f2e9772]: Rp 741.935
+                  - generic [ref=f2e9773]:
+                    - paragraph [ref=f2e9774]: "Paket Baru (8 hari):"
+                    - paragraph [ref=f2e9775]: Rp 387.097
+                - generic [ref=f2e9776]:
+                  - generic [ref=f2e9777]: "Total Billing Bulan Transisi:"
+                  - generic [ref=f2e9778]: Rp 1.129.032
+              - generic [ref=f2e9779]:
+                - heading "Upload Dokumen Upgrade (Opsional)" [level=3] [ref=f2e9780]
+                - generic [ref=f2e9781]:
+                  - generic [ref=f2e9782]: Folder Tujuan
+                  - combobox [ref=f2e9783]:
+                    - option "Pilih Folder Tujuan" [selected]
+                    - option "Kontrak"
+                    - option "BAK-PKS"
+                    - option "Dokumen Lain"
+                - generic [ref=f2e9784]:
+                  - generic [ref=f2e9785]: Pilih Berkas Addendum / Upgrade (PDF)
+                  - generic [ref=f2e9786]: Klik untuk pilih berkas addendum upgrade
+            - generic [ref=f2e9791]:
+              - button "Batal" [ref=f2e9792]
+              - button "Upgrade Paket" [ref=f2e9793]
+  - generic [ref=f2e351]: "0"

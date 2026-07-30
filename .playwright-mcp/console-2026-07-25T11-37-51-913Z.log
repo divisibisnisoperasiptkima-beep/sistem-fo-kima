@@ -1,0 +1,10 @@
+[    1649ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=a35d03ac:14337
+[    2522ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://127.0.0.1:8080/api/titik-isp?page=1&page_size=1000:0
+[    2533ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://127.0.0.1:8080/api/titik-peta?page=1&page_size=20:0
+[    2544ms] [ERROR] Gagal memuat titik ISP: Error: Sesi berakhir. Silakan login ulang.
+    at request (http://localhost:5173/src/lib/rust-api.js:51:10)
+    at async http://localhost:5173/src/features/titik-peta/TitikPetaPage.jsx:18:17 @ http://localhost:5173/src/features/titik-peta/TitikPetaPage.jsx:22
+[    2588ms] Error: Sesi berakhir. Silakan login ulang.
+    at request (http://localhost:5173/src/lib/rust-api.js:51:10)
+    at async http://localhost:5173/src/features/titik-peta/TitikPetaPage.jsx:18:17
+[    2763ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:5173/:0

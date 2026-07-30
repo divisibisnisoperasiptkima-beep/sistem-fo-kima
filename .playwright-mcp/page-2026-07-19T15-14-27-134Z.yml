@@ -1,0 +1,87 @@
+- main [ref=f8e3]:
+  - complementary [ref=f8e6]:
+    - generic [ref=f8e7]: KIMA
+    - navigation [ref=f8e9]:
+      - button [ref=f8e10]
+      - button [ref=f8e17]
+      - button [ref=f8e24]
+  - generic [ref=f8e29]:
+    - button [ref=f8e32]:
+      - img "Profile" [ref=f8e33]
+      - generic [ref=f8e34]:
+        - paragraph [ref=f8e35]: admin
+        - paragraph [ref=f8e36]: Admin
+    - generic [ref=f8e37]:
+      - generic [ref=f8e38]:
+        - paragraph [ref=f8e41]: Mesin Analitik
+        - heading "Dashboard FO KIMA" [level=1] [ref=f8e42]
+        - generic [ref=f8e43]:
+          - generic [ref=f8e44]:
+            - paragraph [ref=f8e46]: Pelanggan
+            - heading "0" [level=3] [ref=f8e47]
+            - paragraph [ref=f8e48]: Total Provider
+          - generic [ref=f8e49]:
+            - paragraph [ref=f8e51]: Kontrak Aktif
+            - heading "0" [level=3] [ref=f8e52]
+            - paragraph [ref=f8e53]: Beroperasi + Belum Beroperasi
+          - generic [ref=f8e54]:
+            - paragraph [ref=f8e56]: Kapasitas Core
+            - heading "—" [level=3] [ref=f8e57]
+            - paragraph [ref=f8e58]: Total Core
+          - generic [ref=f8e59]:
+            - paragraph [ref=f8e61]: Core Tersewa
+            - heading "— / —" [level=3] [ref=f8e62]
+            - paragraph [ref=f8e63]: Dedicated 0 Lokasi
+          - generic [ref=f8e64]:
+            - paragraph [ref=f8e66]: Core Tersedia
+            - heading "—" [level=3] [ref=f8e67]
+            - paragraph [ref=f8e68]: 0% Available
+        - paragraph [ref=f8e71]: Memuat dashboard...
+      - generic [ref=f8e72]:
+        - generic [ref=f8e73]:
+          - generic [ref=f8e74]:
+            - heading "Tren Penggunaan Core" [level=2] [ref=f8e77]
+            - generic [ref=f8e78]:
+              - generic [ref=f8e79]:
+                - button "Tahunan" [ref=f8e80]
+                - button "Bulanan" [ref=f8e81]
+              - generic [ref=f8e82]:
+                - generic [ref=f8e83]:
+                  - spinbutton [ref=f8e84]: "5"
+                  - generic [ref=f8e85]: Thn
+                - generic [ref=f8e87]:
+                  - button "Rentang" [ref=f8e88]
+                  - button "Spesifik" [ref=f8e89]
+                  - button "Kustom" [ref=f8e90]
+              - generic [ref=f8e91]:
+                - button "Sharing Core" [ref=f8e92]
+                - button "Core" [ref=f8e93]
+            - generic [ref=f8e94]: "Sharing:"
+          - application [ref=f8e99]
+        - generic [ref=f8e103]:
+          - heading "Rincian Sharing Core" [level=2] [ref=f8e106]
+          - generic [ref=f8e107]:
+            - generic [ref=f8e108]:
+              - paragraph [ref=f8e109]: Total Lokasi
+              - paragraph [ref=f8e110]: Semua Paket
+            - generic [ref=f8e111]: "0"
+      - generic [ref=f8e112]:
+        - generic [ref=f8e113]:
+          - generic [ref=f8e114]:
+            - heading "Grafik Pertumbuhan" [level=2] [ref=f8e117]
+            - generic [ref=f8e118]:
+              - generic [ref=f8e119]:
+                - generic [ref=f8e120]:
+                  - spinbutton [ref=f8e121]: "5"
+                  - generic [ref=f8e122]: Thn
+                - generic [ref=f8e124]:
+                  - button "Rentang" [ref=f8e125]
+                  - button "Spesifik" [ref=f8e126]
+                  - button "Kustom" [ref=f8e127]
+              - button "Kontrak" [ref=f8e129]
+          - application [ref=f8e133]
+        - generic [ref=f8e137]:
+          - heading "Status Kontrak" [level=2] [ref=f8e140]
+          - generic [ref=f8e142]:
+            - generic [ref=f8e143]: Beroperasi
+            - generic [ref=f8e144]: "0"

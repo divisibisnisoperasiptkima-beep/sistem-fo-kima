@@ -1,0 +1,88 @@
+- generic [ref=f2e1]:
+  - main [ref=f2e3615]:
+    - complementary [ref=f2e3618]:
+      - generic [ref=f2e3619]: KIMA
+      - navigation [ref=f2e3621]:
+        - button [ref=f2e3622]
+        - button [ref=f2e3629]
+        - button [ref=f2e3636]
+        - button [ref=f2e3641]
+        - button [ref=f2e3646]
+        - button [ref=f2e3653]
+    - generic [ref=f2e3658]:
+      - button [ref=f2e3661]:
+        - img "Profile" [ref=f2e3662]
+        - generic [ref=f2e3663]:
+          - paragraph [ref=f2e3664]: admin
+          - paragraph [ref=f2e3665]: Admin
+      - generic [ref=f2e5747]:
+        - generic [ref=f2e5748]:
+          - generic [ref=f2e5749]:
+            - paragraph [ref=f2e5752]: Manajemen Kontrak
+            - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f2e5753]
+          - generic [ref=f2e5754]:
+            - textbox "Cari kontrak..." [active] [ref=f2e5759]: UAT Lokasi Perpanjangan
+            - button "Filter Status (Semua)" [ref=f2e5761] [cursor=pointer]:
+              - generic [ref=f2e5764]: Filter Status
+              - generic [ref=f2e5765]: (Semua)
+            - button "Tambah Kontrak" [ref=f2e5768]
+        - generic [ref=f2e5772]:
+          - generic [ref=f2e5773]:
+            - generic [ref=f2e5774]:
+              - heading [level=2]
+              - paragraph [ref=f2e5775]: 1 data
+            - button "Muat ulang" [ref=f2e5776]
+          - table [ref=f2e5781]:
+            - rowgroup [ref=f2e5782]:
+              - row [ref=f2e5783]:
+                - columnheader "No" [ref=f2e5784]
+                - columnheader "Pelanggan" [ref=f2e5785]
+                - columnheader "Lokasi" [ref=f2e5786]
+                - columnheader "Sisa Waktu" [ref=f2e5787]
+                - columnheader "Status" [ref=f2e5788]
+                - columnheader "No. Kontrak" [ref=f2e5789]
+                - columnheader "Periode Awal" [ref=f2e5790]
+                - columnheader "Periode Berakhir" [ref=f2e5791]
+                - columnheader "Durasi" [ref=f2e5792]
+                - columnheader "Kapasitas Core" [ref=f2e5793]
+                - columnheader "Nilai Kontrak" [ref=f2e5794]
+                - columnheader "Biaya Aktivasi" [ref=f2e5795]
+                - columnheader "Biaya / Bln" [ref=f2e5796]
+                - columnheader "Periode Aktif" [ref=f2e5797]
+                - columnheader "Folder Berkas" [ref=f2e5798]
+                - columnheader "Aksi" [ref=f2e5799]
+            - rowgroup [ref=f2e5800]:
+              - row [ref=f2e7637]:
+                - cell "1" [ref=f2e7638]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e7639]
+                - cell "UAT Lokasi Perpanjangan" [ref=f2e7641]
+                - cell "12 Bln 4 Hr" [ref=f2e7643]
+                - cell "Beroperasi" [ref=f2e7645]
+                - cell "UAT/EXT/2026/0724" [ref=f2e7647]
+                - cell "2026-07-24" [ref=f2e7648]
+                - cell "2027-07-24" [ref=f2e7649]
+                - cell "12 Bln" [ref=f2e7650]
+                - cell "1 Core" [ref=f2e7651]
+                - cell "Rp 12.000.000" [ref=f2e7652]
+                - cell "Rp 0" [ref=f2e7653]
+                - cell "Rp 1.000.000" [ref=f2e7654]
+                - cell "Rp 12.000.000" [ref=f2e7655]
+                - cell [ref=f2e7656]:
+                  - link "Drive" [ref=f2e7657] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1JPHFDlOViKIcD0mwd_bJNDG_Z-fK4IbT
+                - cell [ref=f2e7663]:
+                  - generic [ref=f2e7664]:
+                    - button "Edit Kontrak" [ref=f2e7665]
+                    - button "Hapus Kontrak" [ref=f2e7669]
+                    - button "Perpanjang Kontrak" [ref=f2e7673]
+                    - button "Upgrade Paket Kontrak" [ref=f2e7676]
+          - generic [ref=f2e6650]:
+            - generic [ref=f2e6651]: Menampilkan 1 - 1 dari 1 data
+            - generic [ref=f2e6653]:
+              - generic [ref=f2e6654]: "Tampilkan:"
+              - combobox [ref=f2e6655] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+  - generic [ref=f2e351]: "0"

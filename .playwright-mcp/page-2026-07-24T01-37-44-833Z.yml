@@ -1,0 +1,66 @@
+- generic [ref=f2e1]:
+  - main [ref=f2e3615]:
+    - complementary [ref=f2e3618]:
+      - generic [ref=f2e3619]: KIMA
+      - navigation [ref=f2e3621]:
+        - button [ref=f2e3622]
+        - button [ref=f2e3629]
+        - button [ref=f2e3636]
+        - button [ref=f2e3641]
+        - button [ref=f2e3646]
+        - button [ref=f2e3653]
+    - generic [ref=f2e3658]:
+      - button [ref=f2e3661]:
+        - img "Profile" [ref=f2e3662]
+        - generic [ref=f2e3663]:
+          - paragraph [ref=f2e3664]: admin
+          - paragraph [ref=f2e3665]: Admin
+      - generic [ref=f2e9800]:
+        - generic [ref=f2e9801]:
+          - generic [ref=f2e9802]:
+            - paragraph [ref=f2e9805]: Manajemen Sistem
+            - heading "Kelola Pengguna FO KIMA" [level=1] [ref=f2e9806]
+          - generic [ref=f2e9807]:
+            - textbox "Cari pengguna..." [active] [ref=f2e9812]: uat.teknisi.20260724@example.test
+            - button "Tambah Pengguna" [ref=f2e9813]
+        - generic [ref=f2e9817]:
+          - generic [ref=f2e9818]:
+            - generic [ref=f2e9819]:
+              - heading [level=2]
+              - paragraph [ref=f2e9820]: 1 data
+            - button "Muat ulang" [ref=f2e9821]
+          - table [ref=f2e9826]:
+            - rowgroup [ref=f2e9827]:
+              - row [ref=f2e9828]:
+                - columnheader "Email" [ref=f2e9829]
+                - columnheader "Role" [ref=f2e9830]
+                - columnheader "Status" [ref=f2e9831]
+                - columnheader "Login Terakhir" [ref=f2e9832]
+                - columnheader "Gagal Login" [ref=f2e9833]
+                - columnheader "Terkunci Sampai" [ref=f2e9834]
+                - columnheader "Dibuat" [ref=f2e9835]
+                - columnheader "Aksi" [ref=f2e9836]
+            - rowgroup [ref=f2e9837]:
+              - row [ref=f2e10134]:
+                - cell "uat.teknisi.20260724@example.test" [ref=f2e10135]
+                - cell "Teknisi" [ref=f2e10136]
+                - cell [ref=f2e10138]
+                - cell "--" [ref=f2e10141]
+                - cell "0" [ref=f2e10142]
+                - cell "--" [ref=f2e10143]
+                - cell "24/07/2026 01.37" [ref=f2e10144]
+                - cell [ref=f2e10146]:
+                  - generic [ref=f2e10147]:
+                    - button "Edit Pengguna" [ref=f2e10148]
+                    - button "Reset Password" [ref=f2e10152]
+                    - button "Nonaktifkan Pengguna" [ref=f2e10157]
+          - generic [ref=f2e9948]:
+            - generic [ref=f2e9949]: Menampilkan 1 - 1 dari 1 data
+            - generic [ref=f2e9951]:
+              - generic [ref=f2e9952]: "Tampilkan:"
+              - combobox [ref=f2e9953] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+  - generic [ref=f2e351]: "0"

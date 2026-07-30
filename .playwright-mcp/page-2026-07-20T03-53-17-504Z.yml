@@ -1,0 +1,551 @@
+- generic [active] [ref=f3e1]:
+  - main [ref=f3e75]:
+    - complementary [ref=f3e78]:
+      - generic [ref=f3e79]: KIMA
+      - navigation [ref=f3e81]:
+        - button [ref=f3e82]
+        - button [ref=f3e89]
+        - button [ref=f3e96]
+    - generic [ref=f3e101]:
+      - button [ref=f3e104]:
+        - img "Profile" [ref=f3e105]
+        - generic [ref=f3e106]:
+          - paragraph [ref=f3e107]: admin
+          - paragraph [ref=f3e108]: Admin
+      - generic [ref=f3e788]:
+        - generic [ref=f3e789]:
+          - generic [ref=f3e790]:
+            - generic [ref=f3e791]: Data Master
+            - heading "Daftar Kontrak" [level=1] [ref=f3e794]
+            - paragraph [ref=f3e795]: Manajemen kontrak dan perjanjian layanan FO KIMA.
+          - generic [ref=f3e796]:
+            - button "Tambah" [ref=f3e797]
+            - button "Muat Ulang" [ref=f3e800]
+        - generic [ref=f3e804]:
+          - generic [ref=f3e805]:
+            - generic [ref=f3e806]:
+              - heading [level=2]
+              - paragraph [ref=f3e807]: 269 data
+            - button "Muat ulang" [ref=f3e808]
+          - table [ref=f3e813]:
+            - rowgroup [ref=f3e814]:
+              - row [ref=f3e815]:
+                - columnheader "#" [ref=f3e816]
+                - columnheader "Kode" [ref=f3e817]
+                - columnheader "Nomor Kontrak" [ref=f3e818]
+                - columnheader "Pelanggan" [ref=f3e819]
+                - columnheader "Lokasi" [ref=f3e820]
+                - columnheader "Status" [ref=f3e821]
+                - columnheader "Mulai" [ref=f3e822]
+                - columnheader "Berakhir" [ref=f3e823]
+                - columnheader "Sisa" [ref=f3e824]
+                - columnheader "Core" [ref=f3e825]
+                - columnheader "Durasi" [ref=f3e826]
+                - columnheader "Nilai Kontrak" [ref=f3e827]
+                - columnheader "Biaya Aktivasi" [ref=f3e828]
+                - columnheader "Perbulan" [ref=f3e829]
+                - columnheader "Nilai Periode Aktif" [ref=f3e830]
+                - columnheader "Berkas" [ref=f3e831]
+            - rowgroup [ref=f3e832]:
+              - row [ref=f3e833]:
+                - cell "1" [ref=f3e834]
+                - cell "CTR-2026-0012" [ref=f3e835]
+                - cell "KIMA.PERU-029/DIU/VI/2025 dan 0366A01000" [ref=f3e836]
+                - cell "Indosat Tbk" [ref=f3e837]
+                - cell "Core" [ref=f3e838]
+                - cell "Beroperasi" [ref=f3e839]
+                - cell "01 Jun 2026" [ref=f3e841]
+                - cell "31 Mei 2027" [ref=f3e842]
+                - cell "10 bln" [ref=f3e843]
+                - cell "35 Core" [ref=f3e844]
+                - cell "12 bln" [ref=f3e845]
+                - cell "Rp 934.500.000" [ref=f3e846]
+                - cell "Rp 0" [ref=f3e847]
+                - cell "Rp 77.875.000" [ref=f3e848]
+                - cell "Rp 934.500.000" [ref=f3e849]
+                - cell [ref=f3e850]:
+                  - link "Buka Folder Berkas" [ref=f3e851] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1qO61uVKGtxOwoPC-MHfNMJIevJNnfRSt
+              - row [ref=f3e854]:
+                - cell "2" [ref=f3e855]
+                - cell "CTR-2026-0011" [ref=f3e856]
+                - cell "KIMA.PERU-030/DIU/VI/2025 dan 0087A03000" [ref=f3e857]
+                - cell "Indosat Tbk" [ref=f3e858]
+                - cell "Core" [ref=f3e859]
+                - cell "Diperpanjang" [ref=f3e860]
+                - cell "25 Apr 2026" [ref=f3e862]
+                - cell "24 Apr 2027" [ref=f3e863]
+                - cell "9 bln" [ref=f3e864]
+                - cell "15 Core" [ref=f3e865]
+                - cell "12 bln" [ref=f3e866]
+                - cell "Rp 400.500.000" [ref=f3e867]
+                - cell "Rp 0" [ref=f3e868]
+                - cell "Rp 33.375.000" [ref=f3e869]
+                - cell "Rp 400.500.000" [ref=f3e870]
+                - cell [ref=f3e871]:
+                  - link "Buka Folder Berkas" [ref=f3e872] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1QH66XIFCJrszgI_9tf692NiNmQ4f_FJ2
+              - row [ref=f3e875]:
+                - cell "3" [ref=f3e876]
+                - cell "CTR-2025-0050" [ref=f3e877]
+                - cell "KIMA.PERU-029/DIU/VI/2025 dan 0366A01000" [ref=f3e878]
+                - cell "Indosat Tbk" [ref=f3e879]
+                - cell "Core" [ref=f3e880]
+                - cell "Diperpanjang" [ref=f3e881]
+                - cell "01 Jun 2025" [ref=f3e883]
+                - cell "31 Mei 2026" [ref=f3e884]
+                - cell "Expired" [ref=f3e885]
+                - cell "35 Core" [ref=f3e886]
+                - cell "12 bln" [ref=f3e887]
+                - cell "Rp 882.000.000" [ref=f3e888]
+                - cell "Rp 0" [ref=f3e889]
+                - cell "Rp 73.500.000" [ref=f3e890]
+                - cell "Rp 882.000.000" [ref=f3e891]
+                - cell [ref=f3e892]:
+                  - link "Buka Folder Berkas" [ref=f3e893] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1GvMqOcK5DUGkSkv2dsRq8tgFngE_p3Rv
+              - row [ref=f3e896]:
+                - cell "4" [ref=f3e897]
+                - cell "CTR-2025-0049" [ref=f3e898]
+                - cell "KIMA.PERU-030/DIU/VI/2025 dan 0087A03000" [ref=f3e899]
+                - cell "Indosat Tbk" [ref=f3e900]
+                - cell "Core" [ref=f3e901]
+                - cell "Diperpanjang" [ref=f3e902]
+                - cell "25 Apr 2025" [ref=f3e904]
+                - cell "24 Apr 2026" [ref=f3e905]
+                - cell "Expired" [ref=f3e906]
+                - cell "15 Core" [ref=f3e907]
+                - cell "12 bln" [ref=f3e908]
+                - cell "Rp 378.000.000" [ref=f3e909]
+                - cell "Rp 0" [ref=f3e910]
+                - cell "Rp 31.500.000" [ref=f3e911]
+                - cell "Rp 378.000.000" [ref=f3e912]
+                - cell [ref=f3e913]:
+                  - link "Buka Folder Berkas" [ref=f3e914] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/19BzTynDjL4uiZFqsYqVWwMXeaTvo-PVa
+              - row [ref=f3e917]:
+                - cell "5" [ref=f3e918]
+                - cell "CTR-2024-0047" [ref=f3e919]
+                - cell "KIMA.PERU-069/DIU/X/2024 dan 0366000000" [ref=f3e920]
+                - cell "Indosat Tbk" [ref=f3e921]
+                - cell "Core" [ref=f3e922]
+                - cell "Diperpanjang" [ref=f3e923]
+                - cell "01 Jun 2024" [ref=f3e925]
+                - cell "31 Mei 2025" [ref=f3e926]
+                - cell "Expired" [ref=f3e927]
+                - cell "35 Core" [ref=f3e928]
+                - cell "12 bln" [ref=f3e929]
+                - cell "Rp 882.000.000" [ref=f3e930]
+                - cell "Rp 0" [ref=f3e931]
+                - cell "Rp 73.500.000" [ref=f3e932]
+                - cell "Rp 882.000.000" [ref=f3e933]
+                - cell [ref=f3e934]:
+                  - link "Buka Folder Berkas" [ref=f3e935] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1e98p8BaqT0q-gs_Q-fkOKUB5LttTjkEZ
+              - row [ref=f3e938]:
+                - cell "6" [ref=f3e939]
+                - cell "CTR-2024-0046" [ref=f3e940]
+                - cell "KIMA.BAK- 169/DIU/VI/2024" [ref=f3e941]
+                - cell "Indosat Tbk" [ref=f3e942]
+                - cell "Core" [ref=f3e943]
+                - cell "Diperpanjang" [ref=f3e944]
+                - cell "25 Apr 2024" [ref=f3e946]
+                - cell "24 Apr 2025" [ref=f3e947]
+                - cell "Expired" [ref=f3e948]
+                - cell "15 Core" [ref=f3e949]
+                - cell "12 bln" [ref=f3e950]
+                - cell "Rp 378.000.000" [ref=f3e951]
+                - cell "Rp 0" [ref=f3e952]
+                - cell "Rp 31.500.000" [ref=f3e953]
+                - cell "Rp 378.000.000" [ref=f3e954]
+                - cell [ref=f3e955]:
+                  - link "Buka Folder Berkas" [ref=f3e956] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1W39W46k8iebMzvK_FoJBmtAMWlcV_HxP
+              - row [ref=f3e959]:
+                - cell "7" [ref=f3e960]
+                - cell "CTR-2025-0051" [ref=f3e961]
+                - cell "KIMA.BAK-19/DBO/FO/IV/2025" [ref=f3e962]
+                - cell "Indosat Tbk" [ref=f3e963]
+                - cell "PT Paragon Technology And Innovation" [ref=f3e964]
+                - cell "Beroperasi" [ref=f3e965]
+                - cell "01 Agu 2025" [ref=f3e967]
+                - cell "31 Agu 2026" [ref=f3e968]
+                - cell "1 bln" [ref=f3e969]
+                - cell "1 Core" [ref=f3e970]
+                - cell "13 bln" [ref=f3e971]
+                - cell "Rp 25.200.000" [ref=f3e972]
+                - cell "Rp 0" [ref=f3e973]
+                - cell "Rp 2.100.000" [ref=f3e974]
+                - cell "Rp 27.300.000" [ref=f3e975]
+                - cell [ref=f3e976]:
+                  - link "Buka Folder Berkas" [ref=f3e977] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1GAXb2Csf8lzvQHpQesN63z-FzIxmXyJy
+              - row [ref=f3e980]:
+                - cell "8" [ref=f3e981]
+                - cell "CTR-2024-0048" [ref=f3e982]
+                - cell "KIMA.BAK-53/DBO/FO/VIII/2024" [ref=f3e983]
+                - cell "Indosat Tbk" [ref=f3e984]
+                - cell "PT Paragon Technology And Innovation" [ref=f3e985]
+                - cell "Diperpanjang" [ref=f3e986]
+                - cell "01 Agu 2024" [ref=f3e988]
+                - cell "31 Agu 2025" [ref=f3e989]
+                - cell "Expired" [ref=f3e990]
+                - cell "1 Core" [ref=f3e991]
+                - cell "13 bln" [ref=f3e992]
+                - cell "Rp 25.200.000" [ref=f3e993]
+                - cell "Rp 0" [ref=f3e994]
+                - cell "Rp 2.100.000" [ref=f3e995]
+                - cell "Rp 27.300.000" [ref=f3e996]
+                - cell [ref=f3e997]:
+                  - link "Buka Folder Berkas" [ref=f3e998] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1d3pvACUEybaBeWZy-6J2S9xBVwIzRYVQ
+              - row [ref=f3e1001]:
+                - cell "9" [ref=f3e1002]
+                - cell "CTR-2023-0047" [ref=f3e1003]
+                - cell "KIMA.BAK-32/DBO/FO/VII/2023" [ref=f3e1004]
+                - cell "Indosat Tbk" [ref=f3e1005]
+                - cell "PT Paragon Technology And Innovation" [ref=f3e1006]
+                - cell "Diperpanjang" [ref=f3e1007]
+                - cell "01 Agu 2023" [ref=f3e1009]
+                - cell "31 Agu 2024" [ref=f3e1010]
+                - cell "Expired" [ref=f3e1011]
+                - cell "1 Core" [ref=f3e1012]
+                - cell "13 bln" [ref=f3e1013]
+                - cell "Rp 25.200.000" [ref=f3e1014]
+                - cell "Rp 0" [ref=f3e1015]
+                - cell "Rp 2.100.000" [ref=f3e1016]
+                - cell "Rp 27.300.000" [ref=f3e1017]
+                - cell [ref=f3e1018]:
+                  - link "Buka Folder Berkas" [ref=f3e1019] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1wY4757MAwThshL77gOfMV0PzkWvJtUYe
+              - row [ref=f3e1022]:
+                - cell "10" [ref=f3e1023]
+                - cell "CTR-2026-0004" [ref=f3e1024]
+                - cell "KIMA.BAK-37/DOP/FO/VI/2024" [ref=f3e1025]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1026]
+                - cell "Core" [ref=f3e1027]
+                - cell "Beroperasi" [ref=f3e1028]
+                - cell "14 Jan 2026" [ref=f3e1030]
+                - cell "13 Jan 2027" [ref=f3e1031]
+                - cell "5 bln" [ref=f3e1032]
+                - cell "6 Core" [ref=f3e1033]
+                - cell "12 bln" [ref=f3e1034]
+                - cell "Rp 396.000.000" [ref=f3e1035]
+                - cell "Rp 0" [ref=f3e1036]
+                - cell "Rp 33.000.000" [ref=f3e1037]
+                - cell "Rp 396.000.000" [ref=f3e1038]
+                - cell [ref=f3e1039]:
+                  - link "Buka Folder Berkas" [ref=f3e1040] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1rihIEL9qjeZy4WD71ApgPUSTZF4b_TUv
+              - row [ref=f3e1043]:
+                - cell "11" [ref=f3e1044]
+                - cell "CTR-2025-0019" [ref=f3e1045]
+                - cell "KIMA.BAK-37/DOP/FO/VI/2024" [ref=f3e1046]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1047]
+                - cell "Core" [ref=f3e1048]
+                - cell "Diperpanjang" [ref=f3e1049]
+                - cell "14 Jan 2025" [ref=f3e1051]
+                - cell "13 Jan 2026" [ref=f3e1052]
+                - cell "Expired" [ref=f3e1053]
+                - cell "6 Core" [ref=f3e1054]
+                - cell "12 bln" [ref=f3e1055]
+                - cell "Rp 352.800.000" [ref=f3e1056]
+                - cell "Rp 0" [ref=f3e1057]
+                - cell "Rp 29.400.000" [ref=f3e1058]
+                - cell "Rp 352.800.000" [ref=f3e1059]
+                - cell [ref=f3e1060]:
+                  - link "Buka Folder Berkas" [ref=f3e1061] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1AEwi5bvnlACWbcqGY67x4Bv9SiVaVCzV
+              - row [ref=f3e1064]:
+                - cell "12" [ref=f3e1065]
+                - cell "CTR-2025-0020" [ref=f3e1066]
+                - cell "KIMA.BAK-38/DBO/FO/VIII/2025" [ref=f3e1067]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1068]
+                - cell "PT Anugerah Pharmindo Lestari 1" [ref=f3e1069]
+                - cell "Berakhir" [ref=f3e1070]
+                - cell "25 Mar 2025" [ref=f3e1072]
+                - cell "24 Mar 2026" [ref=f3e1073]
+                - cell "Expired" [ref=f3e1074]
+                - cell "1/32" [ref=f3e1075]
+                - cell "12 bln" [ref=f3e1076]
+                - cell "Rp 3.000.000" [ref=f3e1077]
+                - cell "Rp 0" [ref=f3e1078]
+                - cell "Rp 250.000" [ref=f3e1079]
+                - cell "Rp 3.000.000" [ref=f3e1080]
+                - cell [ref=f3e1081]:
+                  - link "Buka Folder Berkas" [ref=f3e1082] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1bI8XRpr7ptqdyyynZEo1g4NVMxdtFRPG
+              - row [ref=f3e1085]:
+                - cell "13" [ref=f3e1086]
+                - cell "CTR-2024-0019" [ref=f3e1087]
+                - cell "—" [ref=f3e1088]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1089]
+                - cell "PT Anugerah Pharmindo Lestari 1" [ref=f3e1090]
+                - cell "Diperpanjang" [ref=f3e1091]
+                - cell "25 Mar 2024" [ref=f3e1093]
+                - cell "24 Mar 2025" [ref=f3e1094]
+                - cell "Expired" [ref=f3e1095]
+                - cell "1/32" [ref=f3e1096]
+                - cell "12 bln" [ref=f3e1097]
+                - cell "Rp 3.000.000" [ref=f3e1098]
+                - cell "Rp 0" [ref=f3e1099]
+                - cell "Rp 250.000" [ref=f3e1100]
+                - cell "Rp 3.000.000" [ref=f3e1101]
+                - cell [ref=f3e1102]:
+                  - link "Buka Folder Berkas" [ref=f3e1103] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1UT9XKdHv17KMaT2Yidxzg9S6FHA2qPPC
+              - row [ref=f3e1106]:
+                - cell "14" [ref=f3e1107]
+                - cell "CTR-2023-0014" [ref=f3e1108]
+                - cell "KIMA.BAK-06/DBO/FO/III/2023" [ref=f3e1109]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1110]
+                - cell "PT Anugerah Pharmindo Lestari 1" [ref=f3e1111]
+                - cell "Diperpanjang" [ref=f3e1112]
+                - cell "25 Mar 2023" [ref=f3e1114]
+                - cell "24 Mar 2024" [ref=f3e1115]
+                - cell "Expired" [ref=f3e1116]
+                - cell "1/32" [ref=f3e1117]
+                - cell "12 bln" [ref=f3e1118]
+                - cell "Rp 3.000.000" [ref=f3e1119]
+                - cell "Rp 0" [ref=f3e1120]
+                - cell "Rp 250.000" [ref=f3e1121]
+                - cell "Rp 3.000.000" [ref=f3e1122]
+                - cell [ref=f3e1123]:
+                  - link "Buka Folder Berkas" [ref=f3e1124] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1nV8uSYJ2SDnKZUZEPYIkIZAalwPEZ6GP
+              - row [ref=f3e1127]:
+                - cell "15" [ref=f3e1128]
+                - cell "CTR-2023-0023" [ref=f3e1129]
+                - cell "KIMA.BAK-07/DBO/FO/III/2023" [ref=f3e1130]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1131]
+                - cell "PT Anugerah Pharmindo Lestari 2" [ref=f3e1132]
+                - cell "Berakhir" [ref=f3e1133]
+                - cell "25 Mar 2023" [ref=f3e1135]
+                - cell "24 Mar 2024" [ref=f3e1136]
+                - cell "Expired" [ref=f3e1137]
+                - cell "1/32" [ref=f3e1138]
+                - cell "12 bln" [ref=f3e1139]
+                - cell "Rp 3.000.000" [ref=f3e1140]
+                - cell "Rp 0" [ref=f3e1141]
+                - cell "Rp 250.000" [ref=f3e1142]
+                - cell "Rp 3.000.000" [ref=f3e1143]
+                - cell [ref=f3e1144]:
+                  - link "Buka Folder Berkas" [ref=f3e1145] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1mUjBfSAru2OBC9OinCVMCAIGAPnIornY
+              - row [ref=f3e1148]:
+                - cell "16" [ref=f3e1149]
+                - cell "CTR-2025-0021" [ref=f3e1150]
+                - cell "KIMA.BAK-09/DBO/FO/II/2026" [ref=f3e1151]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1152]
+                - cell "PT Anugerah Pharmindo Lestari/Hipernet Indodata" [ref=f3e1153]
+                - cell "Beroperasi" [ref=f3e1154]
+                - cell "18 Nov 2025" [ref=f3e1156]
+                - cell "17 Nov 2026" [ref=f3e1157]
+                - cell "4 bln" [ref=f3e1158]
+                - cell "1/16" [ref=f3e1159]
+                - cell "12 bln" [ref=f3e1160]
+                - cell "Rp 6.000.000" [ref=f3e1161]
+                - cell "Rp 2.500.000" [ref=f3e1162]
+                - cell "Rp 500.000" [ref=f3e1163]
+                - cell "Rp 6.000.000" [ref=f3e1164]
+                - cell [ref=f3e1165]:
+                  - link "Buka Folder Berkas" [ref=f3e1166] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1qgclABQqNohgujwg5ZdQxL8bP_K72tQ7
+              - row [ref=f3e1169]:
+                - cell "17" [ref=f3e1170]
+                - cell "CTR-2023-0024" [ref=f3e1171]
+                - cell "KIMA.BAK-29/DBO/FO/VI/2023" [ref=f3e1172]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1173]
+                - cell "PT Cargil Indonesia" [ref=f3e1174]
+                - cell "Berakhir" [ref=f3e1175]
+                - cell "08 Jul 2023" [ref=f3e1177]
+                - cell "07 Jul 2024" [ref=f3e1178]
+                - cell "Expired" [ref=f3e1179]
+                - cell "1/32" [ref=f3e1180]
+                - cell "12 bln" [ref=f3e1181]
+                - cell "Rp 3.000.000" [ref=f3e1182]
+                - cell "Rp 0" [ref=f3e1183]
+                - cell "Rp 250.000" [ref=f3e1184]
+                - cell "Rp 3.000.000" [ref=f3e1185]
+                - cell [ref=f3e1186]:
+                  - link "Buka Folder Berkas" [ref=f3e1187] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/15NxDaPnQVse69bUWxtyPLldgzcyzhhTz
+              - row [ref=f3e1190]:
+                - cell "18" [ref=f3e1191]
+                - cell "CTR-2022-0013" [ref=f3e1192]
+                - cell "-" [ref=f3e1193]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1194]
+                - cell "PT Cargil Indonesia" [ref=f3e1195]
+                - cell "Diperpanjang" [ref=f3e1196]
+                - cell "08 Jul 2022" [ref=f3e1198]
+                - cell "07 Jul 2023" [ref=f3e1199]
+                - cell "Expired" [ref=f3e1200]
+                - cell "1/32" [ref=f3e1201]
+                - cell "12 bln" [ref=f3e1202]
+                - cell "Rp 3.000.000" [ref=f3e1203]
+                - cell "Rp 0" [ref=f3e1204]
+                - cell "Rp 250.000" [ref=f3e1205]
+                - cell "Rp 3.000.000" [ref=f3e1206]
+                - cell [ref=f3e1207]:
+                  - link "Buka Folder Berkas" [ref=f3e1208] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/14cQs2-zaOmsvMq5CPwTekMhWdi1Zb6nP
+              - row [ref=f3e1211]:
+                - cell "19" [ref=f3e1212]
+                - cell "CTR-2023-0025" [ref=f3e1213]
+                - cell "KIMA.BAK-11/DBO/FO/III/2023" [ref=f3e1214]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1215]
+                - cell "PT Charoen Pokphand Indonesia" [ref=f3e1216]
+                - cell "Berakhir" [ref=f3e1217]
+                - cell "15 Mar 2023" [ref=f3e1219]
+                - cell "14 Mar 2026" [ref=f3e1220]
+                - cell "Expired" [ref=f3e1221]
+                - cell "1/16" [ref=f3e1222]
+                - cell "36 bln" [ref=f3e1223]
+                - cell "Rp 6.000.000" [ref=f3e1224]
+                - cell "Rp 0" [ref=f3e1225]
+                - cell "Rp 500.000" [ref=f3e1226]
+                - cell "Rp 18.000.000" [ref=f3e1227]
+                - cell [ref=f3e1228]:
+                  - link "Buka Folder Berkas" [ref=f3e1229] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1PGwbQqEKJlpF5WgiIPmTVnhvzanqoCO3
+              - row [ref=f3e1232]:
+                - cell "20" [ref=f3e1233]
+                - cell "CTR-2024-0024" [ref=f3e1234]
+                - cell "KIMA.BAK-33/DBO/FO/VI/2024" [ref=f3e1235]
+                - cell "PT Aplikanusa Lintasarta" [ref=f3e1236]
+                - cell "PT Enseval Putra Megatrading Tbk" [ref=f3e1237]
+                - cell "Berakhir" [ref=f3e1238]
+                - cell "29 Apr 2024" [ref=f3e1240]
+                - cell "28 Apr 2025" [ref=f3e1241]
+                - cell "Expired" [ref=f3e1242]
+                - cell "1/32" [ref=f3e1243]
+                - cell "13 bln" [ref=f3e1244]
+                - cell "Rp 3.000.000" [ref=f3e1245]
+                - cell "Rp 0" [ref=f3e1246]
+                - cell "Rp 250.000" [ref=f3e1247]
+                - cell "Rp 3.250.000" [ref=f3e1248]
+                - cell [ref=f3e1249]:
+                  - link "Buka Folder Berkas" [ref=f3e1250] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/15Y-NAjR8PRrH7B96r0IbBT0dM16oj3i0
+          - generic [ref=f3e1253]:
+            - generic [ref=f3e1254]: Halaman 1
+            - generic [ref=f3e1255]:
+              - button "Sebelumnya" [disabled] [ref=f3e1256]
+              - generic [ref=f3e1259]: "1"
+              - button "Berikutnya" [ref=f3e1260]
+        - generic [ref=f3e1265]:
+          - generic [ref=f3e1266]:
+            - generic [ref=f3e1267]:
+              - heading "Tambah Kontrak Baru" [level=2] [ref=f3e1268]
+              - paragraph [ref=f3e1269]: Lengkapi informasi kontrak
+            - button [ref=f3e1270]
+          - generic [ref=f3e1274]:
+            - generic [ref=f3e1275]:
+              - paragraph [ref=f3e1356]: "Failed to deserialize the JSON body into the target type: pelanggan_id: invalid type: string \"46\", expected u64 at line 1 column 20"
+              - generic [ref=f3e1276]:
+                - heading "Informasi Utama" [level=3] [ref=f3e1277]
+                - generic [ref=f3e1278]:
+                  - generic [ref=f3e1279]: Kode Kontrak *
+                  - generic [ref=f3e1280]:
+                    - textbox [ref=f3e1281]: CTR-2026-0029
+                    - button "Generate kode baru" [ref=f3e1282]
+                - generic [ref=f3e1288]:
+                  - generic [ref=f3e1289]: Pelanggan *
+                  - combobox [ref=f3e1290]:
+                    - option "Pilih Pelanggan"
+                    - option "Indosat Tbk" [selected]
+                    - option "PT Aplikanusa Lintasarta"
+                    - option "PT Cendikia Global Solusi"
+                    - option "PT Citra Prima Media"
+                    - option "PT Fiber Network Indonesia"
+                    - option "PT Iforte Solusi Infotek"
+                    - option "PT Indonesia Comnets Plus"
+                    - option "PT Inet Global"
+                    - option "PT Jenius Lintas Nusantara"
+                    - option "PT Lado Tekno Parkir"
+                    - option "PT Medialink Global Mandiri"
+                    - option "PT Mora Telematika Indonesia"
+                    - option "PT Multitech Infomedia"
+                    - option "PT Panca Karsa Sejahtera"
+                    - option "PT XL Axiata Tbk"
+                    - option "Telkom Indonesia (Persero) Tbk"
+                - generic [ref=f3e1291]:
+                  - generic [ref=f3e1292]: Nama Lokasi *
+                  - 'textbox "Contoh: Tower Jakarta Selatan" [ref=f3e1293]': Tower Test E2E
+                - generic [ref=f3e1294]:
+                  - generic [ref=f3e1295]:
+                    - generic [ref=f3e1296]: Periode Awal *
+                    - textbox [ref=f3e1297]: 2026-07-20
+                  - generic [ref=f3e1298]:
+                    - generic [ref=f3e1299]: Durasi (Bulan) *
+                    - spinbutton "12" [ref=f3e1300]: "24"
+                  - generic [ref=f3e1301]:
+                    - generic [ref=f3e1302]: Periode Berakhir
+                    - textbox [ref=f3e1303]: 2028-07-20
+              - generic [ref=f3e1304]:
+                - heading "Detail Kontrak" [level=3] [ref=f3e1305]
+                - generic [ref=f3e1306]:
+                  - generic [ref=f3e1307]:
+                    - generic [ref=f3e1308]: Status
+                    - combobox [ref=f3e1309]:
+                      - option "Beroperasi"
+                      - option "Belum Beroperasi" [selected]
+                      - option "Berakhir"
+                      - option "Diperpanjang"
+                      - option "Di-upgrade"
+                      - option "Berhenti"
+                  - generic [ref=f3e1310]:
+                    - generic [ref=f3e1311]: Kategori
+                    - 'textbox "Contoh: Premium" [ref=f3e1312]'
+                  - generic [ref=f3e1313]:
+                    - generic [ref=f3e1314]: Core
+                    - combobox [ref=f3e1315]:
+                      - option "1 Core" [selected]
+                      - option "2 Core"
+                      - option "4 Core"
+                      - option "8 Core"
+                      - option "16 Core"
+                      - option "32 Core"
+                      - option "64 Core"
+                  - generic [ref=f3e1316]:
+                    - generic [ref=f3e1317]: Sharing Core
+                    - combobox [ref=f3e1318]:
+                      - option "Tidak Ada" [selected]
+                      - option "1/2"
+                      - option "1/4"
+                      - option "1/8"
+                      - option "1/16"
+                      - option "1/32"
+                - generic [ref=f3e1319]:
+                  - generic [ref=f3e1320]: No. Kontrak
+                  - 'textbox "Contoh: 001/SPK/VI/2024" [ref=f3e1321]'
+              - generic [ref=f3e1322]:
+                - heading "Informasi Keuangan" [level=3] [ref=f3e1323]
+                - generic [ref=f3e1324]:
+                  - generic [ref=f3e1325]:
+                    - generic [ref=f3e1326]: Nilai Kontrak
+                    - generic [ref=f3e1327]:
+                      - generic [ref=f3e1328]: Rp
+                      - spinbutton "0" [ref=f3e1329]
+                  - generic [ref=f3e1330]:
+                    - generic [ref=f3e1331]: Biaya Aktivasi
+                    - generic [ref=f3e1332]:
+                      - generic [ref=f3e1333]: Rp
+                      - spinbutton "0" [ref=f3e1334]
+                  - generic [ref=f3e1335]:
+                    - generic [ref=f3e1336]: Per Bulan
+                    - generic [ref=f3e1337]:
+                      - generic [ref=f3e1338]: Rp
+                      - spinbutton "0" [ref=f3e1339]
+                  - generic [ref=f3e1340]:
+                    - generic [ref=f3e1341]: Nilai Periode Aktif
+                    - generic [ref=f3e1342]:
+                      - generic [ref=f3e1343]: Rp
+                      - spinbutton "0" [ref=f3e1344]
+              - generic [ref=f3e1345]:
+                - heading "Keterangan" [level=3] [ref=f3e1346]
+                - textbox "Tambahkan keterangan jika diperlukan..." [ref=f3e1348]
+            - generic [ref=f3e1349]:
+              - button "Batal" [ref=f3e1350]
+              - button "Simpan Kontrak" [ref=f3e1351]
+  - generic [ref=f3e361]: "0"

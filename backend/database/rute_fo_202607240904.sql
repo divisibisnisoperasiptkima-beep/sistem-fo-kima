@@ -1,0 +1,4 @@
+INSERT INTO fo_kima.rute_fo (lokasi_id,odp,selected_customer_point_id,distance,routing_type,manual_points,`geometry`,updated_at,approval_status,pending_manual_points,submitted_by_user_id,submitted_at,reviewed_by_user_id,reviewed_at,rejection_reason) VALUES
+	 (129,NULL,NULL,NULL,'manual','[]',NULL,'2026-07-17 12:20:34','menunggu_persetujuan','[{"id": "pt_1784104184066_jbi9hdt", "lat": -5.0931075331912865, "lng": 119.49330832800229, "name": "Cabang 1"}]',NULL,NULL,NULL,NULL,NULL),
+	 (226,NULL,NULL,NULL,'manual','[{"id": "pt_1784086377111_9fuh2gt", "lat": -5.096063346911819, "lng": 119.49504732260726, "name": "titik pelanggan"}]',NULL,'2026-07-17 12:20:34','disetujui',NULL,NULL,NULL,NULL,NULL,NULL),
+	 (272,NULL,NULL,NULL,'manual','[]',NULL,'2026-07-17 12:20:34','disetujui',NULL,NULL,NULL,NULL,NULL,NULL);

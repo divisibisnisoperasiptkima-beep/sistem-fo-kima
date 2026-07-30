@@ -1,0 +1,53 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - heading "Bantuan Akses" [level=3] [ref=e11]
+        - paragraph [ref=e12]: Pemulihan akun memerlukan verifikasi Administrator TI. Silakan hubungi unit terkait.
+      - button "← Kembali ke Halaman Login" [ref=e14] [cursor=pointer]
+    - generic [ref=e15]:
+      - heading "Sign In" [level=3] [ref=e19]
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Email
+          - textbox "nama@kima.co.id" [ref=e23]
+        - generic [ref=e24]:
+          - generic [ref=e25]: Password
+          - generic [ref=e26]:
+            - textbox "••••••••" [ref=e27]
+            - button "Tampilkan password" [ref=e28] [cursor=pointer]
+          - button "Lupa Password?" [ref=e33] [cursor=pointer]
+        - button "Masuk" [ref=e34] [cursor=pointer]
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - paragraph [ref=e38]: Dev Access
+            - paragraph [ref=e39]: Quick login untuk uji role
+          - generic [ref=e40]: Dev
+        - generic [ref=e41]:
+          - button [ref=e42] [cursor=pointer]:
+            - paragraph [ref=e43]: Admin
+            - paragraph [ref=e44]: Akses penuh
+          - button [ref=e45] [cursor=pointer]:
+            - paragraph [ref=e46]: Teknisi
+            - paragraph [ref=e47]: Operasional
+          - button [ref=e48] [cursor=pointer]:
+            - paragraph [ref=e49]: ISP
+            - paragraph [ref=e50]: Mitra
+      - generic [ref=e51]:
+        - generic [ref=e52]: Connect
+        - generic [ref=e54]:
+          - link [ref=e55] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e58] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e61] [cursor=pointer]:
+            - /url: "#"
+    - generic [ref=e64]:
+      - generic [ref=e65]:
+        - img "Logo PT KIMA" [ref=e66]
+        - generic [ref=e67]:
+          - heading "Selamat Datang di Digital Archive" [level=2] [ref=e68]: Selamat Datang diDigital Archive
+          - paragraph [ref=e70]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+      - paragraph [ref=e72]: © 2026 PT Kawasan Industri Makassar.
+  - paragraph [ref=e74]: Powered by IT Support KIMA

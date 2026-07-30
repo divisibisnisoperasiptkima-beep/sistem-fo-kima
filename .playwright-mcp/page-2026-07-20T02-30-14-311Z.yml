@@ -1,0 +1,156 @@
+- generic [active] [ref=e1]:
+  - main [ref=e75]:
+    - complementary [ref=e78]:
+      - generic [ref=e79]: KIMA
+      - navigation [ref=e81]:
+        - button [ref=e82]
+        - button [ref=e89]
+        - button [ref=e96]
+    - generic [ref=e101]:
+      - button [ref=e104]:
+        - img "Profile" [ref=e105]
+        - generic [ref=e106]:
+          - paragraph [ref=e107]: admin
+          - paragraph [ref=e108]: Admin
+      - generic [ref=e109]:
+        - generic [ref=e110]:
+          - paragraph [ref=e113]: Mesin Analitik
+          - heading "Dashboard FO KIMA" [level=1] [ref=e114]
+          - generic [ref=e115]:
+            - generic [ref=e116]:
+              - paragraph [ref=e118]: Pelanggan
+              - heading "16" [level=3] [ref=e119]
+              - paragraph [ref=e120]: Total Provider
+            - generic [ref=e121]:
+              - paragraph [ref=e123]: Kontrak Aktif
+              - heading "55" [level=3] [ref=e124]
+              - paragraph [ref=e125]: Beroperasi + Belum Beroperasi
+            - generic [ref=e126]:
+              - paragraph [ref=e128]: Kapasitas Core
+              - heading "384" [level=3] [ref=e129]
+              - paragraph [ref=e130]: Total Core
+            - generic [ref=e131]:
+              - paragraph [ref=e133]: Core Tersewa
+              - heading "130 / 384" [level=3] [ref=e134]
+              - paragraph [ref=e135]: Dedicated 11 Lokasi
+            - generic [ref=e136]:
+              - paragraph [ref=e138]: Core Tersedia
+              - heading "254" [level=3] [ref=e139]
+              - paragraph [ref=e140]: 66% Available
+        - generic [ref=e141]:
+          - generic [ref=e142]:
+            - generic [ref=e143]:
+              - heading "Tren Penggunaan Core" [level=2] [ref=e146]
+              - generic [ref=e147]:
+                - generic [ref=e148]:
+                  - button "Tahunan" [ref=e149]
+                  - button "Bulanan" [ref=e150]
+                - generic [ref=e151]:
+                  - generic [ref=e152]:
+                    - spinbutton [ref=e153]: "5"
+                    - generic [ref=e154]: Thn
+                  - generic [ref=e156]:
+                    - button "Rentang" [ref=e157]
+                    - button "Spesifik" [ref=e158]
+                    - button "Kustom" [ref=e159]
+                - generic [ref=e160]:
+                  - button "Sharing Core" [ref=e161]
+                  - button "Core" [ref=e162]
+              - generic [ref=e163]:
+                - generic [ref=e164]: "Sharing:"
+                - generic [ref=e165]: 1:32
+                - generic [ref=e167]: 1:16
+                - generic [ref=e169]: 1:8
+                - generic [ref=e171]: 1:4
+            - generic [ref=e175]:
+              - generic:
+                - status:
+                  - paragraph: "2024"
+                  - list:
+                    - listitem: "1/16 : 1"
+                    - listitem: "1/32 : 1"
+                    - listitem: "1/4 : 0"
+                    - listitem: "1/8 : 0"
+              - application [ref=e176]:
+                - generic [ref=e227]:
+                  - generic [ref=e228]:
+                    - generic [ref=e229]: "2022"
+                    - generic [ref=e231]: "2023"
+                    - generic [ref=e233]: "2024"
+                    - generic [ref=e235]: "2025"
+                    - generic [ref=e237]: "2026"
+                  - generic [ref=e239]:
+                    - generic [ref=e240]: "0"
+                    - generic [ref=e242]: "5"
+                    - generic [ref=e244]: "10"
+                    - generic [ref=e246]: "15"
+                    - generic [ref=e248]: "20"
+          - generic [ref=e250]:
+            - heading "Rincian Sharing Core" [level=2] [ref=e253]
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - generic [ref=e256]:
+                  - paragraph [ref=e257]: Paket
+                  - paragraph [ref=e258]: 1/16
+                - generic [ref=e259]: 12Lokasi
+              - generic [ref=e260]:
+                - generic [ref=e261]:
+                  - paragraph [ref=e262]: Paket
+                  - paragraph [ref=e263]: 1/4
+                - generic [ref=e264]: 1Lokasi
+              - generic [ref=e265]:
+                - generic [ref=e266]:
+                  - paragraph [ref=e267]: Paket
+                  - paragraph [ref=e268]: 1/32
+                - generic [ref=e269]: 19Lokasi
+              - generic [ref=e270]:
+                - generic [ref=e271]:
+                  - paragraph [ref=e272]: Paket
+                  - paragraph [ref=e273]: 1/8
+                - generic [ref=e274]: 12Lokasi
+            - generic [ref=e275]:
+              - generic [ref=e276]:
+                - paragraph [ref=e277]: Total Lokasi
+                - paragraph [ref=e278]: Semua Paket
+              - generic [ref=e279]: "44"
+        - generic [ref=e280]:
+          - generic [ref=e281]:
+            - generic [ref=e282]:
+              - heading "Grafik Pertumbuhan" [level=2] [ref=e285]
+              - generic [ref=e286]:
+                - generic [ref=e287]:
+                  - generic [ref=e288]:
+                    - spinbutton [ref=e289]: "5"
+                    - generic [ref=e290]: Thn
+                  - generic [ref=e292]:
+                    - button "Rentang" [ref=e293]
+                    - button "Spesifik" [ref=e294]
+                    - button "Kustom" [ref=e295]
+                - button "Kontrak" [ref=e297]
+            - application [ref=e301]:
+              - generic [ref=e316]:
+                - generic [ref=e317]:
+                  - generic [ref=e318]: "2022"
+                  - generic [ref=e320]: "2023"
+                  - generic [ref=e322]: "2024"
+                  - generic [ref=e324]: "2025"
+                  - generic [ref=e326]: "2026"
+                - generic [ref=e328]:
+                  - generic [ref=e329]: "0"
+                  - generic [ref=e331]: "40"
+                  - generic [ref=e333]: "80"
+                  - generic [ref=e335]: "120"
+                  - generic [ref=e337]: "160"
+          - generic [ref=e339]:
+            - heading "Status Kontrak" [level=2] [ref=e342]
+            - generic [ref=e343]:
+              - generic [ref=e344]:
+                - generic [ref=e345]: Berakhir
+                - generic [ref=e346]: "61"
+              - generic [ref=e347]:
+                - generic [ref=e348]: Beroperasi
+                - generic [ref=e349]: "55"
+              - generic [ref=e350]:
+                - generic [ref=e351]: Diperpanjang
+                - generic [ref=e352]: "153"
+  - generic [ref=e353]: "0"

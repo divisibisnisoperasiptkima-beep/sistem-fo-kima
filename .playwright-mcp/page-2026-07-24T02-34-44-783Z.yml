@@ -1,0 +1,17 @@
+- generic [ref=f5e3]:
+  - link "Logo Google Drive" [ref=f5e5] [cursor=pointer]:
+    - /url: /
+    - generic "Logo Google" [ref=f5e6]
+    - generic [ref=f5e7]: Drive
+  - generic [ref=f5e8]:
+    - paragraph [ref=f5e9]: Maaf, file yang Anda minta tidak ada.
+    - paragraph [ref=f5e10]: Pastikan bahwa Anda memiliki URL yang benar dan file tersebut memang ada.
+    - generic [ref=f5e11]:
+      - paragraph [ref=f5e12]:
+        - strong [ref=f5e13]: Selesaikan berbagai hal dengan Google Drive
+      - paragraph [ref=f5e14]: Apps di Google Drive memudahkan Anda untuk membuat, menyimpan, dan berbagi dokumen, spreadsheet, presentasi, dan lainnya secara online.
+      - paragraph [ref=f5e15]:
+        - text: Pelajari lebih lanjut di
+        - link "drive.google.com/start/apps" [ref=f5e16] [cursor=pointer]:
+          - /url: https://drive.google.com/start/apps
+        - text: .

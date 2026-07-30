@@ -1,0 +1,62 @@
+- generic [active] [ref=f2e1]:
+  - main [ref=f2e10310]:
+    - complementary [ref=f2e10313]:
+      - generic [ref=f2e10314]: KIMA
+      - navigation [ref=f2e10316]:
+        - button [ref=f2e10317]
+        - button [ref=f2e10324]
+        - button [ref=f2e10331]
+        - button [ref=f2e10336]
+        - button [ref=f2e10341]
+        - button [ref=f2e10348]
+    - generic [ref=f2e10353]:
+      - button [ref=f2e10356]:
+        - img "Profile" [ref=f2e10357]
+        - generic [ref=f2e10358]:
+          - paragraph [ref=f2e10359]: admin
+          - paragraph [ref=f2e10360]: Admin
+      - generic [ref=f2e10550]:
+        - generic [ref=f2e10551]:
+          - generic [ref=f2e10552]:
+            - paragraph [ref=f2e10555]: Manajemen GIS & Lokasi
+            - heading "Titik Peta FO KIMA" [level=1] [ref=f2e10556]
+          - searchbox "Cari pelanggan / lokasi..." [ref=f2e10561]: UAT_DESKTOP_20260724
+        - generic [ref=f2e10563]:
+          - generic [ref=f2e10564]:
+            - generic [ref=f2e10565]:
+              - heading [level=2]
+              - paragraph [ref=f2e10566]: 2 data
+            - button "Muat ulang" [ref=f2e10567]
+          - table [ref=f2e10572]:
+            - rowgroup [ref=f2e10573]:
+              - row [ref=f2e10574]:
+                - columnheader "#" [ref=f2e10575]
+                - columnheader "Nama Pelanggan" [ref=f2e10576]
+                - columnheader "Nama Lokasi" [ref=f2e10577]
+                - columnheader "Koordinat" [ref=f2e10578]
+                - columnheader "Aksi" [ref=f2e10579]
+            - rowgroup [ref=f2e10580]:
+              - row [ref=f2e10955]:
+                - cell "1" [ref=f2e10956]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e10957]
+                - cell "UAT Lokasi Perpanjangan" [ref=f2e10958]
+                - cell "Belum ditentukan" [ref=f2e10959]
+                - cell [ref=f2e10960]:
+                  - button "Buka Peta" [ref=f2e10961]
+              - row [ref=f2e10965]:
+                - cell "2" [ref=f2e10966]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e10967]
+                - cell "UAT Lokasi Upgrade" [ref=f2e10968]
+                - cell "Belum ditentukan" [ref=f2e10969]
+                - cell [ref=f2e10970]:
+                  - button "Buka Peta" [ref=f2e10971]
+          - generic [ref=f2e10781]:
+            - generic [ref=f2e10782]: Menampilkan 1 - 2 dari 2 data
+            - generic [ref=f2e10784]:
+              - generic [ref=f2e10785]: "Tampilkan:"
+              - combobox [ref=f2e10786] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+  - generic [ref=f2e351]: "0"

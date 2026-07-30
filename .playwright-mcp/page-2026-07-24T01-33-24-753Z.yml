@@ -1,0 +1,162 @@
+- generic [active] [ref=f2e1]:
+  - main [ref=f2e3615]:
+    - complementary [ref=f2e3618]:
+      - generic [ref=f2e3619]: KIMA
+      - navigation [ref=f2e3621]:
+        - button [ref=f2e3622]
+        - button [ref=f2e3629]
+        - button [ref=f2e3636]
+        - button [ref=f2e3641]
+        - button [ref=f2e3646]
+        - button [ref=f2e3653]
+    - generic [ref=f2e3658]:
+      - button [ref=f2e3661]:
+        - img "Profile" [ref=f2e3662]
+        - generic [ref=f2e3663]:
+          - paragraph [ref=f2e3664]: admin
+          - paragraph [ref=f2e3665]: Admin
+      - generic [ref=f2e5747]:
+        - generic [ref=f2e5748]:
+          - generic [ref=f2e5749]:
+            - paragraph [ref=f2e5752]: Manajemen Kontrak
+            - heading "Daftar Kontrak FO KIMA" [level=1] [ref=f2e5753]
+          - generic [ref=f2e5754]:
+            - textbox "Cari kontrak..." [ref=f2e5759]: UAT Lokasi Perpanjangan
+            - button "Filter Status (Semua)" [ref=f2e5761] [cursor=pointer]:
+              - generic [ref=f2e5764]: Filter Status
+              - generic [ref=f2e5765]: (Semua)
+            - button "Tambah Kontrak" [ref=f2e5768]
+        - generic [ref=f2e5772]:
+          - generic [ref=f2e5773]:
+            - generic [ref=f2e5774]:
+              - heading [level=2]
+              - paragraph [ref=f2e5775]: 1 data
+            - button "Muat ulang" [ref=f2e5776]
+          - table [ref=f2e5781]:
+            - rowgroup [ref=f2e5782]:
+              - row [ref=f2e5783]:
+                - columnheader "No" [ref=f2e5784]
+                - columnheader "Pelanggan" [ref=f2e5785]
+                - columnheader "Lokasi" [ref=f2e5786]
+                - columnheader "Sisa Waktu" [ref=f2e5787]
+                - columnheader "Status" [ref=f2e5788]
+                - columnheader "No. Kontrak" [ref=f2e5789]
+                - columnheader "Periode Awal" [ref=f2e5790]
+                - columnheader "Periode Berakhir" [ref=f2e5791]
+                - columnheader "Durasi" [ref=f2e5792]
+                - columnheader "Kapasitas Core" [ref=f2e5793]
+                - columnheader "Nilai Kontrak" [ref=f2e5794]
+                - columnheader "Biaya Aktivasi" [ref=f2e5795]
+                - columnheader "Biaya / Bln" [ref=f2e5796]
+                - columnheader "Periode Aktif" [ref=f2e5797]
+                - columnheader "Folder Berkas" [ref=f2e5798]
+                - columnheader "Aksi" [ref=f2e5799]
+            - rowgroup [ref=f2e5800]:
+              - row [ref=f2e7637]:
+                - cell "1" [ref=f2e7638]
+                - cell "UAT_DESKTOP_20260724" [ref=f2e7639]
+                - cell "UAT Lokasi Perpanjangan" [ref=f2e7641]
+                - cell "12 Bln 4 Hr" [ref=f2e7643]
+                - cell "Beroperasi" [ref=f2e7645]
+                - cell "UAT/EXT/2026/0724" [ref=f2e7647]
+                - cell "2026-07-24" [ref=f2e7648]
+                - cell "2027-07-24" [ref=f2e7649]
+                - cell "12 Bln" [ref=f2e7650]
+                - cell "1 Core" [ref=f2e7651]
+                - cell "Rp 12.000.000" [ref=f2e7652]
+                - cell "Rp 0" [ref=f2e7653]
+                - cell "Rp 1.000.000" [ref=f2e7654]
+                - cell "Rp 12.000.000" [ref=f2e7655]
+                - cell [ref=f2e7656]:
+                  - link "Drive" [ref=f2e7657] [cursor=pointer]:
+                    - /url: https://drive.google.com/drive/folders/1JPHFDlOViKIcD0mwd_bJNDG_Z-fK4IbT
+                - cell [ref=f2e7663]:
+                  - generic [ref=f2e7664]:
+                    - button "Edit Kontrak" [ref=f2e7665]
+                    - button "Hapus Kontrak" [ref=f2e7669]
+                    - button "Perpanjang Kontrak" [ref=f2e7673]
+                    - button "Upgrade Paket Kontrak" [ref=f2e7676]
+          - generic [ref=f2e6650]:
+            - generic [ref=f2e6651]: Menampilkan 1 - 1 dari 1 data
+            - generic [ref=f2e6653]:
+              - generic [ref=f2e6654]: "Tampilkan:"
+              - combobox [ref=f2e6655] [cursor=pointer]:
+                - option "10"
+                - option "20" [selected]
+                - option "50"
+                - option "100"
+        - generic [ref=f2e7681]:
+          - generic [ref=f2e7682]:
+            - generic [ref=f2e7687]:
+              - heading "Perpanjang Kontrak" [level=2] [ref=f2e7688]
+              - paragraph [ref=f2e7689]: UAT_DESKTOP_20260724 — UAT Lokasi Perpanjangan
+            - button [disabled] [ref=f2e7690]
+          - generic [ref=f2e7694]:
+            - generic [ref=f2e7695]:
+              - generic [ref=f2e7696]:
+                - generic [ref=f2e7697]:
+                  - generic [ref=f2e7698]: "Kontrak Induk / Saat Ini:"
+                  - generic [ref=f2e7699]: CTR-2026-0029
+                - generic [ref=f2e7700]:
+                  - generic [ref=f2e7701]: "Periode Lama:"
+                  - generic [ref=f2e7702]: 2026-07-24 s.d. 2027-07-24
+              - generic [ref=f2e7703]:
+                - heading "Periode Perpanjangan Baru" [level=3] [ref=f2e7704]
+                - generic [ref=f2e7705]:
+                  - generic [ref=f2e7706]:
+                    - generic [ref=f2e7707]: Kode Kontrak Baru *
+                    - textbox [disabled] [ref=f2e7709]: CTR-2026-0030
+                  - generic [ref=f2e7710]:
+                    - generic [ref=f2e7711]: No. Kontrak Baru
+                    - textbox [disabled] [ref=f2e7712]: UAT/EXT/RENEW/2027
+                - generic [ref=f2e7713]:
+                  - generic [ref=f2e7714]:
+                    - generic [ref=f2e7715]: Periode Awal Baru *
+                    - textbox [disabled] [ref=f2e7716]: 2027-07-25
+                  - generic [ref=f2e7717]:
+                    - generic [ref=f2e7718]: Durasi (Bulan) *
+                    - spinbutton [disabled] [ref=f2e7719]: "12"
+                  - generic [ref=f2e7720]:
+                    - generic [ref=f2e7721]: Periode Berakhir Baru *
+                    - textbox [disabled] [ref=f2e7722]: 2028-07-25
+              - generic [ref=f2e7723]:
+                - heading "Detail Kapasitas" [level=3] [ref=f2e7724]
+                - generic [ref=f2e7725]:
+                  - generic [ref=f2e7726]:
+                    - generic [ref=f2e7727]: Core (Manual Input)
+                    - 'textbox "Contoh: 1 Core, 4 Core" [disabled] [ref=f2e7728]': 1 Core
+                  - generic [ref=f2e7729]:
+                    - generic [ref=f2e7730]: Sharing Core
+                    - combobox [disabled] [ref=f2e7731]:
+                      - option "Tidak Ada (Direct Core)" [selected]
+                      - option "1/2"
+                      - option "1/4"
+                      - option "1/8"
+                      - option "1/16"
+                      - option "1/32"
+                    - paragraph [ref=f2e7732]: Nonaktif (Core manual diisi)
+              - generic [ref=f2e7733]:
+                - heading "Informasi Keuangan Perpanjangan" [level=3] [ref=f2e7734]
+                - generic [ref=f2e7735]:
+                  - generic [ref=f2e7736]:
+                    - generic [ref=f2e7737]: Nilai Kontrak (Rp)
+                    - spinbutton [disabled] [ref=f2e7738]: "12000000"
+                  - generic [ref=f2e7739]:
+                    - generic [ref=f2e7740]: Biaya Per Bulan (Rp)
+                    - spinbutton [disabled] [ref=f2e7741]: "1000000"
+              - generic [ref=f2e7742]:
+                - heading "Upload Dokumen Perpanjangan (Opsional)" [level=3] [ref=f2e7743]
+                - generic [ref=f2e7744]:
+                  - generic [ref=f2e7745]: Folder Tujuan
+                  - combobox [disabled] [ref=f2e7746]:
+                    - option "Pilih Folder Tujuan" [selected]
+                    - option "Kontrak"
+                    - option "BAK-PKS"
+                    - option "Dokumen Lain"
+                - generic [ref=f2e7747]:
+                  - generic [ref=f2e7748]: Pilih Berkas Perpanjangan (PDF)
+                  - generic [ref=f2e7749]: Klik untuk pilih berkas perpanjangan PKS
+            - generic [ref=f2e7754]:
+              - button "Batal" [disabled] [ref=f2e7755]
+              - button "Memproses..." [disabled] [ref=f2e7758]
+  - generic [ref=f2e351]: "0"

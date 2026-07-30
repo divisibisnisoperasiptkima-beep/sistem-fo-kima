@@ -1,0 +1,47 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e3209]:
+    - generic [ref=f2e3210]:
+      - generic [ref=f2e3211]:
+        - generic [ref=f2e3212]:
+          - heading "Bantuan Akses" [level=3] [ref=f2e3215]
+          - paragraph [ref=f2e3216]: Pemulihan akun memerlukan verifikasi Administrator TI. Silakan hubungi unit terkait.
+        - button "← Kembali ke Halaman Login" [ref=f2e3217] [cursor=pointer]
+      - generic [ref=f2e3218]:
+        - heading "Sign In" [level=3] [ref=f2e3222]
+        - generic [ref=f2e3223]:
+          - generic [ref=f2e3224]:
+            - generic [ref=f2e3225]: Email
+            - textbox "nama@kima.co.id" [ref=f2e3226]
+          - generic [ref=f2e3227]:
+            - generic [ref=f2e3228]: Password
+            - generic [ref=f2e3229]:
+              - textbox "••••••••" [ref=f2e3230]
+              - button [ref=f2e3231] [cursor=pointer]
+            - button "Lupa Password?" [ref=f2e3236] [cursor=pointer]
+          - button "Masuk" [ref=f2e3237] [cursor=pointer]
+        - generic [ref=f2e3238]:
+          - generic [ref=f2e3239]:
+            - generic [ref=f2e3240]:
+              - paragraph [ref=f2e3241]: Dev Access
+              - paragraph [ref=f2e3242]: Quick login untuk uji role
+            - generic [ref=f2e3243]: Dev
+          - generic [ref=f2e3244]:
+            - button [ref=f2e3245] [cursor=pointer]:
+              - paragraph [ref=f2e3246]: Admin
+              - paragraph [ref=f2e3247]: Akses penuh
+            - button [ref=f2e3248] [cursor=pointer]:
+              - paragraph [ref=f2e3249]: Teknisi
+              - paragraph [ref=f2e3250]: Operasional
+            - button [ref=f2e3251] [cursor=pointer]:
+              - paragraph [ref=f2e3252]: ISP
+              - paragraph [ref=f2e3253]: Mitra
+        - generic [ref=f2e3254]: Connect
+      - generic [ref=f2e3257]:
+        - generic [ref=f2e3258]:
+          - img "Logo PT KIMA" [ref=f2e3259]
+          - generic [ref=f2e3260]:
+            - heading "Selamat Datang di Digital Archive" [level=2] [ref=f2e3261]: Selamat Datang diDigital Archive
+            - paragraph [ref=f2e3263]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+        - paragraph [ref=f2e3265]: © 2026 PT Kawasan Industri Makassar.
+    - paragraph [ref=f2e3267]: Powered by IT Support KIMA
+  - generic [ref=f2e351]: "0"

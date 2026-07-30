@@ -1,0 +1,42 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e1346]:
+    - generic [ref=f1e1347]:
+      - generic [ref=f1e1348]:
+        - heading "Sign In" [level=3] [ref=f1e1352]
+        - generic [ref=f1e1353]:
+          - generic [ref=f1e1354]:
+            - generic [ref=f1e1355]: Email
+            - textbox "nama@kima.co.id" [ref=f1e1356]
+          - generic [ref=f1e1357]:
+            - generic [ref=f1e1358]: Password
+            - generic [ref=f1e1359]:
+              - textbox "••••••••" [ref=f1e1360]
+              - button [ref=f1e1361] [cursor=pointer]
+            - button "Lupa Password?" [ref=f1e1366] [cursor=pointer]
+          - button "Masuk" [ref=f1e1367] [cursor=pointer]
+        - generic [ref=f1e1368]:
+          - generic [ref=f1e1369]:
+            - generic [ref=f1e1370]:
+              - paragraph [ref=f1e1371]: Dev Access
+              - paragraph [ref=f1e1372]: Quick login untuk uji role
+            - generic [ref=f1e1373]: Dev
+          - generic [ref=f1e1374]:
+            - button [ref=f1e1375] [cursor=pointer]:
+              - paragraph [ref=f1e1376]: Admin
+              - paragraph [ref=f1e1377]: Akses penuh
+            - button [ref=f1e1378] [cursor=pointer]:
+              - paragraph [ref=f1e1379]: Teknisi
+              - paragraph [ref=f1e1380]: Operasional
+            - button [ref=f1e1381] [cursor=pointer]:
+              - paragraph [ref=f1e1382]: ISP
+              - paragraph [ref=f1e1383]: Mitra
+        - generic [ref=f1e1384]: Connect
+      - generic [ref=f1e1387]:
+        - generic [ref=f1e1388]:
+          - img "Logo PT KIMA" [ref=f1e1389]
+          - generic [ref=f1e1390]:
+            - heading "Selamat Datang di Digital Archive" [level=2] [ref=f1e1391]: Selamat Datang diDigital Archive
+            - paragraph [ref=f1e1393]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+        - paragraph [ref=f1e1395]: © 2026 PT Kawasan Industri Makassar.
+    - paragraph [ref=f1e1397]: Powered by IT Support KIMA
+  - generic [ref=f1e783]: "0"

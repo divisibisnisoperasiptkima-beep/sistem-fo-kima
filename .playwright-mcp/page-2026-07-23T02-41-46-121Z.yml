@@ -1,0 +1,45 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - heading "Bantuan Akses" [level=3] [ref=e11]
+        - paragraph [ref=e12]: Pemulihan akun memerlukan verifikasi Administrator TI. Silakan hubungi unit terkait.
+      - button "← Kembali ke Halaman Login" [ref=e13] [cursor=pointer]
+    - generic [ref=e14]:
+      - heading "Sign In" [level=3] [ref=e18]
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - generic [ref=e21]: Email
+          - textbox "nama@kima.co.id" [ref=e22]
+        - generic [ref=e23]:
+          - generic [ref=e24]: Password
+          - generic [ref=e25]:
+            - textbox "••••••••" [ref=e26]
+            - button [ref=e27] [cursor=pointer]
+          - button "Lupa Password?" [ref=e32] [cursor=pointer]
+        - button "Masuk" [ref=e33] [cursor=pointer]
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - paragraph [ref=e37]: Dev Access
+            - paragraph [ref=e38]: Quick login untuk uji role
+          - generic [ref=e39]: Dev
+        - generic [ref=e40]:
+          - button [ref=e41] [cursor=pointer]:
+            - paragraph [ref=e42]: Admin
+            - paragraph [ref=e43]: Akses penuh
+          - button [ref=e44] [cursor=pointer]:
+            - paragraph [ref=e45]: Teknisi
+            - paragraph [ref=e46]: Operasional
+          - button [ref=e47] [cursor=pointer]:
+            - paragraph [ref=e48]: ISP
+            - paragraph [ref=e49]: Mitra
+      - generic [ref=e50]: Connect
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - img "Logo PT KIMA" [ref=e55]
+        - generic [ref=e56]:
+          - heading "Selamat Datang di Digital Archive" [level=2] [ref=e57]: Selamat Datang diDigital Archive
+          - paragraph [ref=e59]: Sistem manajemen arsip terintegrasi untuk efisiensi dan keamanan data PT Kawasan Industri Makassar.
+      - paragraph [ref=e61]: © 2026 PT Kawasan Industri Makassar.
+  - paragraph [ref=e63]: Powered by IT Support KIMA

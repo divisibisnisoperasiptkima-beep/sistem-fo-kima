@@ -1,0 +1,11 @@
+- application:
+  - iframe [ref=e1]:
+    
+  - region
+  - generic "Menunjukkan penampil." [ref=e8]:
+    - generic "Memuat UAT-Drive-20260724.txt." [active]
+    - generic [ref=e9]:
+      - generic "Sebelumnya" [ref=e10]
+      - generic "Berikutnya" [ref=e11]
+      - main [ref=e12]:
+        - status "Memuat" [ref=e13]

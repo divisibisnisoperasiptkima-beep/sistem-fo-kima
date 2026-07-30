@@ -59,15 +59,17 @@ pub async fn delete_contract(
 ) -> Result<Json<StatusResponse>, ApiError> {
     require_admin(&auth.role)?;
 
-    // Fetch existing contract to verify it exists and get needed fields
+    let mut tx = state.database.begin().await.map_err(ApiError::database)?;
+
+    // Kunci kontrak dan kerjakan seluruh penghapusan database dalam satu transaksi.
     let existing = sqlx::query(
         "SELECT l.pelanggan_id, l.link_folder_berkas, p.nama_pelanggan, l.nama_lokasi, \
          COALESCE(CAST(l.periode_awal AS CHAR), '') AS periode_awal, \
          COALESCE(CAST(l.periode_berakhir AS CHAR), '') AS periode_berakhir \
-         FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id WHERE l.id = ?",
+         FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id WHERE l.id = ? FOR UPDATE",
     )
     .bind(id)
-    .fetch_optional(&state.database)
+    .fetch_optional(&mut *tx)
     .await
     .map_err(|e| {
         tracing::error!(contract_id = id, error = %e, "Failed to query contract details for delete");
@@ -84,47 +86,51 @@ pub async fn delete_contract(
     // Check user has access to this pelanggan
     assert_pelanggan_access(&state.database, auth.id, &auth.role, pelanggan_id).await?;
 
-    // Delete the drive folder tree
-    if let Some(ref link) = link_folder {
-        if let Some(folder_id) = parse_drive_folder_id(link) {
-            if let Err(e) = delete_kontrak_tree(&state.drive, &folder_id).await {
-                tracing::warn!(contract_id = id, error = %e, "Gagal menghapus folder Drive");
-            }
-        }
-    }
-
     // Delete linked dependent records first to respect FK constraints
-    let _ = sqlx::query("UPDATE lokasi SET previous_lokasi_id = NULL WHERE previous_lokasi_id = ?")
+    sqlx::query("UPDATE lokasi SET previous_lokasi_id = NULL WHERE previous_lokasi_id = ?")
         .bind(id)
-        .execute(&state.database)
-        .await;
-    let _ = sqlx::query("DELETE FROM billing_details WHERE lokasi_id = ?")
+        .execute(&mut *tx)
+        .await
+        .map_err(ApiError::database)?;
+    sqlx::query("DELETE FROM billing_details WHERE lokasi_id = ?")
         .bind(id)
-        .execute(&state.database)
-        .await;
-    let _ = sqlx::query("DELETE FROM billing WHERE lokasi_id = ?")
+        .execute(&mut *tx)
+        .await
+        .map_err(ApiError::database)?;
+    sqlx::query("DELETE FROM billing WHERE lokasi_id = ?")
         .bind(id)
-        .execute(&state.database)
-        .await;
-    let _ = sqlx::query("DELETE FROM rute_fo WHERE lokasi_id = ?")
+        .execute(&mut *tx)
+        .await
+        .map_err(ApiError::database)?;
+    sqlx::query("DELETE FROM rute_fo WHERE lokasi_id = ?")
         .bind(id)
-        .execute(&state.database)
-        .await;
-    let _ = sqlx::query("DELETE FROM dokumen WHERE lokasi_id = ?")
+        .execute(&mut *tx)
+        .await
+        .map_err(ApiError::database)?;
+    sqlx::query("DELETE FROM dokumen WHERE lokasi_id = ?")
         .bind(id)
-        .execute(&state.database)
-        .await;
+        .execute(&mut *tx)
+        .await
+        .map_err(ApiError::database)?;
 
-    // Delete the contract from database
     sqlx::query("DELETE FROM lokasi WHERE id = ?")
         .bind(id)
-        .execute(&state.database)
+        .execute(&mut *tx)
         .await
         .map_err(|e| {
             tracing::error!(contract_id = id, error = %e, "Failed to delete lokasi row");
             ApiError::internal(format!("Gagal menghapus lokasi: {e}"))
         })?;
 
+    if let Some(ref link) = link_folder
+        && let Some(folder_id) = parse_drive_folder_id(link)
+        && let Err(error) = delete_kontrak_tree(&state.drive, &folder_id).await
+    {
+        tx.rollback().await.map_err(ApiError::database)?;
+        return Err(ApiError::drive(error));
+    }
+
+    tx.commit().await.map_err(ApiError::database)?;
     Ok(Json(StatusResponse { status: "deleted" }))
 }
 
@@ -635,6 +641,7 @@ pub async fn create_contract(
     let perbulan = input.perbulan.unwrap_or(0.0);
     let nilai_periode_aktif = input.nilai_periode_aktif.unwrap_or(0.0);
 
+    let mut tx = state.database.begin().await.map_err(ApiError::database)?;
     let result = sqlx::query(
         "INSERT INTO lokasi \
          (kode_kontrak, pelanggan_id, kategori, nama_lokasi, core, sharing_core, \
@@ -659,12 +666,12 @@ pub async fn create_contract(
     .bind(nilai_periode_aktif)
     .bind(&status)
     .bind(&keterangan)
-    .execute(&state.database)
+    .execute(&mut *tx)
     .await
     .map_err(ApiError::database)?;
     let id = result.last_insert_id();
 
-    let (_, link) = ensure_kontrak_tree(
+    let (_, link) = match ensure_kontrak_tree(
         &state.drive,
         &parent_folder_id,
         &nama_lokasi,
@@ -672,15 +679,21 @@ pub async fn create_contract(
         &periode_berakhir,
     )
     .await
-    .map_err(ApiError::drive)?;
+    {
+        Ok(folder) => folder,
+        Err(error) => {
+            tx.rollback().await.map_err(ApiError::database)?;
+            return Err(ApiError::drive(error));
+        }
+    };
     sqlx::query("UPDATE lokasi SET link_folder_berkas = ? WHERE id = ?")
         .bind(&link)
         .bind(id)
-        .execute(&state.database)
+        .execute(&mut *tx)
         .await
         .map_err(ApiError::database)?;
 
-    assert_pelanggan_access(&state.database, auth.id, &auth.role, input.pelanggan_id).await?;
+    tx.commit().await.map_err(ApiError::database)?;
 
     Ok((
         StatusCode::CREATED,

@@ -738,7 +738,10 @@ pub async fn upload_document(
                     .await
                     .map_err(|_| ApiError::bad_request("Gagal membaca file unggahan."))?;
                 if bytes.len() > state.max_upload_bytes {
-                    return Err(ApiError::bad_request("Ukuran file melebihi batas 25 MB."));
+                    return Err(ApiError::bad_request(format!(
+                        "Ukuran file melebihi batas {} MB.",
+                        state.max_upload_bytes / (1024 * 1024)
+                    )));
                 }
                 file_bytes = Some(bytes.to_vec());
             }
@@ -838,9 +841,10 @@ pub async fn upload_document(
         .upload_file(&category_folder_id, &nama_file, &mime, file_bytes)
         .await
         .map_err(ApiError::drive)?;
+    let uploaded_id = uploaded.id;
     let drive_url = uploaded
         .web_view_link
-        .unwrap_or_else(|| format!("https://drive.google.com/file/d/{}/view", uploaded.id));
+        .unwrap_or_else(|| format!("https://drive.google.com/file/d/{uploaded_id}/view"));
 
     let result = sqlx::query(
         "INSERT INTO dokumen \
@@ -854,14 +858,26 @@ pub async fn upload_document(
     .bind(auth.id)
     .bind(&kategori)
     .bind(&nama_file)
-    .bind(&uploaded.id)
+    .bind(&uploaded_id)
     .bind(&category_folder_id)
     .bind(&drive_url)
     .bind(ukuran)
     .bind(&mime)
     .execute(&state.database)
-    .await
-    .map_err(ApiError::database)?;
+    .await;
+    let result = match result {
+        Ok(result) => result,
+        Err(database_error) => {
+            if let Err(cleanup_error) = state.drive.delete_file(&uploaded_id).await {
+                tracing::error!(
+                    drive_file_id = %uploaded_id,
+                    error = %cleanup_error,
+                    "Gagal membersihkan file Drive setelah insert metadata gagal"
+                );
+            }
+            return Err(ApiError::database(database_error));
+        }
+    };
 
     // Jika upload dokumen dengan kategori "Kontrak", auto-update link_folder_berkas di lokasi bila belum terisi
     if kategori == "Kontrak" && store_lokasi_id.is_some() {
@@ -928,20 +944,21 @@ pub async fn delete_document(
     };
     assert_pelanggan_access(&state.database, auth.id, &auth.role, access_pelanggan_id).await?;
 
-    if let Some(file_id) = drive_file_id {
-        state
-            .drive
-            .delete_file(&file_id)
-            .await
-            .map_err(ApiError::drive)?;
-    }
-
+    let mut tx = state.database.begin().await.map_err(ApiError::database)?;
     sqlx::query("DELETE FROM dokumen WHERE id = ?")
         .bind(id)
-        .execute(&state.database)
+        .execute(&mut *tx)
         .await
         .map_err(ApiError::database)?;
 
+    if let Some(file_id) = drive_file_id
+        && let Err(error) = state.drive.delete_file(&file_id).await
+    {
+        tx.rollback().await.map_err(ApiError::database)?;
+        return Err(ApiError::drive(error));
+    }
+
+    tx.commit().await.map_err(ApiError::database)?;
     Ok(StatusCode::NO_CONTENT)
 }
 
