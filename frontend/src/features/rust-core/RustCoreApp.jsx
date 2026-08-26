@@ -15,6 +15,12 @@ import MonitoringKontrakPage from "../monitoring-kontrak/MonitoringKontrakPage";
 import KelolaPenggunaPage from "../kelola-pengguna/KelolaPenggunaPage";
 import TitikPetaPage from "../titik-peta/TitikPetaPage";
 import IspPortalPage from "../isp-portal/IspPortalPage";
+import InternalWorkflowDashboard from "../sop/InternalWorkflowDashboard";
+import PortalDashboard from "../sop/PortalDashboard";
+import PortalRegister from "../sop/PortalRegister";
+import Step4Survey from "../sop/Step4Survey";
+import Step5Proposal from "../sop/Step5Proposal";
+import Step6Presentasi from "../sop/Step6Presentasi";
 import { IconUsers } from "../../components/icons";
 
 // Menu icons
@@ -60,6 +66,7 @@ export default function RustCoreApp() {
       ? DEFAULT_ADMIN_PAGE
       : localStorage.getItem(PAGE_KEY) || DEFAULT_ADMIN_PAGE;
   });
+  const [workflowId, setWorkflowId] = useState(null); // For SOP workflow tracking
   const [sidebarHover, setSidebarHover] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
@@ -160,6 +167,21 @@ export default function RustCoreApp() {
     setSession(nextSession);
   };
 
+  // SOP Workflow handlers
+  const navigateToWorkflowStep = (wfId, step) => {
+    setWorkflowId(wfId);
+    setPage(`sop-step-${step}`);
+  };
+
+  // Kembali ke dashboard workflow sesuai peran setelah aksi step selesai/batal.
+  const backToWorkflowHome = () => {
+    setWorkflowId(null);
+    const role = session?.user?.role;
+    if (role === "teknisi") setPage("sop-survey");
+    else if (role === "isp" || role === "pelanggan") setPage("portal-dashboard");
+    else setPage("internal-workflow-dashboard");
+  };
+
   if (sessionStatus === "checking") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0c12] text-white">
@@ -195,7 +217,18 @@ export default function RustCoreApp() {
   const isAdmin = session.user?.role === "admin";
   const isTechnician = session.user?.role === "teknisi";
   const isIsp = session.user?.role === "isp";
-  const activePage = isTechnician ? "titik-peta" : isIsp && !page.startsWith("isp-") ? "isp-ringkasan" : page;
+
+  const technicianPages = ["titik-peta", "sop-survey"];
+  const ispPages = ["isp-ringkasan", "isp-kontrak", "isp-dokumen", "portal-dashboard", "portal-register"];
+
+  let activePage;
+  if (isTechnician) {
+    activePage = technicianPages.includes(page) ? page : "titik-peta";
+  } else if (isIsp) {
+    activePage = ispPages.includes(page) || page.startsWith("isp-") ? page : "isp-ringkasan";
+  } else {
+    activePage = page;
+  }
 
   const expanded = sidebarHover;
   const email = session.user?.email || "";
@@ -205,10 +238,10 @@ export default function RustCoreApp() {
 
 
   const sidebarMenu = isTechnician
-    ? [{ key: "titik-peta", label: "Titik Peta", icon: IconMapPin }]
+    ? [{ key: "titik-peta", label: "Titik Peta", icon: IconMapPin }, { key: "sop-survey", label: "Survey SOP", icon: IconFile }]
     : isAdmin
-    ? [...MENU, { key: "kelola-pengguna", label: "Kelola Pengguna", icon: IconUsers }, { key: "titik-peta", label: "Titik Peta", icon: IconMapPin }]
-    : [{ key: "isp-ringkasan", label: "Ringkasan", icon: IconDashboard }, { key: "isp-kontrak", label: "Kontrak & Lokasi", icon: IconKontrak }, { key: "isp-dokumen", label: "Dokumen", icon: IconFile }];
+    ? [...MENU, { key: "kelola-pengguna", label: "Kelola Pengguna", icon: IconUsers }, { key: "titik-peta", label: "Titik Peta", icon: IconMapPin }, { key: "internal-workflow-dashboard", label: "Workflow SOP", icon: IconFile }]
+    : [{ key: "isp-ringkasan", label: "Ringkasan", icon: IconDashboard }, { key: "isp-kontrak", label: "Kontrak & Lokasi", icon: IconKontrak }, { key: "isp-dokumen", label: "Dokumen", icon: IconFile }, { key: "portal-dashboard", label: "Permohonan SOP", icon: IconFile }, { key: "portal-register", label: "Ajukan Permohonan", icon: IconFile }];
 
   return (
     <main className="min-h-screen flex gap-4 text-white">
@@ -306,6 +339,48 @@ export default function RustCoreApp() {
           {activePage === "monitoring-kontrak" && <MonitoringKontrakPage session={session} />}
           {activePage === "kelola-pengguna" && <KelolaPenggunaPage session={session} />}
           {activePage === "titik-peta" && <TitikPetaPage session={session} />}
+
+          {/* SOP Workflow Pages */}
+          {activePage === "internal-workflow-dashboard" && (
+            <InternalWorkflowDashboard onNavigateStep={navigateToWorkflowStep} />
+          )}
+          {activePage === "sop-survey" && (
+            <InternalWorkflowDashboard onNavigateStep={navigateToWorkflowStep} />
+          )}
+          {activePage === "portal-dashboard" && (
+            <PortalDashboard onRegister={() => setPage("portal-register")} />
+          )}
+          {activePage === "portal-register" && (
+            <PortalRegister
+              onDone={() => setPage("portal-dashboard")}
+              onBackToLogin={() => setPage("portal-dashboard")}
+            />
+          )}
+          {workflowId && activePage === "sop-step-4" && (
+            <Step4Survey
+              workflowId={workflowId}
+              workflow={{ id: workflowId }}
+              onDone={backToWorkflowHome}
+              onBack={backToWorkflowHome}
+            />
+          )}
+          {workflowId && activePage === "sop-step-5" && (
+            <Step5Proposal
+              workflowId={workflowId}
+              workflow={{ id: workflowId }}
+              onDone={backToWorkflowHome}
+              onBack={backToWorkflowHome}
+            />
+          )}
+          {workflowId && activePage === "sop-step-6" && (
+            <Step6Presentasi
+              workflowId={workflowId}
+              workflow={{ id: workflowId }}
+              userRole={session.user?.role || "customer"}
+              onDone={backToWorkflowHome}
+              onBack={backToWorkflowHome}
+            />
+          )}
           {isIsp && activePage.startsWith("isp-") && <IspPortalPage session={session} page={activePage} />}
         </div>
       </div>
