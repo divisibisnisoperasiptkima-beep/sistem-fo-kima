@@ -5,7 +5,10 @@ import { createUser } from "../../lib/rust-api";
 const ROLE_OPTIONS = [
   { value: "admin", label: "Admin - Akses Penuh" },
   { value: "teknisi", label: "Teknisi - Operasional" },
-  { value: "isp", label: "ISP - Mitra" },
+  { value: "direksi", label: "Direksi - Persetujuan Kerja Sama" },
+  { value: "keuangan", label: "Keuangan - Invoice & Pembayaran" },
+  { value: "isp", label: "ISP - Mitra Penyedia Jaringan" },
+  { value: "pelanggan", label: "Pelanggan - Pengaju Layanan" },
 ];
 
 export default function AddUserModal({ isOpen, onClose, onSuccess, session }) {
@@ -140,7 +143,7 @@ export default function AddUserModal({ isOpen, onClose, onSuccess, session }) {
 
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-slate-300">
-                Password <span className="text-red-400">*</span>
+                {formData.role === "pelanggan" ? "Password sementara" : "Password"} <span className="text-red-400">*</span>
               </label>
               <input
                 type="password"
@@ -148,10 +151,11 @@ export default function AddUserModal({ isOpen, onClose, onSuccess, session }) {
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
-                placeholder="Minimal 6 karakter"
+                placeholder={formData.role === "pelanggan" ? "Password sementara, minimal 6 karakter" : "Minimal 6 karakter"}
                 className={inputClass("password")}
               />
               {errors.password && <p className="text-xs text-red-400">{errors.password}</p>}
+              {formData.role === "pelanggan" && <p className="text-xs leading-5 text-sky-200/75">Pelanggan wajib mengganti password ini saat login pertama.</p>}
             </div>
 
             <div className="space-y-1.5">

@@ -34,7 +34,7 @@ export default function DeleteUserModal({ isOpen, onClose, onSuccess, user, sess
     onClose();
   };
 
-  const roleLabels = { admin: "Admin", teknisi: "Teknisi", isp: "ISP" };
+  const roleLabels = { admin: "Admin KIMA", teknisi: "Teknisi", direksi: "Direksi", keuangan: "Keuangan", isp: "ISP", pelanggan: "Pelanggan" };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

@@ -64,6 +64,15 @@ const renderCapacity = (row) => {
   return value(row.jalur);
 };
 
+const renderMapPoint = (row) => {
+  if (row.latitude == null || row.longitude == null) return "—";
+  return (
+    <span className="whitespace-nowrap font-mono text-[11px] text-sky-200" title={`${row.latitude}, ${row.longitude}`}>
+      {Number(row.latitude).toFixed(6)}, {Number(row.longitude).toFixed(6)}
+    </span>
+  );
+};
+
 const renderSisaWaktu = (row) => {
   if (!row.periode_berakhir) return <span className="text-white/30">—</span>;
 
@@ -129,8 +138,21 @@ export const kontrakColumns = [
   { label: "No. Kontrak", render: (row) => value(row.nomor_kontrak) },
   { label: "Periode Awal", render: (row) => value(row.periode_awal) },
   { label: "Periode Berakhir", render: (row) => value(row.periode_berakhir) },
+  { label: "Tanggal Aktivasi", render: (row) => value(row.tanggal_aktivasi) },
   { label: "Durasi", render: (row) => (row.durasi_kontrak_bulan ? `${row.durasi_kontrak_bulan} Bln` : "—") },
   { label: "Kapasitas Core", render: renderCapacity },
+  { label: "Titik Peta", render: renderMapPoint },
+  { label: "Power", render: (row) => (row.power == null ? "—" : `${row.power} dBm`) },
+  { label: "VLAN", render: (row) => value(row.vlan_id) },
+  { label: "MAC Modem", render: (row) => value(row.mac_modem) },
+  {
+    label: "Alamat User",
+    render: (row) => (
+      <span className="block max-w-[240px] truncate" title={row.alamat_user || "—"}>
+        {value(row.alamat_user)}
+      </span>
+    ),
+  },
   { label: "Nilai Kontrak", render: (row) => <span className="font-semibold text-emerald-400">{formatRupiah(row.nilai_kontrak)}</span> },
   { label: "Biaya Aktivasi", render: (row) => formatRupiah(row.biaya_aktivasi) },
   { label: "Biaya / Bln", render: (row) => formatRupiah(row.perbulan) },
@@ -156,7 +178,7 @@ export const kontrakColumns = [
   {
     label: "Aksi",
     render: (row, _idx, extra = {}) => {
-      const { onEdit, onDelete, onExtend, onUpgrade } = extra || {};
+      const { onEdit, onDelete, onExtend, onUpgrade, onMap } = extra || {};
       if (!ActionButtons) return "—";
       return (
         <ActionButtons
@@ -165,6 +187,7 @@ export const kontrakColumns = [
           onDelete={onDelete}
           onExtend={onExtend}
           onUpgrade={onUpgrade}
+          onMap={onMap}
         />
       );
     },

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, RefreshCw, File, Paperclip, Upload } from "lucide-react";
-import { createContract, getNextKontrakCode, listCustomers, uploadDocument } from "../../lib/rust-api";
-import { coreInputError } from "./coreUtils";
+import { createContract, getNextKontrakCode, listCustomers, listPortalRegistrations, uploadDocument } from "../../lib/rust-api";
+import { coreInputError, SHARING_CORE_OPTIONS } from "./coreUtils";
 
 const STATUS_OPTIONS = [
   "Beroperasi",
@@ -12,13 +12,14 @@ const STATUS_OPTIONS = [
   "Berhenti",
 ];
 
-const SHARING_CORE_OPTIONS = ["1/2", "1/4", "1/8", "1/16", "1/32"];
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
 export default function AddKontrakModal({ isOpen, onClose, onSuccess, session }) {
   const [pelangganList, setPelangganList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pelangganLoading, setPelangganLoading] = useState(true);
+  const [registrationList, setRegistrationList] = useState([]);
+  const [registrationLoading, setRegistrationLoading] = useState(true);
   const [fetchingCode, setFetchingCode] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -35,10 +36,18 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
 
   const [formData, setFormData] = useState({
     pelanggan_id: "",
+    portal_registration_id: "",
     kode_kontrak: "",
     nama_lokasi: "",
     periode_awal: "",
     periode_berakhir: "",
+    tanggal_aktivasi: "",
+    latitude: "",
+    longitude: "",
+    power: "",
+    vlan_id: "",
+    mac_modem: "",
+    alamat_user: "",
     durasi_kontrak_bulan: "",
     kategori: "",
     core: "",
@@ -57,6 +66,7 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
   useEffect(() => {
     if (isOpen) {
       fetchPelanggan();
+      fetchReadyRegistrations();
       fetchNextCode();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,7 +75,7 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
   const fetchPelanggan = async () => {
     setPelangganLoading(true);
     try {
-      const data = await listCustomers(session.token);
+      const data = await listCustomers(session.token, 1, 200);
       const rows = Array.isArray(data) ? data : data?.data || data?.items || [];
       setPelangganList(rows);
     } catch (err) {
@@ -73,6 +83,25 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
       setError("Gagal memuat daftar pelanggan");
     } finally {
       setPelangganLoading(false);
+    }
+  };
+
+  const fetchReadyRegistrations = async () => {
+    setRegistrationLoading(true);
+    try {
+      const data = await listPortalRegistrations(session.token);
+      const rows = Array.isArray(data) ? data : data?.data || data?.items || [];
+      setRegistrationList(rows.filter((row) => (
+        row.status === "disetujui"
+        && row.pembayaran_status === "terverifikasi"
+        && !row.lokasi_id
+        && row.pelanggan_id
+      )));
+    } catch (err) {
+      console.error("Failed to fetch completed service requests:", err);
+      setRegistrationList([]);
+    } finally {
+      setRegistrationLoading(false);
     }
   };
 
@@ -110,6 +139,16 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
     const { name, value } = e.target;
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
+
+      if (name === "portal_registration_id") {
+        const registration = registrationList.find((row) => String(row.id) === value);
+        if (registration) {
+          newData.pelanggan_id = String(registration.pelanggan_id);
+          newData.nama_lokasi = registration.lokasi_nama || "";
+          newData.core = registration.core_dedicated > 0 ? String(registration.core_dedicated) : "";
+          newData.sharing_core = registration.core_dedicated > 0 ? "" : (registration.sharing_core || "");
+        }
+      }
 
       // Two-way binding & mutual exclusivity logic
       if (name === "core" && value.trim() !== "") {
@@ -176,6 +215,21 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
         newErrors.periode_berakhir = "Periode berakhir harus setelah periode awal";
       }
     }
+    if (formData.latitude !== "" && (Number.isNaN(Number(formData.latitude)) || Number(formData.latitude) < -90 || Number(formData.latitude) > 90)) {
+      newErrors.latitude = "Latitude harus berada di antara -90 dan 90";
+    }
+    if (formData.longitude !== "" && (Number.isNaN(Number(formData.longitude)) || Number(formData.longitude) < -180 || Number(formData.longitude) > 180)) {
+      newErrors.longitude = "Longitude harus berada di antara -180 dan 180";
+    }
+    if (formData.power !== "" && (Number.isNaN(Number(formData.power)) || Number(formData.power) < -200 || Number(formData.power) > 200)) {
+      newErrors.power = "Power harus berada di antara -200 dan 200 dBm";
+    }
+    if (formData.vlan_id !== "" && (!/^\d+$/.test(formData.vlan_id) || Number(formData.vlan_id) < 1 || Number(formData.vlan_id) > 4094)) {
+      newErrors.vlan_id = "VLAN ID harus berada di antara 1 dan 4094";
+    }
+    if (formData.mac_modem.trim() !== "" && !/^(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}$/.test(formData.mac_modem.trim()) && !/^[0-9a-fA-F]{12}$/.test(formData.mac_modem.trim())) {
+      newErrors.mac_modem = "Gunakan format AA:BB:CC:DD:EE:FF";
+    }
     if (!formData.sharing_core) {
       const coreError = coreInputError(formData.core);
       if (coreError) newErrors.core = coreError;
@@ -210,11 +264,16 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
 
       // Parse numeric fields
       if (payload.pelanggan_id) payload.pelanggan_id = parseInt(payload.pelanggan_id, 10);
+      if (payload.portal_registration_id) payload.portal_registration_id = parseInt(payload.portal_registration_id, 10);
       if (payload.nilai_kontrak) payload.nilai_kontrak = parseFloat(payload.nilai_kontrak);
       if (payload.biaya_aktivasi) payload.biaya_aktivasi = parseFloat(payload.biaya_aktivasi);
       if (payload.perbulan) payload.perbulan = parseFloat(payload.perbulan);
       if (payload.nilai_periode_aktif) payload.nilai_periode_aktif = parseFloat(payload.nilai_periode_aktif);
       if (payload.durasi_kontrak_bulan) payload.durasi_kontrak_bulan = parseInt(payload.durasi_kontrak_bulan, 10);
+      if (payload.latitude) payload.latitude = parseFloat(payload.latitude);
+      if (payload.longitude) payload.longitude = parseFloat(payload.longitude);
+      if (payload.power) payload.power = parseFloat(payload.power);
+      if (payload.vlan_id) payload.vlan_id = parseInt(payload.vlan_id, 10);
 
       const contractResult = await createContract(session.token, payload);
 
@@ -256,10 +315,18 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
     // Reset form
     setFormData({
       pelanggan_id: "",
+      portal_registration_id: "",
       kode_kontrak: "",
       nama_lokasi: "",
       periode_awal: "",
       periode_berakhir: "",
+      tanggal_aktivasi: "",
+      latitude: "",
+      longitude: "",
+      power: "",
+      vlan_id: "",
+      mac_modem: "",
+      alamat_user: "",
       durasi_kontrak_bulan: "",
       kategori: "",
       core: "",
@@ -332,6 +399,33 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
                 Informasi Utama
               </h3>
 
+              {/* Optional link to a completed portal request */}
+              <div className="space-y-1.5 rounded-xl border border-sky-400/20 bg-sky-400/5 p-4">
+                <label className="block text-sm font-medium text-sky-100">
+                  Tautkan permohonan selesai <span className="text-xs font-normal text-white/45">(opsional)</span>
+                </label>
+                <select
+                  name="portal_registration_id"
+                  value={formData.portal_registration_id}
+                  onChange={handleChange}
+                  disabled={registrationLoading || loading}
+                  className="w-full rounded-lg border border-sky-300/25 bg-slate-900/70 px-4 py-2.5 text-white focus:border-sky-300/60 focus:outline-none focus:ring-2 focus:ring-sky-300/30 disabled:opacity-50"
+                >
+                  <option value="">Kontrak manual tanpa permohonan portal</option>
+                  {registrationList.map((registration) => (
+                    <option key={registration.id} value={registration.id}>
+                      {registration.kode_registrasi} · {registration.lokasi_nama} · {registration.nama_perusahaan}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] leading-5 text-white/50">
+                  Hanya permohonan dengan pembayaran terverifikasi yang dapat ditautkan. Data ISP, lokasi, dan core akan diisi sebagai titik awal dan tetap dapat dikonfirmasi sebelum disimpan.
+                </p>
+                {!registrationLoading && registrationList.length === 0 && (
+                  <p className="text-[11px] font-semibold text-amber-200/80">Belum ada permohonan selesai yang menunggu pencatatan kontrak.</p>
+                )}
+              </div>
+
               {/* Kode Kontrak (Readonly) */}
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-slate-300">
@@ -360,18 +454,18 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
               {/* Pelanggan Dropdown */}
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-slate-300">
-                  Pelanggan <span className="text-red-400">*</span>
+                  Pelanggan (ISP) <span className="text-red-400">*</span>
                 </label>
                 <select
                   name="pelanggan_id"
                   value={formData.pelanggan_id}
                   onChange={handleChange}
-                  disabled={pelangganLoading || loading}
+                  disabled={pelangganLoading || loading || Boolean(formData.portal_registration_id)}
                   className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all disabled:opacity-50 ${
                     errors.pelanggan_id ? "border-red-500" : "border-slate-600"
                   }`}
                 >
-                  <option value="">Pilih Pelanggan</option>
+                  <option value="">Pilih Pelanggan (ISP)</option>
                   {pelangganList.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.nama_perusahaan || p.nama_pelanggan || p.nama}
@@ -469,6 +563,122 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
                   {errors.periode_berakhir && (
                     <p className="text-xs text-red-400">{errors.periode_berakhir}</p>
                   )}
+                </div>
+              </div>
+            </div>
+
+            {/* Section: Detail Teknis */}
+            <div className="space-y-4 rounded-xl border border-sky-400/15 bg-sky-400/[0.03] p-4">
+              <div>
+                <h3 className="text-sm font-medium uppercase tracking-wide text-slate-300">
+                  Detail Teknis & Lokasi
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  Opsional. Lengkapi saat data aktivasi dan instalasi sudah tersedia.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Tanggal Aktivasi</label>
+                  <input
+                    type="date"
+                    name="tanggal_aktivasi"
+                    value={formData.tanggal_aktivasi}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Power <span className="text-xs font-normal text-slate-500">(dBm)</span></label>
+                  <input
+                    type="number"
+                    name="power"
+                    value={formData.power}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="-200"
+                    max="200"
+                    step="0.01"
+                    placeholder="Contoh: -18.50"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.power && <p className="text-xs text-red-400">{errors.power}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Latitude</label>
+                  <input
+                    type="number"
+                    name="latitude"
+                    value={formData.latitude}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="-90"
+                    max="90"
+                    step="0.0000001"
+                    placeholder="Contoh: -5.1234567"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.latitude && <p className="text-xs text-red-400">{errors.latitude}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Longitude</label>
+                  <input
+                    type="number"
+                    name="longitude"
+                    value={formData.longitude}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="-180"
+                    max="180"
+                    step="0.0000001"
+                    placeholder="Contoh: 119.4123456"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.longitude && <p className="text-xs text-red-400">{errors.longitude}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">VLAN ID</label>
+                  <input
+                    type="number"
+                    name="vlan_id"
+                    value={formData.vlan_id}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="1"
+                    max="4094"
+                    step="1"
+                    placeholder="1–4094"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.vlan_id && <p className="text-xs text-red-400">{errors.vlan_id}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">MAC Modem</label>
+                  <input
+                    type="text"
+                    name="mac_modem"
+                    value={formData.mac_modem}
+                    onChange={handleChange}
+                    disabled={loading}
+                    maxLength={17}
+                    placeholder="AA:BB:CC:DD:EE:FF"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.mac_modem && <p className="text-xs text-red-400">{errors.mac_modem}</p>}
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="block text-sm font-medium text-slate-300">Alamat User</label>
+                  <textarea
+                    name="alamat_user"
+                    value={formData.alamat_user}
+                    onChange={handleChange}
+                    disabled={loading}
+                    rows={2}
+                    placeholder="Alamat titik pemasangan/perangkat user"
+                    className="w-full resize-y rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
                 </div>
               </div>
             </div>

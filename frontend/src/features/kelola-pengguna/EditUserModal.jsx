@@ -5,7 +5,9 @@ import { listCustomers, listUserPelangganAccess, rowsFrom, updateUser, updateUse
 const ROLE_OPTIONS = [
   { value: "admin", label: "Admin - Akses Penuh" },
   { value: "teknisi", label: "Teknisi - Operasional" },
-  { value: "isp", label: "ISP - Mitra" },
+  { value: "direksi", label: "Direksi - Persetujuan Kerja Sama" },
+  { value: "keuangan", label: "Keuangan - Invoice & Pembayaran" },
+  { value: "isp", label: "ISP - Mitra Penyedia Jaringan" },
 ];
 
 export default function EditUserModal({ isOpen, onClose, onSuccess, user, session }) {
@@ -180,7 +182,7 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user, sessio
               <div className="space-y-2 rounded-lg border border-slate-700 bg-slate-800/50 p-4">
                 <div>
                   <p className="text-sm font-medium text-slate-200">Pelanggan yang dapat diakses</p>
-                  <p className="mt-1 text-xs text-slate-400">ISP hanya dapat melihat dan mengunggah dokumen untuk pelanggan yang dipilih.</p>
+                  <p className="mt-1 text-xs text-slate-400">Akun ini hanya dapat melihat dan mengunggah dokumen untuk pelanggan yang dipilih.</p>
                 </div>
                 <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
                   {customers.map((customer) => (

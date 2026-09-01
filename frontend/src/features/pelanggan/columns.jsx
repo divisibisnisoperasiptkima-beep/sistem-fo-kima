@@ -14,7 +14,7 @@ export const setActionButtonsComponent = (component) => {
 export const pelangganColumns = [
   { label: "No", render: (_row, idx) => (idx ?? 0) + 1 },
   { label: "Kode", render: (row) => value(row.kode_pelanggan) },
-  { label: "Nama Pelanggan", render: (row) => value(row.nama_pelanggan) },
+  { label: "Nama Pelanggan (ISP)", render: (row) => value(row.nama_pelanggan) },
   { label: "PIC", render: (row) => value(row.pic) },
   { label: "Telepon", render: (row) => value(row.telepon) },
   { label: "Email", render: (row) => value(row.email) },

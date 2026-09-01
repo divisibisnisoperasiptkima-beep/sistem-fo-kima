@@ -96,9 +96,14 @@ impl DriveClient {
         let root_folder_id = std::env::var("PELANGGAN_ROOT_FOLDER_ID")
             .map_err(|_| "PELANGGAN_ROOT_FOLDER_ID wajib diatur pada backend/.env".to_owned())?;
         let link_sharing = crate::util::optional_env_bool("GOOGLE_DRIVE_LINK_SHARING", false);
+        // Upload dokumen dapat berjalan lambat pada koneksi kantor. Beri waktu
+        // yang cukup untuk transfer ke Drive, tetapi tetap izinkan override
+        // melalui GOOGLE_DRIVE_TIMEOUT_SECS untuk deployment tertentu.
+        let drive_timeout_secs =
+            crate::util::optional_env_u64("GOOGLE_DRIVE_TIMEOUT_SECS", 5 * 60).max(30);
 
         let http = Client::builder()
-            .timeout(Duration::from_secs(30))
+            .timeout(Duration::from_secs(drive_timeout_secs))
             .connect_timeout(Duration::from_secs(10))
             .build()
             .map_err(|e| format!("Gagal membuat HTTP client: {e}"))?;
@@ -237,6 +242,79 @@ impl DriveClient {
     ) -> Result<DriveFile, DriveError> {
         self.upload_file_with_client(&self.http, parent_id, name, mime_type, bytes)
             .await
+    }
+
+    /// Unggah DOCX sebagai Google Docs agar Drive dapat mengonversinya
+    /// dengan layout template yang sama saat diekspor menjadi PDF.
+    pub async fn upload_docx_for_pdf_conversion(
+        &self,
+        parent_id: &str,
+        name: &str,
+        bytes: Vec<u8>,
+    ) -> Result<DriveFile, DriveError> {
+        let token = self.access_token().await?;
+        let metadata = json!({
+            "name": name.trim_end_matches(".docx"),
+            "parents": [parent_id],
+            "mimeType": "application/vnd.google-apps.document",
+        });
+        let metadata_part = reqwest::multipart::Part::bytes(metadata.to_string().into_bytes())
+            .mime_str("application/json; charset=UTF-8")
+            .map_err(|e| DriveError::Message(e.to_string()))?;
+        let file_part = reqwest::multipart::Part::bytes(bytes)
+            .file_name(name.to_owned())
+            .mime_str("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            .map_err(|e| DriveError::Message(e.to_string()))?;
+        let form = reqwest::multipart::Form::new()
+            .part("metadata", metadata_part)
+            .part("file", file_part);
+        let response = self
+            .http
+            .post("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,webViewLink,size&supportsAllDrives=true")
+            .bearer_auth(&token)
+            .multipart(form)
+            .send()
+            .await?;
+        if !response.status().is_success() {
+            let status = response.status();
+            return Err(DriveError::Message(format!(
+                "Gagal mengunggah template BAA untuk konversi PDF: HTTP {status}"
+            )));
+        }
+        let file: DriveFileMeta = response.json().await?;
+        Ok(DriveFile {
+            id: file.id,
+            name: file.name.unwrap_or_default(),
+            mime_type: file.mime_type,
+            size: file.size.and_then(|size| size.parse().ok()),
+            web_view_link: file.web_view_link,
+        })
+    }
+
+    /// Ekspor Google Docs menjadi PDF melalui Drive API.
+    pub async fn export_file_content(
+        &self,
+        file_id: &str,
+        mime_type: &str,
+    ) -> Result<Vec<u8>, DriveError> {
+        let token = self.access_token().await?;
+        let encoded_file_id = urlencoding::encode(file_id);
+        let encoded_mime_type = urlencoding::encode(mime_type);
+        let response = self
+            .http
+            .get(format!(
+                "https://www.googleapis.com/drive/v3/files/{encoded_file_id}/export?mimeType={encoded_mime_type}"
+            ))
+            .bearer_auth(&token)
+            .send()
+            .await?;
+        if !response.status().is_success() {
+            let status = response.status();
+            return Err(DriveError::Message(format!(
+                "Gagal mengekspor dokumen BAA menjadi PDF: HTTP {status}"
+            )));
+        }
+        Ok(response.bytes().await?.to_vec())
     }
 
     pub async fn upload_backup_file(

@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, ArrowUp, File, Paperclip, Calculator } from "lucide-react";
 import { upgradeContract, getNextKontrakCode, uploadDocument } from "../../lib/rust-api";
-import { coreInputError, coreInputValue } from "./coreUtils";
+import { coreInputError, coreInputValue, SHARING_CORE_OPTIONS } from "./coreUtils";
 
-const SHARING_CORE_OPTIONS = ["1/2", "1/4", "1/8", "1/16", "1/32"];
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
 function nextDateInput(value) {

@@ -168,7 +168,7 @@ export default function AddPelangganModal({ isOpen, onClose, onSuccess, session 
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div>
             <h2 className="text-xl font-semibold text-white">Tambah Pelanggan Baru</h2>
-            <p className="text-sm text-slate-400 mt-0.5">Lengkapi informasi pelanggan</p>
+            <p className="text-sm text-slate-400 mt-0.5">Lengkapi informasi pelanggan (ISP)</p>
           </div>
           <button
             onClick={handleClose}
@@ -199,7 +199,7 @@ export default function AddPelangganModal({ isOpen, onClose, onSuccess, session 
             {/* Nama Pelanggan */}
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-slate-300">
-                Nama Pelanggan <span className="text-red-400">*</span>
+                Nama Pelanggan (ISP) <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -219,7 +219,7 @@ export default function AddPelangganModal({ isOpen, onClose, onSuccess, session 
 
             {/* Kode Pelanggan */}
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-slate-300">Kode Pelanggan</label>
+              <label className="block text-sm font-medium text-slate-300">Kode Pelanggan (ISP)</label>
               <div className="flex items-center gap-2">
                 <input
                   type="text"

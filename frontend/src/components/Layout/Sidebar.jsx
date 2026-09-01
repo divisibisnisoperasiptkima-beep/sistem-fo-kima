@@ -35,21 +35,25 @@ function Sidebar({ currentPage, onNavigate }) {
       <nav className="flex-1 space-y-2 px-2 pb-4 overflow-y-auto">
         {MENU_ITEMS.map((item) => {
           const active = currentPage === item.key;
+          const isLong = item.label.length >= 14;
           const Icon = item.icon;
           return (
             <button
               key={item.key}
               onClick={() => onNavigate(item.key)}
               title={!expanded ? item.label : ""}
-              className={`flex w-full items-center rounded-lg transition-all duration-300 ${
+              className={`sidebar-menu-item group flex w-full items-center rounded-lg transition-all duration-300 ${
                 expanded ? "gap-3 px-3 py-2" : "justify-center py-2"
               } ${
                 active ? "text-gold-accent bg-gold-accent/10" : "text-slate-400 hover:text-white hover:bg-white/5"
               }`}
             >
               <span className="shrink-0"><Icon /></span>
-              <span className={`overflow-hidden whitespace-nowrap text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${expanded ? "max-w-28 opacity-100" : "max-w-0 opacity-0"}`}>
-                {item.label}
+              <span className={`sidebar-menu-label-viewport min-w-0 overflow-hidden whitespace-nowrap text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${expanded ? "max-w-28 flex-1 opacity-100" : "max-w-0 opacity-0"}`}>
+                <span className={`sidebar-menu-label-track ${isLong ? "sidebar-menu-label-track--long" : ""}`}>
+                  <span className="sidebar-menu-label-copy">{item.label}</span>
+                  {isLong && <span className="sidebar-menu-label-copy" aria-hidden="true">{item.label}</span>}
+                </span>
               </span>
             </button>
           );

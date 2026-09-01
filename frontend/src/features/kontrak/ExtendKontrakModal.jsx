@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, CalendarPlus, File, Paperclip } from "lucide-react";
 import { extendContract, getNextKontrakCode, uploadDocument } from "../../lib/rust-api";
-import { coreInputError, coreInputValue } from "./coreUtils";
+import { coreInputError, coreInputValue, SHARING_CORE_OPTIONS } from "./coreUtils";
 
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
@@ -397,11 +397,11 @@ export default function ExtendKontrakModal({ isOpen, onClose, onSuccess, contrac
                     }`}
                   >
                     <option value="">Tidak Ada (Direct Core)</option>
-                    <option value="1/2">1/2</option>
-                    <option value="1/4">1/4</option>
-                    <option value="1/8">1/8</option>
-                    <option value="1/16">1/16</option>
-                    <option value="1/32">1/32</option>
+                    {SHARING_CORE_OPTIONS.map((share) => (
+                      <option key={share} value={share}>
+                        {share}
+                      </option>
+                    ))}
                   </select>
                   {formData.core.trim() && (
                     <p className="text-xs text-slate-500">Nonaktif (Core manual diisi)</p>

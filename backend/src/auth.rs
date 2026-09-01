@@ -34,7 +34,7 @@ fn blocks_pending_password_change(must_change_password: bool, path: &str) -> boo
     must_change_password && path != CHANGE_PASSWORD_PATH
 }
 
-fn issue_session(
+pub(crate) fn issue_session(
     state: &AppState,
     user: SessionUser,
     session_version: u64,
@@ -64,6 +64,64 @@ fn issue_session(
         user,
         must_change_password,
     })
+}
+
+/// Akses cepat hanya tersedia pada binary debug (`cargo run`). Endpoint ini
+/// tidak ikut dikompilasi pada build release sehingga tidak dapat digunakan di
+/// lingkungan produksi.
+#[cfg(debug_assertions)]
+pub async fn dev_access(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path(role): axum::extract::Path<String>,
+) -> Result<Json<LoginResponse>, ApiError> {
+    if !matches!(
+        role.as_str(),
+        "admin" | "teknisi" | "direksi" | "keuangan" | "isp" | "pelanggan"
+    ) {
+        return Err(ApiError::bad_request("Role dev tidak dikenali."));
+    }
+
+    let email = format!("dev.{role}@local.test");
+    let row =
+        sqlx::query("SELECT id, email, role, session_version FROM users WHERE email = ? LIMIT 1")
+            .bind(&email)
+            .fetch_optional(&state.database)
+            .await
+            .map_err(ApiError::database)?;
+
+    let (id, user_email, user_role, session_version) = if let Some(row) = row {
+        (
+            row.try_get("id").map_err(ApiError::database)?,
+            row.try_get("email").map_err(ApiError::database)?,
+            row.try_get("role").map_err(ApiError::database)?,
+            row.try_get("session_version").map_err(ApiError::database)?,
+        )
+    } else {
+        let password_hash = hash_password(&format!("local-debug-{role}"))?;
+        let result = sqlx::query(
+            "INSERT INTO users (email, password_hash, role, is_active, must_change_password) VALUES (?, ?, ?, 1, 0)",
+        )
+        .bind(&email)
+        .bind(password_hash)
+        .bind(&role)
+        .execute(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+        (result.last_insert_id(), email, role, 0_u64)
+    };
+
+    let user = SessionUser {
+        id,
+        email: user_email,
+        role: user_role,
+    };
+    let response = issue_session(&state, user, session_version, false)?;
+    sqlx::query("UPDATE users SET last_login_at = NOW(), failed_login_attempts = 0, locked_until = NULL WHERE id = ?")
+        .bind(response.user.id)
+        .execute(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+    Ok(Json(response))
 }
 
 pub async fn login(
@@ -215,7 +273,10 @@ pub async fn require_auth(
     .map_err(|_| ApiError::unauthorized("Token tidak valid atau sudah kedaluwarsa."))?
     .claims;
 
-    if !matches!(claims.role.as_str(), "admin" | "teknisi" | "isp") {
+    if !matches!(
+        claims.role.as_str(),
+        "admin" | "teknisi" | "isp" | "pelanggan" | "dbo" | "legal" | "direksi" | "keuangan"
+    ) {
         return Err(ApiError::forbidden("Role pengguna tidak diizinkan."));
     }
 

@@ -69,7 +69,7 @@ export default function DeletePelangganModal({ isOpen, onClose, onSuccess, custo
             <div>
               <p className="text-sm text-amber-200 font-medium">Tindakan ini tidak dapat dibatalkan</p>
               <p className="text-sm text-amber-400/80 mt-1">
-                Folder dan data pelanggan akan dihapus secara permanen.
+                Folder dan data pelanggan (ISP) akan dihapus secara permanen.
               </p>
             </div>
           </div>

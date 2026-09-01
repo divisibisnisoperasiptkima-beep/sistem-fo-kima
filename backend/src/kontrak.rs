@@ -175,6 +175,89 @@ fn normalize_sharing_core(value: Option<String>) -> Result<Option<String>, ApiEr
     Ok(sharing)
 }
 
+fn normalize_optional_date(
+    value: Option<String>,
+    field_name: &str,
+) -> Result<Option<String>, ApiError> {
+    let Some(value) = trim_opt(value) else {
+        return Ok(None);
+    };
+    Ok(Some(
+        parse_date(&value)
+            .map_err(|_| {
+                ApiError::bad_request(format!("{field_name} harus menggunakan format YYYY-MM-DD."))
+            })?
+            .format("%Y-%m-%d")
+            .to_string(),
+    ))
+}
+
+fn validate_coordinate(
+    value: Option<f64>,
+    field_name: &str,
+    min: f64,
+    max: f64,
+) -> Result<(), ApiError> {
+    if let Some(value) = value
+        && (!value.is_finite() || !(min..=max).contains(&value))
+    {
+        return Err(ApiError::bad_request(format!(
+            "{field_name} harus berada di antara {min} dan {max}."
+        )));
+    }
+    Ok(())
+}
+
+fn normalize_power(value: Option<f64>) -> Result<Option<f64>, ApiError> {
+    if let Some(value) = value {
+        if !value.is_finite() || !(-200.0..=200.0).contains(&value) {
+            return Err(ApiError::bad_request(
+                "Power harus berupa angka dBm yang valid (antara -200 dan 200).",
+            ));
+        }
+        return Ok(Some(value));
+    }
+    Ok(None)
+}
+
+fn normalize_vlan(value: Option<u32>) -> Result<Option<u32>, ApiError> {
+    if let Some(value) = value {
+        if !(1..=4094).contains(&value) {
+            return Err(ApiError::bad_request(
+                "VLAN ID harus berada di antara 1 dan 4094.",
+            ));
+        }
+        return Ok(Some(value));
+    }
+    Ok(None)
+}
+
+fn normalize_mac(value: Option<String>) -> Result<Option<String>, ApiError> {
+    let Some(value) = trim_opt(value) else {
+        return Ok(None);
+    };
+    let compact: String = value
+        .chars()
+        .filter(|character| *character != ':' && *character != '-')
+        .collect();
+    if compact.len() != 12
+        || !compact
+            .chars()
+            .all(|character| character.is_ascii_hexdigit())
+    {
+        return Err(ApiError::bad_request(
+            "MAC modem harus terdiri dari 12 digit heksadesimal, contoh AA:BB:CC:DD:EE:FF.",
+        ));
+    }
+    let normalized = compact
+        .as_bytes()
+        .chunks(2)
+        .map(|chunk| String::from_utf8_lossy(chunk).to_ascii_uppercase())
+        .collect::<Vec<_>>()
+        .join(":");
+    Ok(Some(normalized))
+}
+
 fn normalize_core_selection(
     core: Option<String>,
     sharing_core: Option<String>,
@@ -244,13 +327,93 @@ pub async fn list_contracts(
     };
 
     let (page, page_size, offset) = pagination(query);
+
+    // Akun pengaju layanan adalah akun Lokasi/Tenant, bukan akun master ISP.
+    // Karena itu portal tenant membaca kontrak melalui registration.lokasi_id,
+    // bukan melalui ACL `user_pelanggan_access` yang memang khusus akun ISP.
+    if auth.role == "pelanggan" {
+        let mut clauses = vec![
+            "EXISTS (SELECT 1 FROM portal_registrations pr WHERE pr.user_id = ? AND pr.lokasi_id = l.id)".to_owned(),
+        ];
+        if has_search {
+            clauses.push("(p.nama_pelanggan LIKE ? OR l.no_kontrak LIKE ? OR l.nama_lokasi LIKE ? OR l.kode_kontrak LIKE ?)".to_owned());
+        }
+        if has_status {
+            clauses.push(status_in_clause.clone());
+        }
+        if active_only {
+            clauses.push("((l.periode_awal <= CURDATE() AND l.periode_berakhir >= CURDATE()) OR l.status_kontrak = 'Proses Perpanjangan')".to_owned());
+        }
+        let where_clause = clauses.join(" AND ");
+        let total_sql = format!(
+            "SELECT COUNT(*) FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id WHERE {}",
+            where_clause
+        );
+        let mut total_query = sqlx::query_scalar::<_, i64>(&total_sql).bind(auth.id);
+        if has_search {
+            for _ in 0..4 {
+                total_query = total_query.bind(&search_pattern);
+            }
+        }
+        for status in &status_list {
+            total_query = total_query.bind(status);
+        }
+        let total = total_query
+            .fetch_one(&state.database)
+            .await
+            .map_err(ApiError::database)?;
+
+        let rows_sql = format!(
+            "SELECT l.id, l.kode_kontrak, l.no_kontrak AS nomor_kontrak, l.pelanggan_id,
+                    p.nama_pelanggan, l.nama_lokasi, l.status_kontrak,
+                    CAST(l.periode_awal AS CHAR) AS periode_awal,
+                    CAST(l.periode_berakhir AS CHAR) AS periode_berakhir,
+                    DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi,
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude,
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude,
+                    CAST(l.power AS DOUBLE) AS power,
+                    l.vlan_id, l.mac_modem, l.alamat_user,
+                    l.kategori AS jalur, l.link_folder_berkas,
+                    l.core, l.sharing_core, l.durasi_kontrak_bulan,
+                    CAST(l.nilai_kontrak AS DOUBLE) AS nilai_kontrak,
+                    CAST(l.biaya_aktivasi AS DOUBLE) AS biaya_aktivasi,
+                    CAST(l.perbulan AS DOUBLE) AS perbulan,
+                    CAST(l.nilai_periode_aktif AS DOUBLE) AS nilai_periode_aktif
+             FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id
+             WHERE {} ORDER BY {} LIMIT ? OFFSET ?",
+            where_clause, order_clause
+        );
+        let mut rows_query = sqlx::query(&rows_sql).bind(auth.id);
+        if has_search {
+            for _ in 0..4 {
+                rows_query = rows_query.bind(&search_pattern);
+            }
+        }
+        for status in &status_list {
+            rows_query = rows_query.bind(status);
+        }
+        let rows = rows_query
+            .bind(page_size)
+            .bind(offset)
+            .fetch_all(&state.database)
+            .await
+            .map_err(ApiError::database)?;
+        let data = rows.into_iter().map(map_contract_row).collect();
+        return Ok(Json(Page {
+            data,
+            total: total.max(0) as u64,
+            page,
+            page_size,
+        }));
+    }
+
     let total: i64 = if has_search {
         if has_status {
             {
                 let sql = format!(
                     "SELECT COUNT(*) FROM lokasi l \
                      JOIN pelanggan p ON p.id = l.pelanggan_id \
-                     WHERE (? <> 'isp' OR EXISTS ( \
+                     WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                        SELECT 1 FROM user_pelanggan_access a \
                        WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
                      )) AND ( \
@@ -277,7 +440,7 @@ pub async fn list_contracts(
             let sql = format!(
                 "SELECT COUNT(*) FROM lokasi l \
                  JOIN pelanggan p ON p.id = l.pelanggan_id \
-                 WHERE (? <> 'isp' OR EXISTS ( \
+                 WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                    SELECT 1 FROM user_pelanggan_access a \
                    WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
                  )) AND ( \
@@ -302,7 +465,7 @@ pub async fn list_contracts(
         let sql = format!(
             "SELECT COUNT(*) FROM lokasi l \
              JOIN pelanggan p ON p.id = l.pelanggan_id \
-             WHERE (? <> 'isp' OR EXISTS ( \
+             WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
               )) AND {} {}",
@@ -316,7 +479,7 @@ pub async fn list_contracts(
     } else {
         let sql = format!(
             "SELECT COUNT(*) FROM lokasi l \
-             WHERE (? <> 'isp' OR EXISTS ( \
+             WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
              )){}",
@@ -338,6 +501,10 @@ pub async fn list_contracts(
                             p.nama_pelanggan, l.nama_lokasi, l.status_kontrak, \
                             CAST(l.periode_awal AS CHAR) AS periode_awal, \
                             CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
+                            DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
+                            COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                            COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                            CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                             l.kategori AS jalur, l.link_folder_berkas, \
                             l.core, l.sharing_core, l.durasi_kontrak_bulan, \
                             CAST(l.nilai_kontrak AS DOUBLE) AS nilai_kontrak, \
@@ -345,7 +512,7 @@ pub async fn list_contracts(
                             CAST(l.perbulan AS DOUBLE) AS perbulan, \
                             CAST(l.nilai_periode_aktif AS DOUBLE) AS nilai_periode_aktif \
                      FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id \
-                     WHERE (? <> 'isp' OR EXISTS ( \
+                     WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                        SELECT 1 FROM user_pelanggan_access a \
                        WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
                      )) AND ( \
@@ -379,6 +546,10 @@ pub async fn list_contracts(
                         p.nama_pelanggan, l.nama_lokasi, l.status_kontrak, \
                         CAST(l.periode_awal AS CHAR) AS periode_awal, \
                         CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
+                        DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
+                        COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                        COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                        CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                         l.kategori AS jalur, l.link_folder_berkas, \
                         l.core, l.sharing_core, l.durasi_kontrak_bulan, \
                         CAST(l.nilai_kontrak AS DOUBLE) AS nilai_kontrak, \
@@ -386,7 +557,7 @@ pub async fn list_contracts(
                         CAST(l.perbulan AS DOUBLE) AS perbulan, \
                         CAST(l.nilai_periode_aktif AS DOUBLE) AS nilai_periode_aktif \
                  FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id \
-                 WHERE (? <> 'isp' OR EXISTS ( \
+                 WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                    SELECT 1 FROM user_pelanggan_access a \
                    WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
                  )) AND ( \
@@ -417,6 +588,10 @@ pub async fn list_contracts(
                     p.nama_pelanggan, l.nama_lokasi, l.status_kontrak, \
                     CAST(l.periode_awal AS CHAR) AS periode_awal, \
                     CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
+                    DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                    CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                     l.kategori AS jalur, l.link_folder_berkas, \
                     l.core, l.sharing_core, l.durasi_kontrak_bulan, \
                     CAST(l.nilai_kontrak AS DOUBLE) AS nilai_kontrak, \
@@ -424,7 +599,7 @@ pub async fn list_contracts(
                     CAST(l.perbulan AS DOUBLE) AS perbulan, \
                     CAST(l.nilai_periode_aktif AS DOUBLE) AS nilai_periode_aktif \
              FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id \
-             WHERE (? <> 'isp' OR EXISTS ( \
+             WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
               )) AND {} {} \
@@ -446,6 +621,10 @@ pub async fn list_contracts(
                     p.nama_pelanggan, l.nama_lokasi, l.status_kontrak, \
                     CAST(l.periode_awal AS CHAR) AS periode_awal, \
                     CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
+                    DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                    CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                     l.kategori AS jalur, l.link_folder_berkas, \
                     l.core, l.sharing_core, l.durasi_kontrak_bulan, \
                     CAST(l.nilai_kontrak AS DOUBLE) AS nilai_kontrak, \
@@ -453,7 +632,7 @@ pub async fn list_contracts(
                     CAST(l.perbulan AS DOUBLE) AS perbulan, \
                     CAST(l.nilai_periode_aktif AS DOUBLE) AS nilai_periode_aktif \
              FROM lokasi l JOIN pelanggan p ON p.id = l.pelanggan_id \
-             WHERE (? <> 'isp' OR EXISTS ( \
+             WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = l.pelanggan_id \
              )){} \
@@ -550,6 +729,16 @@ pub async fn create_contract(
     validate_opt_string_length(input.keterangan.as_deref(), max_len, "Keterangan")?;
     validate_opt_string_length(input.core.as_deref(), max_len, "Core")?;
     validate_opt_string_length(input.sharing_core.as_deref(), max_len, "Sharing core")?;
+    validate_opt_string_length(input.mac_modem.as_deref(), 17, "MAC modem")?;
+    validate_opt_string_length(input.alamat_user.as_deref(), max_len, "Alamat user")?;
+    let tanggal_aktivasi =
+        normalize_optional_date(input.tanggal_aktivasi.clone(), "Tanggal aktivasi")?;
+    validate_coordinate(input.latitude, "Latitude", -90.0, 90.0)?;
+    validate_coordinate(input.longitude, "Longitude", -180.0, 180.0)?;
+    let power = normalize_power(input.power)?;
+    let vlan_id = normalize_vlan(input.vlan_id)?;
+    let mac_modem = normalize_mac(input.mac_modem.clone())?;
+    let alamat_user = trim_opt(input.alamat_user.clone());
     parse_date(&periode_awal)?;
     parse_date(&periode_berakhir)?;
     if parse_date(&periode_berakhir)? < parse_date(&periode_awal)? {
@@ -599,6 +788,41 @@ pub async fn create_contract(
     let kode_pelanggan: Option<String> = pelanggan_row.try_get("kode_pelanggan").unwrap_or(None);
     let link_folder: Option<String> = pelanggan_row.try_get("link_folder_berkas").unwrap_or(None);
 
+    // Permohonan portal yang sudah lunas dapat ditautkan saat admin membuat
+    // kontrak secara manual. Permohonan harus sudah memiliki ISP master dari
+    // hasil survei dan belum pernah diproyeksikan ke lokasi/kontrak lain.
+    if let Some(registration_id) = input.portal_registration_id {
+        let registration: Option<(Option<u64>, Option<u64>)> = sqlx::query_as(
+            "SELECT pelanggan_id, lokasi_id
+             FROM portal_registrations
+             WHERE id = ? AND status = 'disetujui' AND pembayaran_status = 'terverifikasi'",
+        )
+        .bind(registration_id)
+        .fetch_optional(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+        let Some((registration_pelanggan_id, registration_lokasi_id)) = registration else {
+            return Err(ApiError::conflict(
+                "Permohonan belum selesai atau pembayarannya belum terverifikasi.",
+            ));
+        };
+        if registration_lokasi_id.is_some() {
+            return Err(ApiError::conflict(
+                "Permohonan tersebut sudah ditautkan ke kontrak.",
+            ));
+        }
+        let Some(registration_pelanggan_id) = registration_pelanggan_id else {
+            return Err(ApiError::conflict(
+                "ISP master belum ditetapkan pada permohonan tersebut.",
+            ));
+        };
+        if registration_pelanggan_id != input.pelanggan_id {
+            return Err(ApiError::bad_request(
+                "Pelanggan (ISP) kontrak harus sama dengan ISP yang dipilih pada permohonan.",
+            ));
+        }
+    }
+
     // Resolve parent folder ID for kontrak tree
     let parent_folder_id = {
         let id = link_folder
@@ -645,10 +869,11 @@ pub async fn create_contract(
     let result = sqlx::query(
         "INSERT INTO lokasi \
          (kode_kontrak, pelanggan_id, kategori, nama_lokasi, core, sharing_core, \
-          periode_awal, periode_berakhir, durasi_kontrak_bulan, no_kontrak, \
+          periode_awal, periode_berakhir, tanggal_aktivasi, latitude, longitude, power, \
+          vlan_id, mac_modem, alamat_user, durasi_kontrak_bulan, no_kontrak, \
           nilai_kontrak, biaya_aktivasi, perbulan, nilai_periode_aktif, \
           status_kontrak, keterangan) \
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&kode_kontrak)
     .bind(input.pelanggan_id)
@@ -658,6 +883,13 @@ pub async fn create_contract(
     .bind(&sharing_core)
     .bind(&periode_awal)
     .bind(&periode_berakhir)
+    .bind(&tanggal_aktivasi)
+    .bind(input.latitude)
+    .bind(input.longitude)
+    .bind(power)
+    .bind(vlan_id)
+    .bind(&mac_modem)
+    .bind(&alamat_user)
     .bind(input.durasi_kontrak_bulan)
     .bind(&no_kontrak)
     .bind(input.nilai_kontrak)
@@ -670,6 +902,27 @@ pub async fn create_contract(
     .await
     .map_err(ApiError::database)?;
     let id = result.last_insert_id();
+
+    if let Some(registration_id) = input.portal_registration_id {
+        let linked = sqlx::query(
+            "UPDATE portal_registrations
+             SET lokasi_id = ?, pelanggan_id = ?
+             WHERE id = ? AND status = 'disetujui'
+               AND pembayaran_status = 'terverifikasi' AND lokasi_id IS NULL",
+        )
+        .bind(id)
+        .bind(input.pelanggan_id)
+        .bind(registration_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(ApiError::database)?;
+        if linked.rows_affected() == 0 {
+            tx.rollback().await.map_err(ApiError::database)?;
+            return Err(ApiError::conflict(
+                "Permohonan sudah ditautkan ke kontrak oleh pengguna lain.",
+            ));
+        }
+    }
 
     let (_, link) = match ensure_kontrak_tree(
         &state.drive,
@@ -707,6 +960,13 @@ pub async fn create_contract(
             status_kontrak: status,
             periode_awal,
             periode_berakhir,
+            tanggal_aktivasi,
+            latitude: input.latitude,
+            longitude: input.longitude,
+            power,
+            vlan_id,
+            mac_modem,
+            alamat_user,
             jalur: kategori,
             link_folder_berkas: Some(link),
             core,
@@ -743,6 +1003,14 @@ pub async fn update_contract(
     let existing_periode_awal: String = existing.try_get("periode_awal").unwrap_or_default();
     let existing_periode_berakhir: String =
         existing.try_get("periode_berakhir").unwrap_or_default();
+    let existing_tanggal_aktivasi: Option<String> =
+        existing.try_get("tanggal_aktivasi").unwrap_or(None);
+    let existing_latitude: Option<f64> = existing.try_get::<f64, _>("latitude").ok();
+    let existing_longitude: Option<f64> = existing.try_get::<f64, _>("longitude").ok();
+    let existing_power: Option<f64> = existing.try_get::<f64, _>("power").ok();
+    let existing_vlan_id: Option<u32> = existing.try_get("vlan_id").unwrap_or(None);
+    let existing_mac_modem: Option<String> = existing.try_get("mac_modem").unwrap_or(None);
+    let existing_alamat_user: Option<String> = existing.try_get("alamat_user").unwrap_or(None);
     let existing_status: String = existing.try_get("status_kontrak").unwrap_or_default();
     let existing_kategori: String = existing.try_get("kategori").unwrap_or_default();
     let existing_core: Option<String> = existing.try_get("core").unwrap_or(None);
@@ -858,12 +1126,48 @@ pub async fn update_contract(
         existing_keterangan.clone()
     };
     let pelanggan_id = input.pelanggan_id.unwrap_or(existing_pelanggan_id);
+    validate_opt_string_length(input.mac_modem.as_deref(), 17, "MAC modem")?;
+    validate_opt_string_length(
+        input.alamat_user.as_deref(),
+        state.max_string_length,
+        "Alamat user",
+    )?;
+    let tanggal_aktivasi = if input.tanggal_aktivasi.is_some() {
+        normalize_optional_date(input.tanggal_aktivasi.clone(), "Tanggal aktivasi")?
+    } else {
+        existing_tanggal_aktivasi
+    };
+    let latitude = input.latitude.or(existing_latitude);
+    let longitude = input.longitude.or(existing_longitude);
+    validate_coordinate(latitude, "Latitude", -90.0, 90.0)?;
+    validate_coordinate(longitude, "Longitude", -180.0, 180.0)?;
+    let power = if input.power.is_some() {
+        normalize_power(input.power)?
+    } else {
+        existing_power
+    };
+    let vlan_id = if input.vlan_id.is_some() {
+        normalize_vlan(input.vlan_id)?
+    } else {
+        existing_vlan_id
+    };
+    let mac_modem = if input.mac_modem.is_some() {
+        normalize_mac(input.mac_modem.clone())?
+    } else {
+        existing_mac_modem
+    };
+    let alamat_user = if input.alamat_user.is_some() {
+        trim_opt(input.alamat_user.clone())
+    } else {
+        existing_alamat_user
+    };
 
     // Execute update
     sqlx::query(
         "UPDATE lokasi SET \
          pelanggan_id = ?, kode_kontrak = ?, nama_lokasi = ?, periode_awal = ?, \
-         periode_berakhir = ?, status_kontrak = ?, kategori = ?, \
+         periode_berakhir = ?, tanggal_aktivasi = ?, latitude = ?, longitude = ?, power = ?, \
+         vlan_id = ?, mac_modem = ?, alamat_user = ?, status_kontrak = ?, kategori = ?, \
          core = ?, sharing_core = ?, no_kontrak = ?, durasi_kontrak_bulan = ?, \
          nilai_kontrak = ?, biaya_aktivasi = ?, perbulan = ?, nilai_periode_aktif = ?, \
          keterangan = ? WHERE id = ?",
@@ -873,6 +1177,13 @@ pub async fn update_contract(
     .bind(&nama_lokasi)
     .bind(&periode_awal)
     .bind(&periode_berakhir)
+    .bind(&tanggal_aktivasi)
+    .bind(latitude)
+    .bind(longitude)
+    .bind(power)
+    .bind(vlan_id)
+    .bind(&mac_modem)
+    .bind(&alamat_user)
     .bind(&status)
     .bind(&kategori)
     .bind(&core)
@@ -913,6 +1224,13 @@ fn map_contract_row(row: sqlx::mysql::MySqlRow) -> ContractRow {
         status_kontrak: row.try_get("status_kontrak").unwrap_or_default(),
         periode_awal: row.try_get("periode_awal").unwrap_or_default(),
         periode_berakhir: row.try_get("periode_berakhir").unwrap_or_default(),
+        tanggal_aktivasi: row.try_get("tanggal_aktivasi").unwrap_or(None),
+        latitude: row.try_get("latitude").unwrap_or(None),
+        longitude: row.try_get("longitude").unwrap_or(None),
+        power: row.try_get("power").unwrap_or(None),
+        vlan_id: row.try_get("vlan_id").unwrap_or(None),
+        mac_modem: row.try_get("mac_modem").unwrap_or(None),
+        alamat_user: row.try_get("alamat_user").unwrap_or(None),
         jalur: row.try_get("jalur").unwrap_or(None),
         link_folder_berkas: row.try_get("link_folder_berkas").unwrap_or(None),
         core: row.try_get("core").unwrap_or(None),
@@ -953,6 +1271,13 @@ pub async fn extend_contract(
     let kategori: Option<String> = old_row.try_get("kategori").ok();
     let old_core: Option<String> = old_row.try_get("core").ok();
     let old_sharing: Option<String> = old_row.try_get("sharing_core").ok();
+    let old_tanggal_aktivasi: Option<String> = old_row.try_get("tanggal_aktivasi").unwrap_or(None);
+    let old_latitude: Option<f64> = old_row.try_get::<f64, _>("latitude").ok();
+    let old_longitude: Option<f64> = old_row.try_get::<f64, _>("longitude").ok();
+    let old_power: Option<f64> = old_row.try_get::<f64, _>("power").ok();
+    let old_vlan_id: Option<u32> = old_row.try_get("vlan_id").unwrap_or(None);
+    let old_mac_modem: Option<String> = old_row.try_get("mac_modem").unwrap_or(None);
+    let old_alamat_user: Option<String> = old_row.try_get("alamat_user").unwrap_or(None);
     let kode_pelanggan: Option<String> = old_row.try_get("kode_pelanggan").unwrap_or(None);
     let pelanggan_link: Option<String> = old_row.try_get("pelanggan_link").unwrap_or(None);
 
@@ -1006,10 +1331,11 @@ pub async fn extend_contract(
     let result = sqlx::query(
         "INSERT INTO lokasi \
          (kode_kontrak, pelanggan_id, kategori, nama_lokasi, core, sharing_core, \
-          periode_awal, periode_berakhir, durasi_kontrak_bulan, no_kontrak, \
+          periode_awal, periode_berakhir, tanggal_aktivasi, latitude, longitude, power, \
+          vlan_id, mac_modem, alamat_user, durasi_kontrak_bulan, no_kontrak, \
           nilai_kontrak, biaya_aktivasi, perbulan, nilai_periode_aktif, \
           status_kontrak, keterangan) \
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&kode_kontrak)
     .bind(pelanggan_id)
@@ -1019,6 +1345,13 @@ pub async fn extend_contract(
     .bind(&sharing_core)
     .bind(&periode_awal)
     .bind(&periode_berakhir)
+    .bind(&old_tanggal_aktivasi)
+    .bind(old_latitude)
+    .bind(old_longitude)
+    .bind(old_power)
+    .bind(old_vlan_id)
+    .bind(&old_mac_modem)
+    .bind(&old_alamat_user)
     .bind(input.durasi_kontrak_bulan)
     .bind(&no_kontrak)
     .bind(input.nilai_kontrak)
@@ -1113,6 +1446,13 @@ pub async fn upgrade_contract(
         .try_get("nama_pelanggan")
         .map_err(ApiError::database)?;
     let nama_lokasi: String = old_row.try_get("nama_lokasi").map_err(ApiError::database)?;
+    let old_tanggal_aktivasi: Option<String> = old_row.try_get("tanggal_aktivasi").unwrap_or(None);
+    let old_latitude: Option<f64> = old_row.try_get::<f64, _>("latitude").ok();
+    let old_longitude: Option<f64> = old_row.try_get::<f64, _>("longitude").ok();
+    let old_power: Option<f64> = old_row.try_get::<f64, _>("power").ok();
+    let old_vlan_id: Option<u32> = old_row.try_get("vlan_id").unwrap_or(None);
+    let old_mac_modem: Option<String> = old_row.try_get("mac_modem").unwrap_or(None);
+    let old_alamat_user: Option<String> = old_row.try_get("alamat_user").unwrap_or(None);
     let kode_pelanggan: Option<String> = old_row.try_get("kode_pelanggan").unwrap_or(None);
     let pelanggan_link: Option<String> = old_row.try_get("pelanggan_link").unwrap_or(None);
 
@@ -1177,10 +1517,11 @@ pub async fn upgrade_contract(
     let result = sqlx::query(
         "INSERT INTO lokasi \
          (kode_kontrak, pelanggan_id, nama_lokasi, core, sharing_core, \
-          periode_awal, periode_berakhir, durasi_kontrak_bulan, no_kontrak, \
+          periode_awal, periode_berakhir, tanggal_aktivasi, latitude, longitude, power, \
+          vlan_id, mac_modem, alamat_user, durasi_kontrak_bulan, no_kontrak, \
           nilai_kontrak, biaya_aktivasi, perbulan, nilai_periode_aktif, \
           status_kontrak, keterangan) \
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&kode_kontrak)
     .bind(pelanggan_id)
@@ -1189,6 +1530,13 @@ pub async fn upgrade_contract(
     .bind(&sharing_core)
     .bind(&start_date_str)
     .bind(&end_date_str)
+    .bind(&old_tanggal_aktivasi)
+    .bind(old_latitude)
+    .bind(old_longitude)
+    .bind(old_power)
+    .bind(old_vlan_id)
+    .bind(&old_mac_modem)
+    .bind(&old_alamat_user)
     .bind(durasi)
     .bind(&no_kontrak)
     .bind(input.nilai_kontrak)
@@ -1272,7 +1620,10 @@ fn validate_upgrade_date(
 
 #[cfg(test)]
 mod tests {
-    use super::{normalize_core, normalize_core_selection, validate_upgrade_date};
+    use super::{
+        normalize_core, normalize_core_selection, normalize_mac, normalize_power, normalize_vlan,
+        validate_coordinate, validate_upgrade_date,
+    };
 
     fn date(value: &str) -> chrono::NaiveDate {
         chrono::NaiveDate::parse_from_str(value, "%Y-%m-%d").expect("tanggal pengujian valid")
@@ -1318,5 +1669,25 @@ mod tests {
         );
         assert!(normalize_core_selection(None, None, true).is_err());
         assert!(normalize_core_selection(None, Some("1/4".to_owned()), true).is_ok());
+    }
+
+    #[test]
+    fn normalizes_modem_mac_address() {
+        assert_eq!(
+            normalize_mac(Some("aa-bb-cc-dd-ee-ff".to_owned()))
+                .ok()
+                .flatten(),
+            Some("AA:BB:CC:DD:EE:FF".to_owned())
+        );
+        assert!(normalize_mac(Some("invalid".to_owned())).is_err());
+    }
+
+    #[test]
+    fn validates_contract_technical_fields() {
+        assert!(validate_coordinate(Some(-5.1234), "Latitude", -90.0, 90.0).is_ok());
+        assert!(validate_coordinate(Some(181.0), "Longitude", -180.0, 180.0).is_err());
+        assert!(normalize_power(Some(-18.5)).is_ok());
+        assert!(normalize_vlan(Some(4095)).is_err());
+        assert!(normalize_vlan(Some(4094)).is_ok());
     }
 }

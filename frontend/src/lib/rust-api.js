@@ -107,6 +107,13 @@ export async function login(email, password) {
   return session;
 }
 
+export async function devAccess(role) {
+  const data = await request(`/api/dev-access/${encodeURIComponent(role)}`, { method: "POST" });
+  const session = sessionFromAuthResponse(data);
+  saveSession(session);
+  return session;
+}
+
 export const rowsFrom = (data) => Array.isArray(data) ? data : data?.data || data?.items || data?.results || data?.pelanggan || data?.kontrak || [];
 export const totalFrom = (data, fallback) => Number(data?.total ?? data?.count ?? data?.pagination?.total ?? fallback) || 0;
 
@@ -194,6 +201,9 @@ export async function uploadDocument(token, formData, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${API_BASE_URL}/api/dokumen`);
+    // Beri waktu cukup untuk backend meneruskan file ke Google Drive.
+    // Backend default-nya 5 menit; batas browser dibuat sedikit lebih longgar.
+    xhr.timeout = 6 * 60 * 1000;
     if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
     xhr.upload.onprogress = (e) => {
@@ -223,7 +233,9 @@ export async function uploadDocument(token, formData, onProgress) {
       }
     };
 
-    xhr.onerror = () => reject(new Error("Koneksi terputus"));
+    xhr.ontimeout = () => reject(new Error("Upload melewati batas waktu. Periksa koneksi lalu coba lagi."));
+    xhr.onabort = () => reject(new Error("Upload dibatalkan sebelum selesai."));
+    xhr.onerror = () => reject(new Error("Koneksi ke backend atau Google Drive terputus saat mengunggah. Pastikan backend masih berjalan lalu coba lagi."));
     xhr.send(formData);
   });
 }
@@ -301,6 +313,12 @@ export async function changePassword(token, newPassword) {
 export const listMapPoints = (token, page = 1, pageSize = 20, search = "") =>
   request(`/api/titik-peta?page=${page}&page_size=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ""}`, { token });
 
+export const getLocationBaa = (token, lokasiId) =>
+  request(`/api/titik-peta/${lokasiId}/baa`, { token });
+
+export const createLocationBaa = (token, lokasiId, data) =>
+  request(`/api/titik-peta/${lokasiId}/baa`, { method: "POST", body: data, token });
+
 export async function upsertMapPoint(token, data) {
   return request("/api/titik-peta", { method: "POST", body: data, token });
 }
@@ -334,3 +352,206 @@ export async function updateLocationPoint(token, id, data) {
 export async function deleteLocationPoint(token, id) {
   return request(`/api/titik-lokasi/${id}`, { method: "DELETE", token });
 }
+
+// ============================================
+// SOP WORKFLOW API
+// ============================================
+
+/**
+ * List all workflows (admin/DBO view)
+ */
+export const listWorkflows = (token, params = {}) => {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", params.page);
+  if (params.page_size) query.set("page_size", params.page_size);
+  if (params.status) query.set("status", params.status);
+  if (params.assigned_to_role) query.set("assigned_to_role", params.assigned_to_role);
+  const qs = query.toString();
+  return request(`/admin/workflows/list${qs ? `?${qs}` : ""}`, { token });
+};
+
+/**
+ * Get workflow status/detail by ID
+ */
+export const getWorkflowStatus = (token, workflowId) =>
+  request(`/api/portal/workflows/${workflowId}/status`, { token });
+
+/**
+ * Submit step in SOP workflow
+ */
+export async function submitStep(token, workflowId, step, data) {
+  return request(`/portal/sop/${workflowId}/step/${step}`, { method: "POST", body: data, token });
+}
+
+/**
+ * Direksi vote (Step 11 approval)
+ */
+export async function direksiVote(token, workflowId, decision, notes, backToStep = null) {
+  const body = { decision, notes };
+  if (backToStep) body.back_to_step = backToStep;
+  return request(`/admin/sop/${workflowId}/direksi/vote`, { method: "PATCH", body, token });
+}
+
+/**
+ * Portal Register (public endpoint, no auth required)
+ */
+export async function portalRegister(data) {
+  return request("/api/portal/register", { method: "POST", body: data });
+}
+
+export const trackServiceRequest = (kode_registrasi, email_pic) =>
+  request("/api/portal/lacak", { method: "POST", body: { kode_registrasi, email_pic } });
+
+export const cancelPortalRegistration = (kode_registrasi, email_pic, cancellation_reason) =>
+  request("/api/portal/batalkan", {
+    method: "POST",
+    body: { kode_registrasi, email_pic, cancellation_reason },
+  });
+
+export const createPortalRegistrationOffer = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/penawaran`, { method: "PATCH", body: data, token });
+
+export const respondOffer = (kode_registrasi, email_pic, keputusan, catatan) =>
+  request("/api/portal/penawaran/respond", { method: "POST", body: { kode_registrasi, email_pic, keputusan, catatan } });
+
+export const submitPo = (
+  kode_registrasi,
+  email_pic,
+  po_nomor,
+  po_catatan,
+  po_dokumen_id = null,
+  po_akte_dokumen_id = null,
+  po_izin_dokumen_id = null,
+) =>
+  request("/api/portal/po/submit", {
+    method: "POST",
+    body: {
+      kode_registrasi,
+      email_pic,
+      po_nomor,
+      po_catatan,
+      po_dokumen_id,
+      po_akte_dokumen_id,
+      po_izin_dokumen_id,
+    },
+  });
+
+export const reviewPortalRegistrationLegal = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/legal`, { method: "PATCH", body: data, token });
+
+// Keputusan persetujuan SOP1 dapat diberikan Admin KIMA/DBO. Nama alias lama
+// dipertahankan agar antrean Direksi opsional tetap kompatibel.
+export const decidePortalRegistrationApproval = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/persetujuan`, { method: "PATCH", body: data, token });
+
+export const decidePortalRegistrationDireksi = decidePortalRegistrationApproval;
+
+export const preparePortalRegistrationPks = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/pks`, { method: "PATCH", body: data, token });
+
+export const recordPortalRegistrationPksSignature = (token, id, pihak, pks_signed_dokumen_id = null) =>
+  request(`/admin/portal-registrations/${id}/pks`, { method: "POST", body: { pihak, pks_signed_dokumen_id }, token });
+
+export const updatePortalRegistrationActivation = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/aktivasi`, { method: "PATCH", body: data, token });
+
+export const createPortalRegistrationBaa = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/baa`, { method: "PATCH", body: data, token });
+
+export const verifyPortalRegistrationBaa = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/baa/verify`, { method: "PATCH", body: data, token });
+
+export const createPortalRegistrationInvoice = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/invoice`, { method: "PATCH", body: data, token });
+
+export const acceptPortalRegistrationBaa = (kode_registrasi, email_pic) =>
+  request("/api/portal/baa/accept", { method: "POST", body: { kode_registrasi, email_pic } });
+
+export const confirmPortalRegistrationPayment = (kode_registrasi, email_pic, catatan, pembayaran_dokumen_id = null) =>
+  request("/api/portal/payment/confirm", { method: "POST", body: { kode_registrasi, email_pic, catatan, pembayaran_dokumen_id } });
+
+export const verifyPortalRegistrationPayment = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/payment`, { method: "PATCH", body: data, token });
+
+export const listMyServiceRequests = (token) => request("/api/portal/permohonan-saya", { token });
+export const submitServiceChangeRequest = (token, data) =>
+  request("/api/portal/sop2/permohonan", { method: "POST", body: data, token });
+export const listServiceChangeRequests = (token) =>
+  request("/api/portal/sop2/permohonan", { token });
+export const listServiceChangeHistory = (token, id) =>
+  request(`/api/portal/sop2/${id}/history`, { token });
+export const listServiceChangeNotifications = (token) =>
+  request("/api/portal/sop2/notifications", { token });
+export const markServiceChangeNotification = (token, id, read = true) =>
+  request(`/api/portal/sop2/notifications/${id}`, { method: "PATCH", body: { read }, token });
+export const listAdminNotifications = (token) =>
+  request("/api/admin/notifications", { token });
+export const markAdminNotification = (token, source, id, read = true) =>
+  request(`/api/admin/notifications/${encodeURIComponent(source)}/${id}`, {
+    method: "PATCH",
+    body: { read },
+    token,
+  });
+export const completeServiceChangeStep = (token, id, catatan = "", action = null, data = {}) =>
+  request(`/admin/sop2/${id}/step`, { method: "PATCH", body: { catatan: catatan || null, action, data }, token });
+
+/**
+ * List portal registrations awaiting admin review
+ */
+export const listPortalRegistrations = (token, status = "") => {
+  const query = new URLSearchParams();
+  if (["menunggu", "disetujui", "ditolak", "dibatalkan"].includes(status)) query.set("status", status);
+  else if (status === "negosiasi") query.set("penawaran_status", status);
+  const qs = query.toString();
+  return request(`/admin/portal-registrations${qs ? `?${qs}` : ""}`, { token });
+};
+
+/**
+ * Approve a portal registration after the Admin has created/verified its
+ * Pelanggan account in the approval UI.
+ */
+export async function approvePortalRegistration(token, id) {
+  return request(`/admin/portal-registrations/${id}/approve`, { method: "POST", token });
+}
+
+/**
+ * Reject a portal registration with a reason
+ */
+/**
+ * Ajukan lokasi tambahan untuk pelanggan yang sudah login (Bagian B saja,
+ * data perusahaan sudah tersimpan di sistem).
+ */
+export async function submitAdditionalLocation(token, data) {
+  return request("/api/pelanggan/lokasi/ajukan", { method: "POST", body: data, token });
+}
+
+export async function rejectPortalRegistration(token, id, rejectionReason) {
+  return request(`/admin/portal-registrations/${id}/reject`, {
+    method: "POST",
+    body: { rejection_reason: rejectionReason },
+    token,
+  });
+}
+
+export const cancelPortalRegistrationByAdmin = (token, id, cancellationReason) =>
+  request(`/admin/portal-registrations/${id}/cancel`, {
+    method: "POST",
+    body: { cancellation_reason: cancellationReason },
+    token,
+  });
+
+export const getPortalRegistration = (token, id) =>
+  request(`/admin/portal-registrations/${id}`, { token });
+
+export const listIspCandidates = (token) => request("/admin/isp-candidates", { token });
+
+export const listIspDirectory = (token) => request("/admin/isp-directory", { token });
+
+export const createIspDirectory = (token, data) =>
+  request("/admin/isp-directory", { method: "POST", body: data, token });
+
+export const updateIspDirectory = (token, id, data) =>
+  request(`/admin/isp-directory/${id}`, { method: "PATCH", body: data, token });
+
+export const updatePortalRegistrationSurvey = (token, id, data) =>
+  request(`/admin/portal-registrations/${id}/survey`, { method: "PATCH", body: data, token });

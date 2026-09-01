@@ -91,17 +91,24 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
     return cls;
   };
 
+  // Keep locally filtered tables (for example, the negotiation queue) in sync
+  // with the visible count and empty state while still using the API total for
+  // server-side pagination when no local filter is supplied.
+  const visibleRows = state.rows.filter(filterRow ? filterRow : () => true);
+  const displayRows = sortRows ? sortRows(visibleRows) : visibleRows;
+  const displayTotal = filterRow ? visibleRows.length : state.total;
+
   return (
-    <section className={focus ? "fixed inset-0 z-50 w-full bg-premium-dark/95 backdrop-blur-2xl p-5 overflow-auto" : "w-full"}>
+    <section className={focus ? "fixed inset-0 z-50 w-full overflow-auto bg-premium-dark/95 p-3 backdrop-blur-2xl sm:p-5" : "w-full"}>
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-black text-white tracking-tight">{title}</h2>
-          <p className="text-xs font-semibold text-white/50 mt-0.5 uppercase tracking-wider">{state.total} data</p>
+      <div className="mb-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-lg font-black tracking-tight text-white sm:text-xl">{title}</h2>
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/50 sm:text-xs">{displayTotal} data</p>
         </div>
         <button
           onClick={refresh}
-          className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-white/70 backdrop-blur-md hover:bg-white/10 hover:border-white/25 hover:text-white anim-surface"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-white/70 backdrop-blur-md hover:border-white/25 hover:bg-white/10 hover:text-white anim-surface sm:w-auto sm:px-4 sm:text-xs"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="23 4 23 10 17 10" />
@@ -126,7 +133,7 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
       )}
 
       {/* Table container - scrollable both X and Y for freeze pane */}
-      <div className="overflow-auto rounded-xl border border-white/10 bg-black/20 backdrop-blur-md custom-scrollbar max-h-[calc(100vh-220px)]">
+      <div className="custom-scrollbar max-h-[calc(100dvh-15rem)] overflow-auto rounded-xl border border-white/10 bg-black/20 backdrop-blur-md sm:max-h-[calc(100vh-220px)]">
         <table className="w-full border-separate border-spacing-0 text-left min-w-max">
           <thead>
             <tr className="border-b border-white/10">
@@ -151,14 +158,14 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
                   </div>
                 </td>
               </tr>
-            ) : state.rows.length === 0 ? (
+            ) : visibleRows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-8 text-center">
                   <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Tidak ada data</span>
                 </td>
               </tr>
             ) : (
-              (sortRows ? sortRows(state.rows.filter(filterRow ? filterRow : () => true)) : state.rows.filter(filterRow ? filterRow : () => true)).map((row, index) => {
+              displayRows.map((row, index) => {
                 const rowId = row.lokasi_id ?? row.id ?? index;
                 const isSelected = selectedRowId != null && (row.lokasi_id === selectedRowId || row.id === selectedRowId);
                 return (
@@ -197,23 +204,23 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
       </div>
 
       {/* Pagination */}
-      {!focus && state.total > 0 && (
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-4">
+      {!focus && displayTotal > 0 && (
+        <div className="mt-4 flex flex-col items-stretch justify-between gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:gap-4">
           {/* Data Summary */}
-          <div className="text-[10px] font-black uppercase tracking-wider text-white/40">
+          <div className="w-full text-center text-[10px] font-black uppercase tracking-wider text-white/40 sm:w-auto sm:text-left">
             Menampilkan{" "}
             <span className="text-gold-accent font-black">
-              {state.rows.length === 0 ? 0 : (page - 1) * currentPageSize + 1}
+              {visibleRows.length === 0 ? 0 : (page - 1) * currentPageSize + 1}
             </span>{" "}
             -{" "}
             <span className="text-gold-accent font-black">
-              {Math.min(page * currentPageSize, state.total)}
+              {Math.min(page * currentPageSize, displayTotal)}
             </span>{" "}
             dari{" "}
-            <span className="text-white font-black">{state.total}</span> data
+              <span className="text-white font-black">{displayTotal}</span> data
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:justify-end sm:gap-4">
             {/* Page Size Select */}
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-wider text-white/40">
@@ -236,7 +243,7 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
             </div>
 
             {/* Navigation buttons */}
-            {state.total > currentPageSize && (
+            {displayTotal > currentPageSize && (
               <div className="flex items-center gap-1.5">
                 {/* First Page */}
                 <button
@@ -265,7 +272,7 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
 
                 {/* Page Numbers */}
                 {(() => {
-                  const totalPages = Math.ceil(state.total / currentPageSize) || 1;
+                  const totalPages = Math.ceil(displayTotal / currentPageSize) || 1;
                   const pages = [];
                   if (totalPages <= 5) {
                     for (let i = 1; i <= totalPages; i++) pages.push(i);
@@ -311,7 +318,7 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
 
                 {/* Next Page */}
                 <button
-                  disabled={page === Math.ceil(state.total / currentPageSize)}
+                  disabled={page === Math.ceil(displayTotal / currentPageSize)}
                   onClick={() => setPage(page + 1)}
                   title="Halaman Berikutnya"
                   className="flex items-center justify-center rounded-lg border border-white/15 bg-white/5 w-8 h-8 text-white/70 backdrop-blur-md hover:bg-white/10 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
@@ -323,8 +330,8 @@ const DataTable = forwardRef(function DataTable({ title, load, columns, session,
 
                 {/* Last Page */}
                 <button
-                  disabled={page === Math.ceil(state.total / currentPageSize)}
-                  onClick={() => setPage(Math.ceil(state.total / currentPageSize))}
+                  disabled={page === Math.ceil(displayTotal / currentPageSize)}
+                  onClick={() => setPage(Math.ceil(displayTotal / currentPageSize))}
                   title="Halaman Terakhir"
                   className="flex items-center justify-center rounded-lg border border-white/15 bg-white/5 w-8 h-8 text-white/70 backdrop-blur-md hover:bg-white/10 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >

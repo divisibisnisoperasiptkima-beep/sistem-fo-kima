@@ -122,6 +122,13 @@ pub struct ContractRow {
     pub status_kontrak: String,
     pub periode_awal: String,
     pub periode_berakhir: String,
+    pub tanggal_aktivasi: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+    pub power: Option<f64>,
+    pub vlan_id: Option<u32>,
+    pub mac_modem: Option<String>,
+    pub alamat_user: Option<String>,
     pub jalur: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link_folder_berkas: Option<String>,
@@ -137,10 +144,20 @@ pub struct ContractRow {
 #[derive(Deserialize)]
 pub struct CreateContractRequest {
     pub pelanggan_id: u64,
+    /// Permohonan portal yang sudah lunas dan akan ditautkan ke kontrak ini.
+    /// Kontrak tetap dapat dibuat manual tanpa field ini untuk data legacy.
+    pub portal_registration_id: Option<u64>,
     pub kode_kontrak: String,
     pub nama_lokasi: String,
     pub periode_awal: String,
     pub periode_berakhir: String,
+    pub tanggal_aktivasi: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+    pub power: Option<f64>,
+    pub vlan_id: Option<u32>,
+    pub mac_modem: Option<String>,
+    pub alamat_user: Option<String>,
     pub status_kontrak: Option<String>,
     pub kategori: Option<String>,
     pub core: Option<String>,
@@ -161,6 +178,13 @@ pub struct UpdateContractRequest {
     pub nama_lokasi: Option<String>,
     pub periode_awal: Option<String>,
     pub periode_berakhir: Option<String>,
+    pub tanggal_aktivasi: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+    pub power: Option<f64>,
+    pub vlan_id: Option<u32>,
+    pub mac_modem: Option<String>,
+    pub alamat_user: Option<String>,
     pub status_kontrak: Option<String>,
     pub kategori: Option<String>,
     pub core: Option<String>,
@@ -338,9 +362,23 @@ pub struct MapPointRow {
     pub nama_lokasi: String,
     pub pelanggan_id: u64,
     pub nama_pelanggan: String,
+    pub pic: Option<String>,
+    pub telepon: Option<String>,
     pub points: Option<serde_json::Value>,
+    pub tanggal_aktivasi: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+    pub power: Option<f64>,
+    pub vlan_id: Option<u32>,
+    pub mac_modem: Option<String>,
+    pub alamat_user: Option<String>,
+    pub core: Option<String>,
     pub approval_status: Option<String>,
     pub updated_at: Option<String>,
+    pub baa_document_id: Option<u64>,
+    pub baa_document_name: Option<String>,
+    pub baa_document_mime_type: Option<String>,
+    pub baa_created_at: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -349,6 +387,35 @@ pub struct CreateMapPointRequest {
     pub latitude: f64,
     pub longitude: f64,
     pub label: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct CreateLocationBaaRequest {
+    pub nomor_baa: Option<String>,
+    pub nama_pic: Option<String>,
+    pub alamat_pic: Option<String>,
+    pub phone: Option<String>,
+    pub tanggal_aktivasi: Option<String>,
+    pub nama_pelanggan: Option<String>,
+    pub alamat_pelanggan: Option<String>,
+    pub paket: Option<String>,
+    pub ont_onu: Option<String>,
+    pub mac_address: Option<String>,
+    pub switch_media_converter: Option<String>,
+    pub serial_number_ip_switch: Option<String>,
+    pub fiber_outlet_otb: Option<String>,
+    pub patch_core: Option<String>,
+    pub kabel_drop_wire_fo: Option<String>,
+    pub koordinat: Option<String>,
+    pub signal_input_cpe: Option<String>,
+    pub vlan: Option<String>,
+    pub core: Option<String>,
+}
+
+#[derive(Serialize)]
+pub struct LocationBaaResponse {
+    pub document: Option<DocumentRow>,
+    pub form: CreateLocationBaaRequest,
 }
 
 #[derive(Debug, Serialize)]

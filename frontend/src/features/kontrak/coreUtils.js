@@ -1,3 +1,5 @@
+export const SHARING_CORE_OPTIONS = ["1/2", "1/4", "1/8", "1/16", "1/32"];
+
 export function coreInputValue(value) {
   if (value == null || value === "") return "";
   return String(value).replace(/\s*core\s*$/i, "").trim();

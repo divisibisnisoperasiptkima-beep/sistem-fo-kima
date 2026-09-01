@@ -147,11 +147,14 @@ pub async fn update_user_pelanggan_access(
 }
 
 fn validate_role(role: &str) -> Result<(), ApiError> {
-    if matches!(role, "admin" | "teknisi" | "isp") {
+    if matches!(
+        role,
+        "admin" | "teknisi" | "isp" | "pelanggan" | "dbo" | "legal" | "direksi" | "keuangan"
+    ) {
         Ok(())
     } else {
         Err(ApiError::bad_request(
-            "Role harus salah satu dari: admin, teknisi, atau isp.",
+            "Role harus salah satu dari: admin, teknisi, isp, pelanggan, dbo, legal, direksi, atau keuangan.",
         ))
     }
 }
@@ -264,14 +267,20 @@ pub async fn create_user(
     }
 
     let password_hash = util::hash_password(&input.password)?;
+    // Akun Pelanggan dibuat oleh Admin dengan kredensial sementara. Pada
+    // login pertama middleware akan membatasi akses sampai password diganti.
+    let must_change_password = role == "pelanggan";
 
-    let result = sqlx::query("INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?)")
-        .bind(&email)
-        .bind(&password_hash)
-        .bind(&role)
-        .execute(&state.database)
-        .await
-        .map_err(ApiError::database)?;
+    let result = sqlx::query(
+        "INSERT INTO users (email, password_hash, role, must_change_password) VALUES (?, ?, ?, ?)",
+    )
+    .bind(&email)
+    .bind(&password_hash)
+    .bind(&role)
+    .bind(must_change_password)
+    .execute(&state.database)
+    .await
+    .map_err(ApiError::database)?;
 
     let id = result.last_insert_id();
 
