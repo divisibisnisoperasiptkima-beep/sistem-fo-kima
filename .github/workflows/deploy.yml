@@ -52,7 +52,10 @@ jobs:
         working-directory: frontend
         env:
           VITE_API_BASE_URL: https://fo.ptkimamakassar.co.id
-        run: npm run build
+        run: |
+          rm -rf dist
+          npm run build
+          printf '%s\n' "$GITHUB_SHA" > dist/deployment-version.txt
 
       - name: Package release
         shell: bash
@@ -121,6 +124,7 @@ jobs:
           tar -xzf "${artifact}" -C "${release_dir}"
           test -x "${release_dir}/backend/fo-kima-backend"
           test -f "${release_dir}/frontend/dist/index.html"
+          test "$(cat "${release_dir}/frontend/dist/deployment-version.txt")" = "${GITHUB_SHA}"
 
           cp -a "${DEPLOY_ROOT}/backend/target/release/fo-kima-backend" "${rollback_dir}/fo-kima-backend"
           cp -a "${DEPLOY_ROOT}/frontend/dist" "${rollback_dir}/dist"
@@ -137,6 +141,7 @@ jobs:
           install -m 0755 "${release_dir}/backend/fo-kima-backend" "${DEPLOY_ROOT}/backend/target/release/fo-kima-backend"
           rm -rf "${DEPLOY_ROOT}/frontend/dist"
           mv "${release_dir}/frontend/dist" "${DEPLOY_ROOT}/frontend/dist"
+          test "$(cat "${DEPLOY_ROOT}/frontend/dist/deployment-version.txt")" = "${GITHUB_SHA}"
 
           sudo -n /usr/bin/systemctl restart fo-kima-backend
           sudo -n /usr/sbin/nginx -t
