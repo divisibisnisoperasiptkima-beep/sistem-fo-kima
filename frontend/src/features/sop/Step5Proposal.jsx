@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { getSession, submitStep } from '../../lib/rust-api';
 
+const inputClass = "w-full px-3 py-2 text-sm rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/40 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-gold-accent/50 focus:border-gold-accent/50 transition-all";
+const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5";
+
 const Step5Proposal = ({ workflowId, workflow, onDone, onBack }) => {
   const [formData, setFormData] = useState({
     judul_proposal: '',
@@ -84,52 +87,56 @@ const Step5Proposal = ({ workflowId, workflow, onDone, onBack }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="flex flex-col gap-4">
+      <div className="rounded-2xl glass-card p-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Step 5: Penyusunan Proposal</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="h-[2px] w-8 bg-gold-accent" />
+            <p className="text-[10px] font-black text-gold-accent uppercase tracking-[0.4em]">SOP Step 5</p>
+          </div>
+          <h2 className="text-2xl font-black text-white">Penyusunan <span className="text-gold-accent italic">Proposal</span></h2>
+          <p className="text-sm text-slate-400 mt-1">
             Workflow: {workflow?.nama_lokasi || `#${workflowId}`}
             {workflow?.kode_lokasi ? ` | Kode: ${workflow.kode_lokasi}` : ''}
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-300">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Informasi Proposal</h3>
+          <div className="border-b border-white/10 pb-6">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider mb-4">Informasi Proposal</h3>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Judul Proposal *</label>
+                <label className={labelClass}>Judul Proposal *</label>
                 <input
                   type="text"
                   value={formData.judul_proposal}
                   onChange={(e) => setFormData({ ...formData, judul_proposal: e.target.value })}
                   placeholder="Contoh: Penawaran Layanan Fiber Optic untuk PT XYZ"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Proposal *</label>
+                <label className={labelClass}>Nomor Proposal *</label>
                 <div className="flex space-x-2">
                   <input
                     type="text"
                     value={formData.nomor_proposal}
                     onChange={(e) => setFormData({ ...formData, nomor_proposal: e.target.value })}
                     placeholder="PROP-2025-001"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`flex-1 ${inputClass}`}
                   />
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, nomor_proposal: generateNomorProposal() })}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 border border-gray-300"
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 border border-white/15 text-white hover:bg-white/15 transition-colors whitespace-nowrap"
                   >
                     Generate
                   </button>
@@ -137,83 +144,83 @@ const Step5Proposal = ({ workflowId, workflow, onDone, onBack }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Proposal *</label>
+                <label className={labelClass}>Tanggal Proposal *</label>
                 <input
                   type="date"
                   value={formData.tanggal_proposal}
                   onChange={(e) => setFormData({ ...formData, tanggal_proposal: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
             </div>
           </div>
 
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Struktur Biaya</h3>
+          <div className="border-b border-white/10 pb-6">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider mb-4">Struktur Biaya</h3>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nilai Penawaran (Total) *</label>
+                <label className={labelClass}>Nilai Penawaran (Total) *</label>
                 <input
                   type="number"
                   value={formData.nilai_penawaran}
                   onChange={(e) => setFormData({ ...formData, nilai_penawaran: parseFloat(e.target.value) || 0 })}
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Biaya Instalasi *</label>
+                <label className={labelClass}>Biaya Instalasi *</label>
                 <input
                   type="number"
                   value={formData.biaya_instalasi}
                   onChange={(e) => setFormData({ ...formData, biaya_instalasi: parseFloat(e.target.value) || 0 })}
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Biaya Bulanan *</label>
+                <label className={labelClass}>Biaya Bulanan *</label>
                 <input
                   type="number"
                   value={formData.biaya_bulanan}
                   onChange={(e) => setFormData({ ...formData, biaya_bulanan: parseFloat(e.target.value) || 0 })}
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Durasi Kontrak (bulan) *</label>
+                <label className={labelClass}>Durasi Kontrak (bulan) *</label>
                 <input
                   type="number"
                   value={formData.durasi_kontrak_bulan}
                   onChange={(e) => setFormData({ ...formData, durasi_kontrak_bulan: parseInt(e.target.value, 10) || 0 })}
                   placeholder="12"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Garansi SLA</label>
+                <label className={labelClass}>Garansi SLA</label>
                 <input
                   type="text"
                   value={formData.garansi_sla}
                   onChange={(e) => setFormData({ ...formData, garansi_sla: e.target.value })}
                   placeholder="Contoh: 99.5% uptime"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-md">
+            <div className="rounded-xl bg-gold-accent/10 border border-gold-accent/30 p-4">
               <div className="flex justify-between items-center">
-                <span className="font-medium text-gray-700">Total Nilai Kontrak:</span>
-                <span className="text-2xl font-bold text-blue-600">{calculateTotal()}</span>
+                <span className="font-bold text-sm text-slate-300">Total Nilai Kontrak:</span>
+                <span className="text-2xl font-black text-gold-accent">{calculateTotal()}</span>
               </div>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 Termasuk instalasi +{' '}
                 {(formData.durasi_kontrak_bulan * formData.biaya_bulanan).toLocaleString('id-ID', {
                   style: 'currency',
@@ -224,48 +231,50 @@ const Step5Proposal = ({ workflowId, workflow, onDone, onBack }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Terms & Conditions</label>
+            <label className={labelClass}>Terms & Conditions</label>
             <textarea
               value={formData.terms_conditions}
               onChange={(e) => setFormData({ ...formData, terms_conditions: e.target.value })}
               rows={4}
               placeholder="Syarat dan ketentuan kontrak, jadwal pembayaran, klausul penting lainnya..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
             />
           </div>
 
-          <div className="border-b pb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Upload File Proposal (PDF)</label>
+          <div className="border-b border-white/10 pb-6">
+            <label className={labelClass}>Upload File Proposal (PDF)</label>
             <input
               type="file"
               accept=".pdf,.doc,.docx"
               onChange={handleFileChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
             />
             {proposalFile && (
-              <p className="text-xs text-green-600 mt-2">
+              <p className="text-xs text-emerald-400 mt-2">
                 File dipilih: {proposalFile.name} ({(proposalFile.size / 1024 / 1024).toFixed(2)} MB)
               </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Catatan Internal DBO</label>
+            <label className={labelClass}>Catatan Internal DBO</label>
             <textarea
               value={formData.catatan_dbo}
               onChange={(e) => setFormData({ ...formData, catatan_dbo: e.target.value })}
               rows={3}
               placeholder="Catatan untuk tim internal (tidak ditampilkan ke customer)..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
             />
           </div>
 
-          <div className="flex space-x-4 pt-4 border-t">
+          <div className="flex space-x-4 pt-4 border-t border-white/10">
             <button
               type="submit"
               disabled={loading || !isFormValid()}
-              className={`flex-1 py-3 px-6 rounded-md font-medium text-white transition-colors ${
-                loading || !isFormValid() ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+              className={`flex-1 py-3 px-6 rounded-xl text-xs font-black uppercase tracking-wider transition-all backdrop-blur-md ${
+                loading || !isFormValid()
+                  ? 'bg-white/5 border border-white/10 text-slate-500 cursor-not-allowed'
+                  : 'bg-gold-accent/20 border border-gold-accent/40 text-gold-accent hover:bg-gold-accent/30'
               }`}
             >
               {loading ? 'Menyimpan...' : 'Simpan & Lanjut ke Presentasi'}
@@ -273,7 +282,7 @@ const Step5Proposal = ({ workflowId, workflow, onDone, onBack }) => {
             <button
               type="button"
               onClick={() => onBack?.()}
-              className="px-6 py-3 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md"
+              className="px-6 py-3 text-xs font-bold text-slate-400 hover:text-white border border-white/15 rounded-xl transition-colors"
             >
               Batal
             </button>

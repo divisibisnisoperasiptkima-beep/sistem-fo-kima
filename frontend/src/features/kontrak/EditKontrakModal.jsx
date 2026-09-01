@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, File, Paperclip, Download, Eye, Trash2 } from "lucide-react";
 import { updateContract, listCustomers, uploadDocument, listDocuments, deleteDocument, fetchDocumentContent } from "../../lib/rust-api";
-import { coreInputError, coreInputValue } from "./coreUtils";
+import { coreInputError, coreInputValue, SHARING_CORE_OPTIONS } from "./coreUtils";
 
 const STATUS_OPTIONS = [
   "Beroperasi",
@@ -12,7 +12,6 @@ const STATUS_OPTIONS = [
   "Berhenti",
 ];
 
-const SHARING_CORE_OPTIONS = ["1/2", "1/4", "1/8", "1/16", "1/32"];
 const KATEGORI_OPTIONS = ["Kontrak", "BAK-PKS", "Dokumen Lain"];
 
 /**
@@ -45,6 +44,13 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
     nama_lokasi: "",
     periode_awal: "",
     periode_berakhir: "",
+    tanggal_aktivasi: "",
+    latitude: "",
+    longitude: "",
+    power: "",
+    vlan_id: "",
+    mac_modem: "",
+    alamat_user: "",
     durasi_kontrak_bulan: "",
     status_kontrak: "Belum Beroperasi",
     kategori: "",
@@ -78,6 +84,13 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
         nama_lokasi: contract.nama_lokasi || "",
         periode_awal: contract.periode_awal || "",
         periode_berakhir: contract.periode_berakhir || "",
+        tanggal_aktivasi: contract.tanggal_aktivasi || "",
+        latitude: contract.latitude?.toString() || "",
+        longitude: contract.longitude?.toString() || "",
+        power: contract.power?.toString() || "",
+        vlan_id: contract.vlan_id?.toString() || "",
+        mac_modem: contract.mac_modem || "",
+        alamat_user: contract.alamat_user || "",
         durasi_kontrak_bulan: duration,
         status_kontrak: contract.status_kontrak || "Belum Beroperasi",
         kategori: contract.jalur || "",
@@ -266,6 +279,21 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
         newErrors.periode_berakhir = "Periode berakhir harus setelah periode awal";
       }
     }
+    if (formData.latitude !== "" && (Number.isNaN(Number(formData.latitude)) || Number(formData.latitude) < -90 || Number(formData.latitude) > 90)) {
+      newErrors.latitude = "Latitude harus berada di antara -90 dan 90";
+    }
+    if (formData.longitude !== "" && (Number.isNaN(Number(formData.longitude)) || Number(formData.longitude) < -180 || Number(formData.longitude) > 180)) {
+      newErrors.longitude = "Longitude harus berada di antara -180 dan 180";
+    }
+    if (formData.power !== "" && (Number.isNaN(Number(formData.power)) || Number(formData.power) < -200 || Number(formData.power) > 200)) {
+      newErrors.power = "Power harus berada di antara -200 dan 200 dBm";
+    }
+    if (formData.vlan_id !== "" && (!/^\d+$/.test(formData.vlan_id) || Number(formData.vlan_id) < 1 || Number(formData.vlan_id) > 4094)) {
+      newErrors.vlan_id = "VLAN ID harus berada di antara 1 dan 4094";
+    }
+    if (formData.mac_modem.trim() !== "" && !/^(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}$/.test(formData.mac_modem.trim()) && !/^[0-9a-fA-F]{12}$/.test(formData.mac_modem.trim())) {
+      newErrors.mac_modem = "Gunakan format AA:BB:CC:DD:EE:FF";
+    }
     if (!formData.sharing_core) {
       const coreError = coreInputError(formData.core);
       if (coreError) newErrors.core = coreError;
@@ -305,6 +333,10 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
       if (payload.perbulan) payload.perbulan = parseFloat(payload.perbulan);
       if (payload.nilai_periode_aktif) payload.nilai_periode_aktif = parseFloat(payload.nilai_periode_aktif);
       if (payload.durasi_kontrak_bulan) payload.durasi_kontrak_bulan = parseInt(payload.durasi_kontrak_bulan, 10);
+      if (payload.latitude) payload.latitude = parseFloat(payload.latitude);
+      if (payload.longitude) payload.longitude = parseFloat(payload.longitude);
+      if (payload.power) payload.power = parseFloat(payload.power);
+      if (payload.vlan_id) payload.vlan_id = parseInt(payload.vlan_id, 10);
 
       await updateContract(session.token, contract.id, payload);
 
@@ -530,6 +562,122 @@ export default function EditKontrakModal({ isOpen, onClose, onSuccess, contract,
                   {errors.periode_berakhir && (
                     <p className="text-xs text-red-400">{errors.periode_berakhir}</p>
                   )}
+                </div>
+              </div>
+            </div>
+
+            {/* Section: Detail Teknis */}
+            <div className="space-y-4 rounded-xl border border-sky-400/15 bg-sky-400/[0.03] p-4">
+              <div>
+                <h3 className="text-sm font-medium uppercase tracking-wide text-slate-300">
+                  Detail Teknis & Lokasi
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  Data instalasi dapat dilengkapi atau dikoreksi setelah aktivasi.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Tanggal Aktivasi</label>
+                  <input
+                    type="date"
+                    name="tanggal_aktivasi"
+                    value={formData.tanggal_aktivasi}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Power <span className="text-xs font-normal text-slate-500">(dBm)</span></label>
+                  <input
+                    type="number"
+                    name="power"
+                    value={formData.power}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="-200"
+                    max="200"
+                    step="0.01"
+                    placeholder="Contoh: -18.50"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.power && <p className="text-xs text-red-400">{errors.power}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Latitude</label>
+                  <input
+                    type="number"
+                    name="latitude"
+                    value={formData.latitude}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="-90"
+                    max="90"
+                    step="0.0000001"
+                    placeholder="Contoh: -5.1234567"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.latitude && <p className="text-xs text-red-400">{errors.latitude}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">Longitude</label>
+                  <input
+                    type="number"
+                    name="longitude"
+                    value={formData.longitude}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="-180"
+                    max="180"
+                    step="0.0000001"
+                    placeholder="Contoh: 119.4123456"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.longitude && <p className="text-xs text-red-400">{errors.longitude}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">VLAN ID</label>
+                  <input
+                    type="number"
+                    name="vlan_id"
+                    value={formData.vlan_id}
+                    onChange={handleChange}
+                    disabled={loading}
+                    min="1"
+                    max="4094"
+                    step="1"
+                    placeholder="1–4094"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.vlan_id && <p className="text-xs text-red-400">{errors.vlan_id}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-300">MAC Modem</label>
+                  <input
+                    type="text"
+                    name="mac_modem"
+                    value={formData.mac_modem}
+                    onChange={handleChange}
+                    disabled={loading}
+                    maxLength={17}
+                    placeholder="AA:BB:CC:DD:EE:FF"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
+                  {errors.mac_modem && <p className="text-xs text-red-400">{errors.mac_modem}</p>}
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="block text-sm font-medium text-slate-300">Alamat User</label>
+                  <textarea
+                    name="alamat_user"
+                    value={formData.alamat_user}
+                    onChange={handleChange}
+                    disabled={loading}
+                    rows={2}
+                    placeholder="Alamat titik pemasangan/perangkat user"
+                    className="w-full resize-y rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2.5 text-white placeholder-slate-500 transition-all focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/30 disabled:opacity-50"
+                  />
                 </div>
               </div>
             </div>

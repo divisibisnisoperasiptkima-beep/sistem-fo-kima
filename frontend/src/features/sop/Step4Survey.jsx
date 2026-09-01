@@ -7,6 +7,9 @@ import { getSession, submitStep } from '../../lib/rust-api';
 const makePlaceholderDriveId = (type) =>
   `local-${type}-${Math.random().toString(36).slice(2, 10)}`;
 
+const inputClass = "w-full px-3 py-2 text-sm rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/40 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-gold-accent/50 focus:border-gold-accent/50 transition-all";
+const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5";
+
 const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
   const [formData, setFormData] = useState({
     hasil_survey: '',
@@ -86,64 +89,66 @@ const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
 
   const kesiapanClass =
     formData.kesiapan_jalur === 'ready'
-      ? 'bg-green-50 border-green-200 text-green-800'
-      : 'bg-red-50 border-red-200 text-red-800';
+      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+      : 'bg-rose-500/10 border-rose-500/30 text-rose-300';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="flex flex-col gap-4">
+      <div className="rounded-2xl glass-card p-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Step 4: Survey Teknis</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="h-[2px] w-8 bg-gold-accent" />
+            <p className="text-[10px] font-black text-gold-accent uppercase tracking-[0.4em]">SOP Step 4</p>
+          </div>
+          <h2 className="text-2xl font-black text-white">Survey <span className="text-gold-accent italic">Teknis</span></h2>
+          <p className="text-sm text-slate-400 mt-1">
             Workflow: {workflow?.nama_lokasi || `#${workflowId}`}
             {workflow?.kode_lokasi ? ` | Kode: ${workflow.kode_lokasi}` : ''}
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-300">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Hasil Survey Lapangan</h3>
+          <div className="border-b border-white/10 pb-6">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider mb-3">Hasil Survey Lapangan</h3>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Foto Lokasi *</label>
+                <label className={labelClass}>Foto Lokasi *</label>
                 <input
                   type="file"
                   multiple
                   accept="image/*"
                   onChange={(e) => addPhotos(e.target.files, 'location')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
                 {formData.foto_lokasi.length > 0 && (
-                  <p className="text-xs text-green-600 mt-1">{formData.foto_lokasi.length} foto dipilih</p>
+                  <p className="text-xs text-emerald-400 mt-1">{formData.foto_lokasi.length} foto dipilih</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Foto Jalur FO *</label>
+                <label className={labelClass}>Foto Jalur FO *</label>
                 <input
                   type="file"
                   multiple
                   accept="image/*"
                   onChange={(e) => addPhotos(e.target.files, 'route')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
                 {formData.foto_jalur.length > 0 && (
-                  <p className="text-xs text-green-600 mt-1">{formData.foto_jalur.length} foto dipilih</p>
+                  <p className="text-xs text-emerald-400 mt-1">{formData.foto_jalur.length} foto dipilih</p>
                 )}
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Koordinat Lokasi (Auto-detect via GPS)
-              </label>
+              <label className={labelClass}>Koordinat Lokasi (Auto-detect via GPS)</label>
               <div className="flex space-x-4">
                 <input
                   type="number"
@@ -153,7 +158,7 @@ const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
                     setFormData({ ...formData, koordinat_lat: e.target.value ? parseFloat(e.target.value) : null })
                   }
                   placeholder="Latitude"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`flex-1 ${inputClass}`}
                 />
                 <input
                   type="number"
@@ -163,12 +168,12 @@ const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
                     setFormData({ ...formData, koordinat_lng: e.target.value ? parseFloat(e.target.value) : null })
                   }
                   placeholder="Longitude"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`flex-1 ${inputClass}`}
                 />
                 <button
                   type="button"
                   onClick={handleGeoLocation}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-gold-accent/20 border border-gold-accent/40 text-gold-accent hover:bg-gold-accent/30 transition-all whitespace-nowrap"
                 >
                   Auto GPS
                 </button>
@@ -176,20 +181,20 @@ const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Hasil Survey *</label>
+              <label className={labelClass}>Deskripsi Hasil Survey *</label>
               <textarea
                 value={formData.hasil_survey}
                 onChange={(e) => setFormData({ ...formData, hasil_survey: e.target.value })}
                 rows={4}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 placeholder="Jelaskan kondisi lokasi, jalur FO yang tersedia, aksesibilitas, dan hambatan teknis lainnya..."
               />
             </div>
           </div>
 
-          <div className={`border-l-4 p-4 ${kesiapanClass}`}>
-            <h3 className="text-lg font-semibold mb-3">Keputusan Kesiapan Jalur</h3>
+          <div className={`rounded-xl border-l-4 p-4 ${kesiapanClass}`}>
+            <h3 className="text-sm font-black uppercase tracking-wider mb-3">Keputusan Kesiapan Jalur</h3>
 
             <div className="space-y-3 mb-4">
               <label className="flex items-center space-x-3 cursor-pointer">
@@ -199,9 +204,9 @@ const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
                   value="ready"
                   checked={formData.kesiapan_jalur === 'ready'}
                   onChange={(e) => setFormData({ ...formData, kesiapan_jalur: e.target.value })}
-                  className="w-5 h-5"
+                  className="w-5 h-5 accent-emerald-500"
                 />
-                <span className="font-medium">Jalur Siap - Dapat melanjutkan ke tahap proposal</span>
+                <span className="font-bold text-sm">Jalur Siap - Dapat melanjutkan ke tahap proposal</span>
               </label>
 
               <label className="flex items-center space-x-3 cursor-pointer">
@@ -211,47 +216,47 @@ const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
                   value="not_ready"
                   checked={formData.kesiapan_jalur === 'not_ready'}
                   onChange={(e) => setFormData({ ...formData, kesiapan_jalur: e.target.value })}
-                  className="w-5 h-5"
+                  className="w-5 h-5 accent-rose-500"
                 />
-                <span className="font-medium">Jalur Tidak Siap - Perlu revisi lokasi/penyesuaian</span>
+                <span className="font-bold text-sm">Jalur Tidak Siap - Perlu revisi lokasi/penyesuaian</span>
               </label>
             </div>
 
             {formData.kesiapan_jalur === 'not_ready' && (
               <div>
-                <label className="block text-sm font-medium mb-1">Alasan Ketidaksiapan & Rekomendasi *</label>
+                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5">Alasan Ketidaksiapan & Rekomendasi *</label>
                 <textarea
                   value={formData.rekomendasi_jalur}
                   onChange={(e) => setFormData({ ...formData, rekomendasi_jalur: e.target.value })}
                   rows={3}
                   placeholder="Jelaskan mengapa jalur tidak siap dan berikan rekomendasi perbaikan..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Catatan Teknis Tambahan</label>
+            <label className={labelClass}>Catatan Teknis Tambahan</label>
             <textarea
               value={formData.catatan_teknis}
               onChange={(e) => setFormData({ ...formData, catatan_teknis: e.target.value })}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               placeholder="Catatan lain yang perlu diperhatikan (misal: risiko lingkungan, izin setempat, dll)..."
             />
           </div>
 
-          <div className="flex space-x-4 pt-4 border-t">
+          <div className="flex space-x-4 pt-4 border-t border-white/10">
             <button
               type="submit"
               disabled={loading || !formData.hasil_survey.trim()}
-              className={`flex-1 py-3 px-6 rounded-md font-medium text-white transition-colors ${
+              className={`flex-1 py-3 px-6 rounded-xl text-xs font-black uppercase tracking-wider transition-all backdrop-blur-md ${
                 loading || !formData.hasil_survey.trim()
-                  ? 'bg-gray-400 cursor-not-allowed'
+                  ? 'bg-white/5 border border-white/10 text-slate-500 cursor-not-allowed'
                   : formData.kesiapan_jalur === 'ready'
-                  ? 'bg-green-600 hover:bg-green-700'
-                  : 'bg-red-600 hover:bg-red-700'
+                  ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30'
+                  : 'bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500/30'
               }`}
             >
               {loading ? 'Menyimpan...' : 'Submit Survey'}
@@ -259,7 +264,7 @@ const Step4Survey = ({ workflowId, workflow, onDone, onBack }) => {
             <button
               type="button"
               onClick={() => onBack?.()}
-              className="px-6 py-3 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md"
+              className="px-6 py-3 text-xs font-bold text-slate-400 hover:text-white border border-white/15 rounded-xl transition-colors"
             >
               Batal
             </button>

@@ -1,5 +1,26 @@
 import { useState, useEffect } from 'react';
 import { getSession, listWorkflows } from '../../lib/rust-api';
+import { roleLabel } from './workflowResponsibility';
+
+const BADGE_MAP = {
+  completed: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  rejected: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+  cancelled: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  draft: "bg-slate-500/15 text-slate-400 border-slate-500/30",
+  default: "bg-sky-500/15 text-sky-400 border-sky-500/30",
+};
+
+const inputClass = "w-full px-3 py-2 text-sm rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/40 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-gold-accent/50 focus:border-gold-accent/50 transition-all";
+const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5";
+
+function StatCard({ label, value, valueClass = "text-white" }) {
+  return (
+    <div className="rounded-2xl p-4 bg-slate-900/40 border border-white/10">
+      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+      <h3 className={`text-2xl font-black ${valueClass}`}>{value}</h3>
+    </div>
+  );
+}
 
 const InternalWorkflowDashboard = ({ onNavigateStep }) => {
   const [workflows, setWorkflows] = useState([]);
@@ -49,18 +70,16 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
   };
 
   const getStatusBadge = (status) => {
-    switch(status.toLowerCase()) {
-      case 'completed':
-        return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">✅ Completed</span>;
-      case 'rejected':
-        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">❌ Rejected</span>;
-      case 'cancelled':
-        return <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">⚠️ Cancelled</span>;
-      case 'draft':
-        return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">📝 Draft</span>;
-      default:
-        return <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">🟢 In Progress</span>;
-    }
+    const key = status.toLowerCase();
+    const cls = BADGE_MAP[key] || BADGE_MAP.default;
+    const labelMap = {
+      completed: '✅ Completed',
+      rejected: '❌ Rejected',
+      cancelled: '⚠️ Cancelled',
+      draft: '📝 Draft',
+    };
+    const label = labelMap[key] || '🟢 In Progress';
+    return <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold border ${cls}`}>{label}</span>;
   };
 
   const getSLAIndicator = (createdAt) => {
@@ -70,20 +89,20 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
     const now = new Date();
     const diffDays = Math.floor((now - createdAtDate) / (1000 * 60 * 60 * 24));
 
-    let color, label;
+    let cls, label;
     if (diffDays <= 5) {
-      color = 'bg-green-500';
+      cls = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
       label = `${diffDays}d`;
     } else if (diffDays <= 10) {
-      color = 'bg-yellow-500';
+      cls = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
       label = `${diffDays}d ⚠️`;
     } else {
-      color = 'bg-red-500';
+      cls = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
       label = `${diffDays}d 🔴`;
     }
 
     return (
-      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-white text-xs font-bold ${color}`} title={`Active for ${diffDays} days`}>
+      <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] font-bold ${cls}`} title={`Active for ${diffDays} days`}>
         {label}
       </div>
     );
@@ -120,142 +139,136 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="flex justify-center items-center min-h-[60vh]">
         <div className="text-center">
-          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-          <p className="text-sm font-medium text-gray-600">Memuat workflow...</p>
+          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-gold-accent border-t-transparent" />
+          <p className="text-xs font-bold text-slate-400">Memuat workflow...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="flex flex-col gap-4">
       {/* Header */}
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">SOP Workflow Management</h1>
-        <p className="text-sm text-gray-600 mt-1">Kelola dan pantau proses SOP 18 langkah</p>
+      <header>
+        <div className="flex items-center gap-3 mb-2">
+          <span className="h-[2px] w-8 bg-gold-accent" />
+          <p className="text-[10px] font-black text-gold-accent uppercase tracking-[0.4em]">Manajemen Workflow</p>
+        </div>
+        <h1 className="text-3xl font-black text-white">
+          SOP Workflow <span className="text-gold-accent italic">Management</span>
+        </h1>
+        <p className="text-sm text-slate-400 mt-1">Kelola dan pantau proses SOP 18 langkah</p>
       </header>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="rounded-2xl glass-card p-4">
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label className={labelClass}>Status</label>
             <select
               value={filters.status}
               onChange={(e) => setFilters({...filters, status: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
             >
-              <option value="all">Semua</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="rejected">Rejected</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="draft">Draft</option>
+              <option value="all" className="bg-slate-900">Semua</option>
+              <option value="in_progress" className="bg-slate-900">In Progress</option>
+              <option value="completed" className="bg-slate-900">Completed</option>
+              <option value="rejected" className="bg-slate-900">Rejected</option>
+              <option value="cancelled" className="bg-slate-900">Cancelled</option>
+              <option value="draft" className="bg-slate-900">Draft</option>
             </select>
           </div>
 
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+            <label className={labelClass}>Assigned To</label>
             <select
               value={filters.assigned}
               onChange={(e) => setFilters({...filters, assigned: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
             >
-              <option value="all">Semua</option>
-              <option value="customer">Customer/Pelanggan</option>
-              <option value="dbo">DBO</option>
-              <option value="teknisi">Teknisi</option>
-              <option value="legal">Legal</option>
-              <option value="direksi">Direksi</option>
-              <option value="keuangan">Keuangan</option>
-              <option value="admin">Admin</option>
+              <option value="all" className="bg-slate-900">Semua</option>
+              <option value="customer" className="bg-slate-900">Customer/Pelanggan</option>
+              <option value="dbo" className="bg-slate-900">DBO</option>
+              <option value="teknisi" className="bg-slate-900">Teknisi</option>
+              <option value="legal" className="bg-slate-900">Legal</option>
+              <option value="direksi" className="bg-slate-900">Direksi</option>
+              <option value="keuangan" className="bg-slate-900">Keuangan</option>
+              <option value="admin" className="bg-slate-900">Admin</option>
             </select>
           </div>
 
           <div className="flex-1 min-w-[300px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label className={labelClass}>Search</label>
             <input
               type="text"
               placeholder="Cari kode lokasi atau nama pelanggan..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
             />
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-sm font-medium text-gray-500">Total Active</h3>
-          <p className="text-2xl font-bold text-blue-600">{stats.total}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-sm font-medium text-gray-500">In Progress</h3>
-          <p className="text-2xl font-bold text-blue-600">{stats.inProgress}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-sm font-medium text-gray-500">Completed</h3>
-          <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-sm font-medium text-gray-500">Rejected</h3>
-          <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
-        </div>
+      <div className="grid grid-cols-4 gap-4">
+        <StatCard label="Total Active" value={stats.total} />
+        <StatCard label="In Progress" value={stats.inProgress} valueClass="text-sky-400" />
+        <StatCard label="Completed" value={stats.completed} valueClass="text-emerald-400" />
+        <StatCard label="Rejected" value={stats.rejected} valueClass="text-rose-400" />
       </div>
 
       {/* Workflow List */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Active Workflows ({filteredWorkflows.length})</h2>
+      <div className="rounded-2xl glass-card overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/10">
+          <h2 className="text-sm font-black text-white uppercase tracking-wider">Active Workflows ({filteredWorkflows.length})</h2>
         </div>
 
         {filteredWorkflows.length === 0 ? (
           <div className="p-12 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="mx-auto h-12 w-12 text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-gray-500">Tidak ada workflow ditemukan.</p>
+            <p className="text-slate-400 text-sm">Tidak ada workflow ditemukan.</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-white/10">
             {filteredWorkflows.map((workflow) => (
               <div
                 key={workflow.id}
                 onClick={() => handleWorkflowClick(workflow)}
-                className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                  selectedWorkflow?.id === workflow.id ? 'bg-blue-50' : ''
+                className={`px-6 py-4 hover:bg-white/5 cursor-pointer transition-colors ${
+                  selectedWorkflow?.id === workflow.id ? 'bg-gold-accent/5' : ''
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-4">
                     <div className="flex items-center space-x-3">
-                      <h3 className="text-base font-semibold text-gray-900">{workflow.kode_lokasi}</h3>
+                      <h3 className="text-sm font-bold text-white">{workflow.kode_lokasi}</h3>
                       {getStatusBadge(workflow.status)}
                       {getSLAIndicator(workflow.created_at)}
                     </div>
 
-                    <p className="text-sm text-gray-700 mt-1">{workflow.nama_lokasi}</p>
-                    <p className="text-sm text-gray-500">{workflow.pelanggan_nama}</p>
+                    <p className="text-sm text-slate-300 mt-1">{workflow.nama_lokasi}</p>
+                    <p className="text-xs text-slate-500">{workflow.pelanggan_nama}</p>
 
-                    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                      <span className="font-medium">Step:</span>
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md font-bold">
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                      <span className="font-bold">Step:</span>
+                      <span className="bg-sky-500/15 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded-md font-bold">
                         {workflow.current_step}/18
                       </span>
                       <span>•</span>
-                      <span className={`${workflow.assigned_to_role === 'customer' ? 'text-green-600' : workflow.assigned_to_role === 'dbo' ? 'text-blue-600' : ''}`}>
-                        {workflow.assigned_to_role?.toUpperCase()}
+                      <span className={`font-bold ${workflow.assigned_to_role === 'customer' ? 'text-emerald-400' : workflow.assigned_to_role === 'dbo' ? 'text-sky-400' : 'text-slate-400'}`}>
+                        {roleLabel(workflow.assigned_to_role)}
                       </span>
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="mt-3 w-full max-w-md bg-gray-200 rounded-full h-2">
+                    <div className="mt-3 h-2 w-full max-w-md overflow-hidden rounded-full bg-slate-950/50">
                       <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          workflow.status === 'rejected' ? 'bg-red-500' :
-                          workflow.status === 'completed' ? 'bg-green-500' : 'bg-blue-600'
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          workflow.status === 'rejected' ? 'bg-rose-500' :
+                          workflow.status === 'completed' ? 'bg-emerald-500' : 'bg-sky-400'
                         }`}
                         style={{ width: `${(workflow.current_step / 18) * 100}%` }}
                       ></div>
@@ -266,11 +279,11 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleNavigateToStep(workflow.id, workflow.current_step + 1);
+                          handleNavigateToStep(workflow.id, workflow.current_step);
                         }}
-                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                        className="px-3 py-1 text-xs font-bold rounded-lg bg-gold-accent/20 border border-gold-accent/40 text-gold-accent hover:bg-gold-accent/30 transition-colors"
                       >
-                        Lanjut ke Step →
+                        Kerjakan Step {workflow.current_step} →
                       </button>
                       <button
                         onClick={(e) => {
@@ -278,7 +291,7 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
                           // TODO: Implement view details modal/page
                           alert(`View Details untuk workflow ID: ${workflow.id}\nCurrent Step: ${workflow.current_step}`);
                         }}
-                        className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                        className="px-3 py-1 text-xs font-bold rounded-lg bg-white/10 border border-white/15 text-white hover:bg-white/15 transition-colors"
                       >
                         View Details
                       </button>
@@ -287,7 +300,7 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
                           e.stopPropagation();
                           alert(`Assign workflow to user\nCurrently assigned to: ${workflow.assigned_to_role || 'Unassigned'}`);
                         }}
-                        className="px-3 py-1 text-sm bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                        className="px-3 py-1 text-xs font-bold rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
                       >
                         Assign
                       </button>
@@ -296,10 +309,10 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
 
                   {/* Status Column */}
                   <div className="text-right">
-                    <div className="text-xs text-gray-500 mb-1">
+                    <div className="text-[11px] text-slate-500 mb-1">
                       Created: {new Date(workflow.created_at).toLocaleDateString('id-ID')}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-[11px] text-slate-500">
                       Updated: {new Date(workflow.updated_at).toLocaleDateString('id-ID')}
                     </div>
                   </div>
@@ -311,10 +324,10 @@ const InternalWorkflowDashboard = ({ onNavigateStep }) => {
       </div>
 
       {/* Refresh Button */}
-      <div className="mt-4 flex justify-end">
+      <div className="flex justify-end">
         <button
           onClick={fetchWorkflows}
-          className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2"
+          className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 border border-white/15 text-white hover:bg-white/15 transition-colors flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

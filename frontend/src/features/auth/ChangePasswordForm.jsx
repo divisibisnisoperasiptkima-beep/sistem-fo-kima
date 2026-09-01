@@ -154,7 +154,7 @@ export default function ChangePasswordForm({ token, onSuccess, onCancel }) {
               color: "rgba(255,255,255,0.65)", textTransform: "uppercase", letterSpacing: "0.08em",
               marginTop: "-0.25rem"
             }}>
-              Nanti Saja
+              Kembali ke login
             </button>
           </form>
         </div>

@@ -6,7 +6,7 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
-use sqlx::Row;
+use sqlx::{MySql, Row, Transaction};
 
 use crate::{
     drive::{ensure_pelanggan_tree, folder_url, parse_drive_folder_id, sanitize_folder_name},
@@ -19,6 +19,79 @@ use crate::{
     state::AppState,
     util::{optional_trim_or_keep, pagination, require_admin, require_business_read, trim_opt},
 };
+
+/// Menjamin setiap record pada master `pelanggan` juga tersedia di direktori
+/// ISP. KIMA memakai istilah Pelanggan untuk ISP, sementara akun pemohon tetap
+/// disimpan pada `portal_registrations` sebagai Lokasi/Tenant.
+async fn ensure_isp_directory_mapping(
+    tx: &mut Transaction<'_, MySql>,
+    pelanggan_id: u64,
+    nama_isp: &str,
+    pic_nama: Option<&str>,
+    email: Option<&str>,
+    telepon: Option<&str>,
+    keterangan: Option<&str>,
+    created_by_user_id: u64,
+) -> Result<(), ApiError> {
+    let existing: Option<(u64, Option<u64>)> = sqlx::query_as(
+        "SELECT id, pelanggan_id FROM isp_directory
+         WHERE LOWER(nama_isp) = LOWER(?) LIMIT 1 FOR UPDATE",
+    )
+    .bind(nama_isp)
+    .fetch_optional(&mut **tx)
+    .await
+    .map_err(ApiError::database)?;
+
+    if let Some((directory_id, mapped_pelanggan_id)) = existing {
+        if let Some(mapped_pelanggan_id) = mapped_pelanggan_id
+            && mapped_pelanggan_id != pelanggan_id
+        {
+            return Err(ApiError::conflict(
+                "Nama ISP sudah digunakan oleh master pelanggan lain.",
+            ));
+        }
+        sqlx::query(
+            "UPDATE isp_directory
+             SET pelanggan_id = ?, nama_isp = ?, pic_nama = ?, email = ?,
+                 telepon = ?, catatan = ?
+             WHERE id = ?",
+        )
+        .bind(pelanggan_id)
+        .bind(nama_isp)
+        .bind(pic_nama)
+        .bind(email)
+        .bind(telepon)
+        .bind(keterangan)
+        .bind(directory_id)
+        .execute(&mut **tx)
+        .await
+        .map_err(ApiError::database)?;
+    } else {
+        sqlx::query(
+            "INSERT INTO isp_directory
+                (pelanggan_id, nama_isp, pic_nama, email, telepon, catatan,
+                 status, created_by_user_id)
+             VALUES (?, ?, ?, ?, ?, ?, 'aktif', ?)",
+        )
+        .bind(pelanggan_id)
+        .bind(nama_isp)
+        .bind(pic_nama)
+        .bind(email)
+        .bind(telepon)
+        .bind(keterangan)
+        .bind(created_by_user_id)
+        .execute(&mut **tx)
+        .await
+        .map_err(|error| {
+            if matches!(error, sqlx::Error::Database(_)) {
+                ApiError::conflict("Nama ISP sudah terdaftar di direktori.")
+            } else {
+                ApiError::database(error)
+            }
+        })?;
+    }
+    Ok(())
+}
 
 pub async fn get_next_pelanggan_code(
     State(state): State<Arc<AppState>>,
@@ -85,7 +158,7 @@ pub async fn list_customers(
     let total: i64 = if has_search {
         sqlx::query_scalar(
             "SELECT COUNT(*) FROM pelanggan p \
-             WHERE (? <> 'isp' OR EXISTS ( \
+             WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = p.id \
              )) AND ( \
@@ -108,7 +181,7 @@ pub async fn list_customers(
     } else {
         sqlx::query_scalar(
             "SELECT COUNT(*) FROM pelanggan p \
-             WHERE ? <> 'isp' OR EXISTS ( \
+             WHERE ? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = p.id \
              )",
@@ -128,7 +201,7 @@ pub async fn list_customers(
                 (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Belum Beroperasi') AS lokasi_belum_beroperasi, \
                 (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Proses Perpanjangan') AS lokasi_proses_perpanjangan \
              FROM pelanggan p \
-             WHERE (? <> 'isp' OR EXISTS ( \
+             WHERE (? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = p.id \
              )) AND ( \
@@ -159,7 +232,7 @@ pub async fn list_customers(
                 (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Belum Beroperasi') AS lokasi_belum_beroperasi, \
                 (SELECT COUNT(*) FROM lokasi WHERE pelanggan_id = p.id AND status_kontrak = 'Proses Perpanjangan') AS lokasi_proses_perpanjangan \
              FROM pelanggan p \
-             WHERE ? <> 'isp' OR EXISTS ( \
+             WHERE ? NOT IN ('isp', 'pelanggan') OR EXISTS ( \
                SELECT 1 FROM user_pelanggan_access a \
                WHERE a.user_id = ? AND a.pelanggan_id = p.id \
              ) \
@@ -246,6 +319,18 @@ pub async fn create_customer(
     .await
     .map_err(ApiError::database)?;
     let id = result.last_insert_id();
+
+    ensure_isp_directory_mapping(
+        &mut tx,
+        id,
+        &nama_pelanggan,
+        pic.as_deref(),
+        email.as_deref(),
+        telepon.as_deref(),
+        keterangan.as_deref(),
+        auth.id,
+    )
+    .await?;
 
     let (_, berkas_id) = match ensure_pelanggan_tree(
         &state.drive,
@@ -347,6 +432,30 @@ pub async fn update_customer(
     .execute(&state.database)
     .await
     .map_err(ApiError::database)?;
+
+    // Jaga nama/kontak pada direktori ISP tetap sejalan dengan master
+    // Pelanggan. Record lama tanpa direktori tidak dipaksa dibuat ulang di
+    // jalur update; admin dapat menambahkannya dari menu Direktori ISP.
+    if let Err(error) = sqlx::query(
+        "UPDATE isp_directory
+         SET nama_isp = ?, pic_nama = ?, email = ?, telepon = ?, catatan = ?
+         WHERE pelanggan_id = ?",
+    )
+    .bind(&final_nama)
+    .bind(&pic)
+    .bind(&email)
+    .bind(&telepon)
+    .bind(&keterangan)
+    .bind(id)
+    .execute(&state.database)
+    .await
+    {
+        tracing::warn!(
+            id,
+            ?error,
+            "Gagal menyelaraskan master Pelanggan dengan direktori ISP"
+        );
+    }
 
     // Hitung lokasi
     let lokasi_beroperasi: i64 = sqlx::query_scalar(
@@ -453,6 +562,15 @@ pub async fn delete_customer(
             contract_count
         )));
     }
+
+    // Hapus entri direktori ISP yang merupakan pasangan master ini terlebih
+    // dahulu agar tidak meninggalkan ISP tanpa folder/master yang tidak dapat
+    // dipilih pada survei berikutnya.
+    sqlx::query("DELETE FROM isp_directory WHERE pelanggan_id = ?")
+        .bind(id)
+        .execute(&mut *tx)
+        .await
+        .map_err(ApiError::database)?;
 
     sqlx::query("DELETE FROM pelanggan WHERE id = ?")
         .bind(id)

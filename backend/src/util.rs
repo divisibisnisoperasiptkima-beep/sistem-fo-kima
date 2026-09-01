@@ -69,7 +69,7 @@ pub fn require_staff(role: &str) -> Result<(), ApiError> {
 }
 
 pub fn require_document_upload(role: &str) -> Result<(), ApiError> {
-    if matches!(role, "admin" | "isp") {
+    if matches!(role, "admin" | "isp" | "teknisi" | "keuangan" | "pelanggan") {
         Ok(())
     } else {
         Err(ApiError::forbidden(
@@ -79,7 +79,7 @@ pub fn require_document_upload(role: &str) -> Result<(), ApiError> {
 }
 
 pub fn require_business_read(role: &str) -> Result<(), ApiError> {
-    if matches!(role, "admin" | "isp") {
+    if matches!(role, "admin" | "isp" | "pelanggan") {
         Ok(())
     } else {
         Err(ApiError::forbidden(
@@ -107,6 +107,23 @@ pub fn hash_password(password: &str) -> Result<String, ApiError> {
         .hash_password(password.as_bytes(), &salt)
         .map(|h| h.to_string())
         .map_err(|_| ApiError::internal("Gagal menghasilkan hash kata sandi."))
+}
+
+/// Buat password acak alfanumerik (huruf besar/kecil + digit) untuk akun yang dibuat
+/// sistem saat admin menyetujui pendaftaran portal. Sumber acak memakai `OsRng` yang
+/// sama dengan `hash_password`, jadi tidak perlu menambah dependency `rand`.
+#[allow(dead_code)] // Disiapkan untuk pembuatan akun pada tahap workflow berikutnya.
+pub fn generate_random_password(length: usize) -> String {
+    use argon2::password_hash::rand_core::{OsRng, RngCore};
+
+    const CHARSET: &[u8] = b"ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+    let mut rng = OsRng;
+    (0..length)
+        .map(|_| {
+            let idx = (rng.next_u32() as usize) % CHARSET.len();
+            CHARSET[idx] as char
+        })
+        .collect()
 }
 
 pub fn parse_date(value: &str) -> Result<NaiveDate, ApiError> {

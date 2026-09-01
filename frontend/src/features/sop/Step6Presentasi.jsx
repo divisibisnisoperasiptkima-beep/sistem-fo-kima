@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { getSession, submitStep } from '../../lib/rust-api';
 
+const inputClass = "w-full px-3 py-2 text-sm rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/40 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-gold-accent/50 focus:border-gold-accent/50 transition-all";
+const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5";
+
 const Step6Presentasi = ({ workflowId, workflow, userRole, onDone, onBack }) => {
   const [formData, setFormData] = useState({
     tanggal_presentasi: '',
@@ -74,81 +77,77 @@ const Step6Presentasi = ({ workflowId, workflow, userRole, onDone, onBack }) => 
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="flex flex-col gap-4">
+      <div className="rounded-2xl glass-card p-6">
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Step 6: Presentasi Proposal</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="h-[2px] w-8 bg-gold-accent" />
+            <p className="text-[10px] font-black text-gold-accent uppercase tracking-[0.4em]">SOP Step 6</p>
+          </div>
+          <h2 className="text-2xl font-black text-white">Presentasi <span className="text-gold-accent italic">Proposal</span></h2>
+          <p className="text-sm text-slate-400 mt-1">
             Workflow: {workflow?.nama_lokasi || `#${workflowId}`}
             {workflow?.kode_lokasi ? ` | Kode: ${workflow.kode_lokasi}` : ''}
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-300">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Info Presentasi */}
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="border-b border-white/10 pb-6">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider mb-4">
               {isDBO ? '📊 Detail Presentasi' : '📋 Ringkasan Presentasi'}
             </h3>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tanggal Presentasi *
-                </label>
+                <label className={labelClass}>Tanggal Presentasi *</label>
                 <input
                   type="date"
                   value={formData.tanggal_presentasi}
                   onChange={(e) => setFormData({ ...formData, tanggal_presentasi: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Metode Presentasi *
-                </label>
+                <label className={labelClass}>Metode Presentasi *</label>
                 <select
                   value={formData.metode_presentasi}
                   onChange={(e) => setFormData({ ...formData, metode_presentasi: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 >
-                  <option value="online">Online (Zoom/Meet/Teams)</option>
-                  <option value="offline">Offline (Tatap Muka)</option>
-                  <option value="hybrid">Hybrid (Kombinasi)</option>
+                  <option value="online" className="bg-slate-900">Online (Zoom/Meet/Teams)</option>
+                  <option value="offline" className="bg-slate-900">Offline (Tatap Muka)</option>
+                  <option value="hybrid" className="bg-slate-900">Hybrid (Kombinasi)</option>
                 </select>
               </div>
 
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Peserta Presentasi
-                </label>
+                <label className={labelClass}>Peserta Presentasi</label>
                 <textarea
                   value={formData.peserta_presentasi}
                   onChange={(e) => setFormData({ ...formData, peserta_presentasi: e.target.value })}
                   rows={2}
                   placeholder="Daftar nama peserta dari kedua belah pihak..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Hasil Presentasi / Ringkasan Diskusi *
-                </label>
+                <label className={labelClass}>Hasil Presentasi / Ringkasan Diskusi *</label>
                 <textarea
                   value={formData.hasil_presentasi}
                   onChange={(e) => setFormData({ ...formData, hasil_presentasi: e.target.value })}
                   rows={4}
                   placeholder="Jelaskan poin-poin penting yang dibahas, feedback dari customer, dan kesimpulan diskusi..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
             </div>
@@ -156,82 +155,78 @@ const Step6Presentasi = ({ workflowId, workflow, userRole, onDone, onBack }) => 
 
           {/* Keputusan Pelanggan (Only visible to customer) */}
           {isCustomer && (
-            <div className="border-b pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">🤝 Keputusan Anda</h3>
+            <div className="border-b border-white/10 pb-6">
+              <h3 className="text-sm font-black text-white uppercase tracking-wider mb-4">🤝 Keputusan Anda</h3>
 
               <div className="space-y-3 mb-4">
-                <label className="flex items-start space-x-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-green-50 transition-colors">
+                <label className="flex items-start space-x-3 cursor-pointer p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors">
                   <input
                     type="radio"
                     name="keputusan"
                     value="setuju"
                     checked={formData.keputusan_pelanggan === 'setuju'}
                     onChange={(e) => setFormData({ ...formData, keputusan_pelanggan: e.target.value })}
-                    className="mt-1 w-5 h-5"
+                    className="mt-1 w-5 h-5 accent-emerald-500"
                   />
                   <div className="flex-1">
-                    <span className="font-medium text-green-700">✅ Setuju</span>
-                    <p className="text-sm text-gray-600">Terima proposal dan lanjut ke tahap selanjutnya (Upload PO & Dokumen Legalitas)</p>
+                    <span className="font-bold text-sm text-emerald-400">✅ Setuju</span>
+                    <p className="text-sm text-slate-400">Terima proposal dan lanjut ke tahap selanjutnya (Upload PO & Dokumen Legalitas)</p>
                   </div>
                 </label>
 
-                <label className="flex items-start space-x-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-yellow-50 transition-colors">
+                <label className="flex items-start space-x-3 cursor-pointer p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-colors">
                   <input
                     type="radio"
                     name="keputusan"
                     value="negosiasi"
                     checked={formData.keputusan_pelanggan === 'negosiasi'}
                     onChange={(e) => setFormData({ ...formData, keputusan_pelanggan: e.target.value })}
-                    className="mt-1 w-5 h-5"
+                    className="mt-1 w-5 h-5 accent-amber-500"
                   />
                   <div className="flex-1">
-                    <span className="font-medium text-yellow-700">💬 Negosiasi</span>
-                    <p className="text-sm text-gray-600">Perlu revisi proposal (harga, terms, atau fitur layanan)</p>
+                    <span className="font-bold text-sm text-amber-400">💬 Negosiasi</span>
+                    <p className="text-sm text-slate-400">Perlu revisi proposal (harga, terms, atau fitur layanan)</p>
                   </div>
                 </label>
 
-                <label className="flex items-start space-x-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-red-50 transition-colors">
+                <label className="flex items-start space-x-3 cursor-pointer p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 transition-colors">
                   <input
                     type="radio"
                     name="keputusan"
                     value="tolak"
                     checked={formData.keputusan_pelanggan === 'tolak'}
                     onChange={(e) => setFormData({ ...formData, keputusan_pelanggan: e.target.value })}
-                    className="mt-1 w-5 h-5"
+                    className="mt-1 w-5 h-5 accent-rose-500"
                   />
                   <div className="flex-1">
-                    <span className="font-medium text-red-700">❌ Tolak</span>
-                    <p className="text-sm text-gray-600">Batalkan permohonan (workflow berhenti)</p>
+                    <span className="font-bold text-sm text-rose-400">❌ Tolak</span>
+                    <p className="text-sm text-slate-400">Batalkan permohonan (workflow berhenti)</p>
                   </div>
                 </label>
               </div>
 
               {formData.keputusan_pelanggan === 'negosiasi' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Apa yang perlu direvisi? *
-                  </label>
+                  <label className={labelClass}>Apa yang perlu direvisi? *</label>
                   <textarea
                     value={formData.permintaan_revisi}
                     onChange={(e) => setFormData({ ...formData, permintaan_revisi: e.target.value })}
                     rows={3}
                     placeholder="Jelaskan apa yang perlu direvisi dalam proposal (misal: harga terlalu tinggi, durasi kontrak terlalu pendek, dll)..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={inputClass}
                   />
                 </div>
               )}
 
               {formData.keputusan_pelanggan === 'tolak' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Alasan Penolakan *
-                  </label>
+                  <label className={labelClass}>Alasan Penolakan *</label>
                   <textarea
                     value={formData.alasan_negosiasi}
                     onChange={(e) => setFormData({ ...formData, alasan_negosiasi: e.target.value })}
                     rows={3}
                     placeholder="Jelaskan alasan penolakan untuk dokumentasi..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={inputClass}
                   />
                 </div>
               )}
@@ -239,36 +234,34 @@ const Step6Presentasi = ({ workflowId, workflow, userRole, onDone, onBack }) => 
           )}
 
           {/* Upload Notulen */}
-          <div className="border-b pb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Upload Notulen Meeting (PDF/Image)
-            </label>
+          <div className="border-b border-white/10 pb-6">
+            <label className={labelClass}>Upload Notulen Meeting (PDF/Image)</label>
             <input
               type="file"
               accept=".pdf,.jpg,.jpeg,.png"
               onChange={handleFileChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
             />
             {notulenFile && (
-              <p className="text-xs text-green-600 mt-1">✓ File ter-upload: {notulenFile.name}</p>
+              <p className="text-xs text-emerald-400 mt-1">✓ File ter-upload: {notulenFile.name}</p>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-4 pt-4 border-t">
+          <div className="flex space-x-4 pt-4 border-t border-white/10">
             <button
               type="submit"
               disabled={loading || !isFormValid()}
-              className={`flex-1 py-3 px-6 rounded-md font-medium text-white transition-colors ${
+              className={`flex-1 py-3 px-6 rounded-xl text-xs font-black uppercase tracking-wider transition-all backdrop-blur-md ${
                 loading || !isFormValid()
-                  ? 'bg-gray-400 cursor-not-allowed'
+                  ? 'bg-white/5 border border-white/10 text-slate-500 cursor-not-allowed'
                   : isDBO
-                  ? 'bg-blue-600 hover:bg-blue-700'
+                  ? 'bg-gold-accent/20 border border-gold-accent/40 text-gold-accent hover:bg-gold-accent/30'
                   : formData.keputusan_pelanggan === 'setuju'
-                  ? 'bg-green-600 hover:bg-green-700'
+                  ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30'
                   : formData.keputusan_pelanggan === 'negosiasi'
-                  ? 'bg-yellow-600 hover:bg-yellow-700'
-                  : 'bg-red-600 hover:bg-red-700'
+                  ? 'bg-amber-500/20 border border-amber-500/40 text-amber-400 hover:bg-amber-500/30'
+                  : 'bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500/30'
               }`}
             >
               {loading ? 'Menyimpan...' : 'Submit Presentasi'}
@@ -276,7 +269,7 @@ const Step6Presentasi = ({ workflowId, workflow, userRole, onDone, onBack }) => 
             <button
               type="button"
               onClick={() => onBack?.()}
-              className="px-6 py-3 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md"
+              className="px-6 py-3 text-xs font-bold text-slate-400 hover:text-white border border-white/15 rounded-xl transition-colors"
             >
               Batal
             </button>

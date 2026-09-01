@@ -20,7 +20,9 @@ export default function KelolaPenggunaPage({ session }) {
   const [resettingUser, setResettingUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [userStatus, setUserStatus] = useState("");
+  // Daftar pengguna dibuka pada akun aktif agar antrean administrasi tetap
+  // ringkas. Akun nonaktif tetap bisa ditampilkan melalui filter manual.
+  const [userStatus, setUserStatus] = useState("active");
 
   useEffect(() => {
     const timer = setTimeout(() => {

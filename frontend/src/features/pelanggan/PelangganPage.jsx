@@ -78,8 +78,9 @@ function PelangganPage({ session }) {
             </p>
           </div>
           <h1 className="text-3xl font-black text-white">
-            Daftar Pelanggan <span className="text-gold-accent italic">FO KIMA</span>
+            Daftar Pelanggan <span className="text-gold-accent italic">FO KIMA (ISP)</span>
           </h1>
+          <p className="mt-2 max-w-2xl text-xs leading-5 text-white/50">Master “Pelanggan” KIMA berisi perusahaan ISP. Pengaju layanan/tenant dikelola dari permohonan dan ditautkan ke lokasi setelah ISP ditetapkan.</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -87,7 +88,7 @@ function PelangganPage({ session }) {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" size={16} />
             <input
               type="text"
-              placeholder="Cari pelanggan..."
+              placeholder="Cari pelanggan / ISP..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 text-xs font-semibold rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/40 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-gold-accent/50 focus:border-gold-accent/50 transition-all w-64"
@@ -98,7 +99,7 @@ function PelangganPage({ session }) {
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-gold-accent/20 border border-gold-accent/40 text-gold-accent hover:bg-gold-accent/30 hover:border-gold-accent/60 transition-all backdrop-blur-md shadow-lg shrink-0"
           >
             <Plus size={16} />
-            <span>Tambah Pelanggan</span>
+            <span>Tambah Pelanggan (ISP)</span>
           </button>
         </div>
       </div>

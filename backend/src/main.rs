@@ -1,5 +1,6 @@
 mod access;
 mod auth;
+mod baa_template;
 mod backup;
 mod dashboard;
 mod dokumen;
@@ -9,6 +10,7 @@ mod kontrak;
 mod models;
 mod pelanggan;
 mod schema;
+mod sop;
 mod state;
 mod titik_isp;
 mod titik_lokasi;
@@ -27,7 +29,7 @@ use std::{
 use axum::routing::delete;
 use axum::{
     Json, Router,
-    extract::State,
+    extract::{DefaultBodyLimit, State},
     http::StatusCode,
     middleware,
     response::IntoResponse,
@@ -64,7 +66,9 @@ use crate::{
     titik_lokasi::{
         create_location_point, delete_location_point, list_location_points, update_location_point,
     },
-    titik_peta::{delete_map_point, list_map_points, upsert_map_point},
+    titik_peta::{
+        create_location_baa, delete_map_point, get_location_baa, list_map_points, upsert_map_point,
+    },
     users::{
         create_user, delete_user, list_user_pelanggan_access, list_users, reset_password,
         update_user, update_user_pelanggan_access,
@@ -251,6 +255,10 @@ async fn main() {
             "/api/titik-peta",
             get(list_map_points).post(upsert_map_point),
         )
+        .route(
+            "/api/titik-peta/{lokasi_id}/baa",
+            get(get_location_baa).post(create_location_baa),
+        )
         .route("/api/titik-peta/{lokasi_id}", delete(delete_map_point))
         .route(
             "/api/titik-isp",
@@ -267,16 +275,157 @@ async fn main() {
         )
         .route("/api/auth/change-password", post(change_password))
         .route("/api/auth/session", get(current_session))
+        .route(
+            "/api/portal/workflows/{workflow_id}/status",
+            get(sop::handlers::get_workflow_status),
+        )
+        .route(
+            "/api/portal/permohonan-saya",
+            get(sop::handlers::list_my_service_requests),
+        )
+        .route(
+            "/api/portal/sop2/permohonan",
+            get(sop::handlers::list_sop2_requests)
+                .post(sop::handlers::submit_service_change_request),
+        )
+        .route(
+            "/api/portal/sop2/{id}/history",
+            get(sop::handlers::list_sop2_history),
+        )
+        .route(
+            "/api/portal/sop2/notifications",
+            get(sop::handlers::list_sop2_notifications),
+        )
+        .route(
+            "/api/portal/sop2/notifications/{id}",
+            patch(sop::handlers::mark_sop2_notification),
+        )
+        .route(
+            "/api/admin/notifications",
+            get(sop::handlers::list_admin_notifications),
+        )
+        .route(
+            "/api/admin/notifications/{source}/{id}",
+            patch(sop::handlers::mark_admin_notification),
+        )
+        .route(
+            "/admin/sop2/{id}/step",
+            patch(sop::handlers::complete_sop2_step),
+        )
+        .route("/admin/workflows/list", get(sop::handlers::list_workflows))
+        .route(
+            "/admin/sop/{workflow_id}/direksi/vote",
+            patch(sop::handlers::direksi_vote),
+        )
+        .route(
+            "/portal/sop/{workflow_id}/step/{step}",
+            post(sop::handlers::submit_step),
+        )
+        .route(
+            "/admin/portal-registrations",
+            get(sop::handlers::list_portal_registrations),
+        )
+        .route(
+            "/admin/portal-registrations/{id}",
+            get(sop::handlers::get_portal_registration),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/survey",
+            patch(sop::handlers::update_portal_registration_survey),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/penawaran",
+            patch(sop::handlers::create_portal_registration_offer),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/legal",
+            patch(sop::handlers::review_portal_registration_legal),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/direksi",
+            patch(sop::handlers::decide_portal_registration_direksi),
+        )
+        // Nama netral untuk keputusan persetujuan KIMA/DBO. Route lama
+        // /direksi dipertahankan agar klien yang sudah terpasang tetap aman.
+        .route(
+            "/admin/portal-registrations/{id}/persetujuan",
+            patch(sop::handlers::decide_portal_registration_direksi),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/pks",
+            patch(sop::handlers::prepare_portal_registration_pks),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/aktivasi",
+            patch(sop::handlers::update_portal_registration_activation),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/baa",
+            patch(sop::handlers::create_portal_registration_baa),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/baa/verify",
+            patch(sop::handlers::verify_portal_registration_baa),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/invoice",
+            patch(sop::handlers::create_portal_registration_invoice),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/payment",
+            patch(sop::handlers::verify_portal_registration_payment),
+        )
+        .route(
+            "/admin/isp-candidates",
+            get(sop::handlers::list_isp_candidates),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/approve",
+            post(sop::handlers::approve_portal_registration),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/reject",
+            post(sop::handlers::reject_portal_registration),
+        )
+        .route(
+            "/admin/portal-registrations/{id}/cancel",
+            post(sop::handlers::admin_cancel_service_request),
+        )
+        .route(
+            "/api/pelanggan/lokasi/ajukan",
+            post(sop::handlers::submit_additional_location),
+        )
+        .route(
+            "/admin/isp-directory",
+            get(sop::handlers::list_isp_directory).post(sop::handlers::create_isp_directory),
+        )
+        .route(
+            "/admin/isp-directory/{id}",
+            patch(sop::handlers::update_isp_directory),
+        )
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
+        // Axum's Multipart extractor has a separate default 2 MiB limit.
+        // Align it with the configured upload limit; RequestBodyLimitLayer
+        // below still protects the complete HTTP request including overhead.
+        .layer(DefaultBodyLimit::max(request_body_limit))
         .layer(RequestBodyLimitLayer::new(request_body_limit));
 
     let allowed_origin =
         env::var("CORS_ALLOWED_ORIGIN").unwrap_or_else(|_| "http://localhost:5173".to_owned());
 
-    let app = Router::new()
+    // SOP routes - some public (register), some protected (will be added to protected router)
+    let sop_public_routes = sop::register_routes(state.clone());
+
+    let public_routes = Router::new()
         .route("/healthz", get(healthz))
         .route("/readyz", get(readyz))
-        .route("/api/auth/login", post(login))
+        .route("/api/auth/login", post(login));
+
+    #[cfg(debug_assertions)]
+    let public_routes = public_routes.route("/api/dev-access/{role}", post(auth::dev_access));
+
+    let app = public_routes
+        .merge(sop_public_routes)
         .merge(protected)
         .layer(TraceLayer::new_for_http())
         .layer(

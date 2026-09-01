@@ -13,7 +13,8 @@ use crate::{
     access::{assert_pelanggan_access, resolve_billing_context, resolve_lokasi_pelanggan_id},
     drive::{
         DOC_CATEGORIES, ensure_category_folder, ensure_kontrak_tree, ensure_pelanggan_tree,
-        folder_url, parse_drive_folder_id,
+        ensure_portal_document_folder, ensure_portal_registration_tree, folder_url,
+        parse_drive_folder_id,
     },
     error::ApiError,
     models::{
@@ -482,15 +483,17 @@ async fn load_drive_sync_targets(
     Ok(targets)
 }
 
-/// Daftar dokumen lintas pelanggan/kontrak yang dapat dibaca akun ISP.
+/// Daftar dokumen lintas pelanggan/kontrak yang dapat dibaca akun ISP atau Pelanggan.
 /// Respons sengaja tidak memuat link maupun ID Google Drive.
 pub async fn list_isp_documents(
     State(state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthUser>,
     Query(query): Query<Pagination>,
 ) -> Result<Json<Page<IspDocumentRow>>, ApiError> {
-    if auth.role != "isp" {
-        return Err(ApiError::forbidden("Endpoint ini hanya untuk akun ISP."));
+    if !matches!(auth.role.as_str(), "isp" | "pelanggan") {
+        return Err(ApiError::forbidden(
+            "Endpoint ini hanya untuk akun ISP atau Pelanggan.",
+        ));
     }
 
     let search = query
@@ -502,7 +505,9 @@ pub async fn list_isp_documents(
     let has_search = !search.is_empty();
     let pattern = format!("%{}%", search);
     let (page, page_size, offset) = pagination(query);
-    let access_clause = "EXISTS (SELECT 1 FROM user_pelanggan_access a WHERE a.user_id = ? AND a.pelanggan_id = COALESCE(d.pelanggan_id, l.pelanggan_id, bl.pelanggan_id))";
+    // Nota Dinas adalah dokumen internal KIMA; jangan tampilkan atau izinkan
+    // dibuka oleh akun pelanggan/ISP meskipun pemilik foldernya sama.
+    let access_clause = "(EXISTS (SELECT 1 FROM user_pelanggan_access a WHERE a.user_id = ? AND a.pelanggan_id = COALESCE(d.pelanggan_id, l.pelanggan_id, bl.pelanggan_id)) OR EXISTS (SELECT 1 FROM portal_registrations pr_owner WHERE pr_owner.id = d.portal_registration_id AND pr_owner.user_id = ?)) AND d.kategori <> 'Nota Dinas' AND (d.kategori <> 'BAA' OR d.portal_registration_id IS NULL OR EXISTS (SELECT 1 FROM portal_registrations pr_baa WHERE pr_baa.id = d.portal_registration_id AND pr_baa.baa_status IN ('menunggu_konfirmasi_lokasi', 'diterima_lokasi')))";
     let search_clause = " AND (d.nama_file LIKE ? OR d.kategori LIKE ? OR p.nama_pelanggan LIKE ? OR l.nama_lokasi LIKE ? OR bp.nama_pelanggan LIKE ? OR bl.nama_lokasi LIKE ?)";
 
     let total_sql = format!(
@@ -516,7 +521,9 @@ pub async fn list_isp_documents(
         access_clause,
         if has_search { search_clause } else { "" }
     );
-    let mut total_query = sqlx::query_scalar::<_, i64>(&total_sql).bind(auth.id);
+    let mut total_query = sqlx::query_scalar::<_, i64>(&total_sql)
+        .bind(auth.id)
+        .bind(auth.id);
     if has_search {
         for _ in 0..6 {
             total_query = total_query.bind(&pattern);
@@ -544,7 +551,7 @@ pub async fn list_isp_documents(
         access_clause,
         if has_search { search_clause } else { "" }
     );
-    let mut rows_query = sqlx::query(&rows_sql).bind(auth.id);
+    let mut rows_query = sqlx::query(&rows_sql).bind(auth.id).bind(auth.id);
     if has_search {
         for _ in 0..6 {
             rows_query = rows_query.bind(&pattern);
@@ -602,14 +609,17 @@ async fn serve_document(
     id: u64,
     preview: bool,
 ) -> Result<Response, ApiError> {
-    if !matches!(auth.role.as_str(), "admin" | "isp") {
+    if !matches!(
+        auth.role.as_str(),
+        "admin" | "dbo" | "legal" | "teknisi" | "keuangan" | "direksi" | "isp" | "pelanggan"
+    ) {
         return Err(ApiError::forbidden(
             "Role pengguna tidak diizinkan membuka dokumen.",
         ));
     }
 
     let row = sqlx::query(
-        "SELECT pelanggan_id, lokasi_id, billing_id, drive_file_id, nama_file, mime_type \
+        "SELECT pelanggan_id, lokasi_id, billing_id, portal_registration_id, kategori, drive_file_id, nama_file, mime_type \
          FROM dokumen WHERE id = ? LIMIT 1",
     )
     .bind(id)
@@ -621,6 +631,50 @@ async fn serve_document(
     let pelanggan_id: Option<u64> = row.try_get("pelanggan_id").unwrap_or(None);
     let lokasi_id: Option<u64> = row.try_get("lokasi_id").unwrap_or(None);
     let billing_id: Option<u64> = row.try_get("billing_id").unwrap_or(None);
+    let portal_registration_id: Option<u64> = row.try_get("portal_registration_id").unwrap_or(None);
+    let kategori: String = row.try_get("kategori").unwrap_or_default();
+    if matches!(auth.role.as_str(), "isp" | "pelanggan") && kategori == "Nota Dinas" {
+        return Err(ApiError::forbidden(
+            "Nota Dinas merupakan dokumen internal KIMA.",
+        ));
+    }
+    if matches!(auth.role.as_str(), "isp" | "pelanggan")
+        && kategori == "BAA"
+        && portal_registration_id.is_some()
+    {
+        let baa_visible: Option<u8> = sqlx::query_scalar(
+            "SELECT 1 FROM portal_registrations
+             WHERE id = ? AND baa_status IN ('menunggu_konfirmasi_lokasi', 'diterima_lokasi')
+             LIMIT 1",
+        )
+        .bind(portal_registration_id)
+        .fetch_optional(&state.database)
+        .await
+        .map_err(ApiError::database)?;
+        if baa_visible.is_none() {
+            return Err(ApiError::forbidden(
+                "BAA belum dikirim oleh DBO KIMA kepada pelanggan.",
+            ));
+        }
+    }
+    let portal_owned_by_customer = if matches!(auth.role.as_str(), "isp" | "pelanggan") {
+        if let Some(registration_id) = portal_registration_id {
+            sqlx::query_scalar::<_, u8>(
+                "SELECT 1 FROM portal_registrations
+                 WHERE id = ? AND user_id = ? LIMIT 1",
+            )
+            .bind(registration_id)
+            .bind(auth.id)
+            .fetch_optional(&state.database)
+            .await
+            .map_err(ApiError::database)?
+            .is_some()
+        } else {
+            false
+        }
+    } else {
+        false
+    };
     let access_pelanggan_id = if let Some(pelanggan_id) = pelanggan_id {
         pelanggan_id
     } else if let Some(lokasi_id) = lokasi_id {
@@ -632,7 +686,9 @@ async fn serve_document(
     } else {
         return Err(ApiError::internal("Dokumen tanpa pemilik."));
     };
-    assert_pelanggan_access(&state.database, auth.id, &auth.role, access_pelanggan_id).await?;
+    if !portal_owned_by_customer {
+        assert_pelanggan_access(&state.database, auth.id, &auth.role, access_pelanggan_id).await?;
+    }
 
     let drive_file_id: Option<String> = row.try_get("drive_file_id").unwrap_or(None);
     let drive_file_id = drive_file_id
@@ -719,6 +775,8 @@ pub async fn upload_document(
     let mut pelanggan_id: Option<u64> = None;
     let mut lokasi_id: Option<u64> = None;
     let mut billing_id: Option<u64> = None;
+    let mut portal_registration_id: Option<u64> = None;
+    let mut portal_isp_directory_id: Option<u64> = None;
 
     while let Some(field) = multipart
         .next_field()
@@ -777,6 +835,19 @@ pub async fn upload_document(
                         .map_err(|_| ApiError::bad_request("Field billing_id tidak valid."))?,
                 )?;
             }
+            "portal_registration_id" => {
+                portal_registration_id = parse_id_field(field.text().await.map_err(|_| {
+                    ApiError::bad_request("Field portal_registration_id tidak valid.")
+                })?)?;
+            }
+            "isp_directory_id" | "isp_id" => {
+                portal_isp_directory_id = parse_id_field(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| ApiError::bad_request("Field ISP tidak valid."))?,
+                )?;
+            }
             _ => {}
         }
     }
@@ -791,12 +862,10 @@ pub async fn upload_document(
         .filter(|s| !s.is_empty())
         .ok_or_else(|| ApiError::bad_request("Kategori wajib diisi."))?;
     if !DOC_CATEGORIES.iter().any(|c| *c == kategori) {
-        return Err(ApiError::bad_request(
-            "Kategori harus Kontrak, BAK-PKS, atau Dokumen Lain.",
-        ));
+        return Err(ApiError::bad_request("Kategori dokumen tidak terdaftar."));
     }
 
-    let owners = [
+    let legacy_owner_count = [
         pelanggan_id.is_some(),
         lokasi_id.is_some(),
         billing_id.is_some(),
@@ -804,7 +873,12 @@ pub async fn upload_document(
     .into_iter()
     .filter(|v| *v)
     .count();
-    if owners != 1 {
+    if portal_registration_id.is_some() && legacy_owner_count > 0 {
+        return Err(ApiError::bad_request(
+            "Upload permohonan tidak boleh mencampur portal_registration_id dengan pemilik legacy.",
+        ));
+    }
+    if portal_registration_id.is_none() && legacy_owner_count != 1 {
         return Err(ApiError::bad_request(
             "Sertakan tepat satu pemilik: pelanggan_id, lokasi_id, atau billing_id.",
         ));
@@ -819,23 +893,34 @@ pub async fn upload_document(
     // Periksa otorisasi sebelum menyentuh Google Drive. Dengan urutan ini,
     // request ISP lintas pelanggan tidak dapat membuat folder sampah sebelum
     // akhirnya ditolak.
-    let access_pelanggan_id = if let Some(pid) = pelanggan_id {
-        pid
-    } else if let Some(lid) = lokasi_id {
-        resolve_lokasi_pelanggan_id(&state.database, lid).await?
-    } else if let Some(bid) = billing_id {
-        resolve_billing_context(&state.database, bid).await?.1
-    } else {
-        return Err(ApiError::bad_request("Pemilik dokumen tidak ditemukan."));
-    };
-    assert_pelanggan_access(&state.database, auth.id, &auth.role, access_pelanggan_id).await?;
-
     let (store_pelanggan_id, store_lokasi_id, store_billing_id, parent_folder_id) =
-        resolve_upload_parent(&state, pelanggan_id, lokasi_id, billing_id).await?;
+        if let Some(registration_id) = portal_registration_id {
+            resolve_portal_upload_parent(&state, &auth, registration_id, portal_isp_directory_id)
+                .await?
+        } else {
+            let access_pelanggan_id = if let Some(pid) = pelanggan_id {
+                pid
+            } else if let Some(lid) = lokasi_id {
+                resolve_lokasi_pelanggan_id(&state.database, lid).await?
+            } else if let Some(bid) = billing_id {
+                resolve_billing_context(&state.database, bid).await?.1
+            } else {
+                return Err(ApiError::bad_request("Pemilik dokumen tidak ditemukan."));
+            };
+            assert_pelanggan_access(&state.database, auth.id, &auth.role, access_pelanggan_id)
+                .await?;
+            resolve_upload_parent(&state, pelanggan_id, lokasi_id, billing_id).await?
+        };
 
-    let category_folder_id = ensure_category_folder(&state.drive, &parent_folder_id, &kategori)
-        .await
-        .map_err(ApiError::drive)?;
+    let category_folder_id = if portal_registration_id.is_some() {
+        ensure_portal_document_folder(&state.drive, &parent_folder_id, &kategori)
+            .await
+            .map_err(ApiError::drive)?
+    } else {
+        ensure_category_folder(&state.drive, &parent_folder_id, &kategori)
+            .await
+            .map_err(ApiError::drive)?
+    };
     let uploaded = state
         .drive
         .upload_file(&category_folder_id, &nama_file, &mime, file_bytes)
@@ -848,13 +933,14 @@ pub async fn upload_document(
 
     let result = sqlx::query(
         "INSERT INTO dokumen \
-         (pelanggan_id, lokasi_id, billing_id, uploaded_by_user_id, kategori, nama_file, \
+         (pelanggan_id, lokasi_id, billing_id, portal_registration_id, uploaded_by_user_id, kategori, nama_file, \
           drive_file_id, drive_folder_id, drive_url, ukuran_byte, mime_type) \
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(store_pelanggan_id)
     .bind(store_lokasi_id)
     .bind(store_billing_id)
+    .bind(portal_registration_id)
     .bind(auth.id)
     .bind(&kategori)
     .bind(&nama_file)
@@ -962,6 +1048,144 @@ pub async fn delete_document(
     Ok(StatusCode::NO_CONTENT)
 }
 
+/// Menentukan folder final dokumen SOP portal berdasarkan ISP yang dipilih
+/// KIMA. Akun pemohon ditautkan melalui `portal_registrations.user_id`,
+/// sedangkan `pelanggan_id` pada metadata dokumen selalu menunjuk master ISP.
+async fn resolve_portal_upload_parent(
+    state: &AppState,
+    auth: &AuthUser,
+    registration_id: u64,
+    requested_isp_directory_id: Option<u64>,
+) -> Result<(Option<u64>, Option<u64>, Option<u64>, String), ApiError> {
+    let registration: Option<(
+        Option<u64>,
+        Option<u64>,
+        Option<u64>,
+        String,
+        String,
+        String,
+        Option<u64>,
+    )> = sqlx::query_as(
+        "SELECT pelanggan_id, lokasi_id, user_id, status, nama_perusahaan, kode_registrasi,
+                    isp_directory_id
+             FROM portal_registrations WHERE id = ? LIMIT 1",
+    )
+    .bind(registration_id)
+    .fetch_optional(&state.database)
+    .await
+    .map_err(ApiError::database)?;
+    let Some((
+        registration_pelanggan_id,
+        registration_lokasi_id,
+        registration_user_id,
+        status,
+        nama_perusahaan,
+        kode_registrasi,
+        stored_isp_id,
+    )) = registration
+    else {
+        return Err(ApiError::not_found("Permohonan layanan tidak ditemukan."));
+    };
+    if status != "disetujui" {
+        return Err(ApiError::conflict(
+            "Dokumen SOP hanya dapat diunggah setelah permohonan diterima KIMA.",
+        ));
+    }
+    if auth.role == "pelanggan" && registration_user_id != Some(auth.id) {
+        return Err(ApiError::forbidden(
+            "Permohonan ini bukan milik akun Lokasi/Tenant yang sedang masuk.",
+        ));
+    }
+
+    if let (Some(stored), Some(requested)) = (stored_isp_id, requested_isp_directory_id)
+        && stored != requested
+    {
+        return Err(ApiError::conflict(
+            "ISP permohonan sudah ditetapkan dan tidak boleh diganti pada upload dokumen.",
+        ));
+    }
+    let isp_directory_id = requested_isp_directory_id
+        .or(stored_isp_id)
+        .ok_or_else(|| {
+            ApiError::conflict("ISP harus ditetapkan KIMA sebelum dokumen permohonan diunggah.")
+        })?;
+
+    let isp_row = sqlx::query(
+        "SELECT d.pelanggan_id, d.nama_isp, p.kode_pelanggan, p.nama_pelanggan,
+                p.link_folder_berkas
+         FROM isp_directory d
+         LEFT JOIN pelanggan p ON p.id = d.pelanggan_id
+         WHERE d.id = ? AND d.status = 'aktif'
+         LIMIT 1",
+    )
+    .bind(isp_directory_id)
+    .fetch_optional(&state.database)
+    .await
+    .map_err(ApiError::database)?
+    .ok_or_else(|| ApiError::bad_request("ISP yang dipilih tidak aktif atau tidak terdaftar."))?;
+    let isp_pelanggan_id: Option<u64> = isp_row.try_get("pelanggan_id").unwrap_or(None);
+    let Some(isp_pelanggan_id) = isp_pelanggan_id else {
+        return Err(ApiError::conflict(
+            "ISP belum dipetakan ke folder pelanggan di Google Drive.",
+        ));
+    };
+    let isp_nama: String = isp_row
+        .try_get("nama_pelanggan")
+        .unwrap_or_else(|_| isp_row.try_get("nama_isp").unwrap_or_default());
+    let isp_kode: String = isp_row
+        .try_get::<Option<String>, _>("kode_pelanggan")
+        .unwrap_or(None)
+        .unwrap_or_default();
+    let isp_link: Option<String> = isp_row.try_get("link_folder_berkas").unwrap_or(None);
+    let isp_parent_folder_id =
+        if let Some(folder_id) = isp_link.as_deref().and_then(parse_drive_folder_id) {
+            folder_id
+        } else {
+            let (folder_id, folder_url_value) =
+                ensure_pelanggan_tree(&state.drive, &isp_kode, &isp_nama)
+                    .await
+                    .map_err(ApiError::drive)?;
+            sqlx::query("UPDATE pelanggan SET link_folder_berkas = ? WHERE id = ?")
+                .bind(&folder_url_value)
+                .bind(isp_pelanggan_id)
+                .execute(&state.database)
+                .await
+                .map_err(ApiError::database)?;
+            folder_id
+        };
+
+    let (request_folder_id, request_folder_url) = ensure_portal_registration_tree(
+        &state.drive,
+        &isp_parent_folder_id,
+        &nama_perusahaan,
+        &kode_registrasi,
+    )
+    .await
+    .map_err(ApiError::drive)?;
+    sqlx::query(
+        "UPDATE portal_registrations
+         SET drive_folder_id = ?, drive_folder_url = ?
+         WHERE id = ?",
+    )
+    .bind(&request_folder_id)
+    .bind(&request_folder_url)
+    .bind(registration_id)
+    .execute(&state.database)
+    .await
+    .map_err(ApiError::database)?;
+
+    // Dokumen portal dimiliki oleh ISP master setelah direktori ISP dipilih.
+    // Nilai legacy pada registration tetap dibaca untuk data lama, tetapi
+    // dokumen baru tidak pernah memakai identitas tenant sebagai pelanggan.
+    let document_owner = Some(isp_pelanggan_id).or(registration_pelanggan_id);
+    Ok((
+        document_owner,
+        registration_lokasi_id,
+        None,
+        request_folder_id,
+    ))
+}
+
 async fn resolve_upload_parent(
     state: &AppState,
     pelanggan_id: Option<u64>,
@@ -1042,7 +1266,7 @@ async fn resolve_upload_parent(
     Ok((Some(pid), Some(lid), Some(bid), parent))
 }
 
-async fn resolve_lokasi_period_folder(
+pub(crate) async fn resolve_lokasi_period_folder(
     state: &AppState,
     row: &sqlx::mysql::MySqlRow,
 ) -> Result<String, ApiError> {

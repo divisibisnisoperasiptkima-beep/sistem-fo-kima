@@ -2,7 +2,34 @@ use chrono::NaiveDate;
 
 use super::client::{DriveClient, DriveError};
 
-pub const DOC_CATEGORIES: &[&str] = &["Kontrak", "BAK-PKS", "Dokumen Lain"];
+pub const DOC_CATEGORIES: &[&str] = &[
+    "Kontrak",
+    "BAK-PKS",
+    "Dokumen Lain",
+    "Nota Dinas",
+    "Dokumen Survey",
+    "Surat Penawaran",
+    "Surat PO",
+    "Akte Pendirian",
+    "Izin Pelanggan",
+    "BAA",
+    "Invoice",
+    "Faktur Pajak",
+    "Bukti Pembayaran",
+];
+
+const PORTAL_REQUEST_TOP_LEVEL_FOLDERS: &[&str] = &[
+    "01 Pengajuan",
+    "02 Survei",
+    "03 Penawaran",
+    "04 PO dan Legalitas",
+    "06 BAK-PKS",
+    "07 BAA",
+    "08 Invoice",
+    "09 Pembayaran",
+    "10 Kontrak",
+    "Internal",
+];
 
 pub fn sanitize_folder_name(name: &str) -> String {
     let cleaned = name
@@ -123,6 +150,77 @@ pub async fn ensure_kontrak_tree(
     Ok((periode_id, url))
 }
 
+/// Membuat struktur folder final untuk satu permohonan portal.
+///
+/// Parent folder adalah folder ISP/pelanggan yang telah dipetakan KIMA.
+/// Nama perusahaan menjadi folder lokasi, sedangkan kode registrasi menjadi
+/// folder permohonan yang unik. Dengan demikian semua berkas satu pengajuan
+/// tetap berada di bawah ISP yang dipilih tanpa mencampur pengajuan lain.
+pub async fn ensure_portal_registration_tree(
+    drive: &DriveClient,
+    isp_parent_folder_id: &str,
+    nama_perusahaan: &str,
+    kode_registrasi: &str,
+) -> Result<(String, String), DriveError> {
+    let lokasi_root_id = drive.ensure_folder(isp_parent_folder_id, "Lokasi").await?;
+    let perusahaan_id = drive
+        .ensure_folder(&lokasi_root_id, &sanitize_folder_name(nama_perusahaan))
+        .await?;
+    let permohonan_root_id = drive.ensure_folder(&perusahaan_id, "Permohonan").await?;
+    let request_name = if kode_registrasi.trim().is_empty() {
+        "Permohonan".to_owned()
+    } else {
+        sanitize_folder_name(kode_registrasi)
+    };
+    let request_folder_id = drive
+        .ensure_folder(&permohonan_root_id, &request_name)
+        .await?;
+
+    for folder_name in PORTAL_REQUEST_TOP_LEVEL_FOLDERS {
+        let _ = drive.ensure_folder(&request_folder_id, folder_name).await?;
+    }
+
+    Ok((request_folder_id.clone(), folder_url(&request_folder_id)))
+}
+
+/// Mengembalikan path folder dokumen SOP relatif terhadap folder permohonan.
+/// Beberapa dokumen legal memiliki subfolder sendiri agar tiga berkas PO tidak
+/// kembali tercampur dalam satu folder generik.
+pub fn portal_document_folder_path(kategori: &str) -> Option<Vec<&'static str>> {
+    match kategori {
+        "Dokumen Survey" => Some(vec!["02 Survei"]),
+        "Surat Penawaran" => Some(vec!["03 Penawaran"]),
+        "Surat PO" => Some(vec!["04 PO dan Legalitas", "Surat PO"]),
+        "Akte Pendirian" => Some(vec!["04 PO dan Legalitas", "Akte Pendirian"]),
+        "Izin Pelanggan" => Some(vec!["04 PO dan Legalitas", "Izin Pelanggan"]),
+        "BAK-PKS" => Some(vec!["06 BAK-PKS"]),
+        "BAA" => Some(vec!["07 BAA"]),
+        "Invoice" | "Faktur Pajak" => Some(vec!["08 Invoice"]),
+        "Bukti Pembayaran" => Some(vec!["09 Pembayaran"]),
+        "Kontrak" => Some(vec!["10 Kontrak"]),
+        "Nota Dinas" => Some(vec!["Internal", "Nota Dinas"]),
+        // Dokumen lama yang belum memiliki kategori khusus tetap dapat
+        // diunggah tanpa mengganggu folder SOP yang sudah terstruktur.
+        "Dokumen Lain" => Some(vec!["01 Pengajuan"]),
+        _ => None,
+    }
+}
+
+pub async fn ensure_portal_document_folder(
+    drive: &DriveClient,
+    request_folder_id: &str,
+    kategori: &str,
+) -> Result<String, DriveError> {
+    let path = portal_document_folder_path(kategori).ok_or_else(|| {
+        DriveError::Message(format!("Kategori dokumen portal tidak valid: {kategori}"))
+    })?;
+    let mut parent_id = request_folder_id.to_owned();
+    for folder_name in path {
+        parent_id = drive.ensure_folder(&parent_id, folder_name).await?;
+    }
+    Ok(parent_id)
+}
+
 pub async fn ensure_category_folder(
     drive: &DriveClient,
     parent_folder_id: &str,
@@ -164,4 +262,38 @@ pub async fn delete_kontrak_tree(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::portal_document_folder_path;
+
+    #[test]
+    fn portal_document_categories_stay_in_expected_request_sections() {
+        assert_eq!(
+            portal_document_folder_path("Dokumen Survey"),
+            Some(vec!["02 Survei"])
+        );
+        assert_eq!(
+            portal_document_folder_path("Surat Penawaran"),
+            Some(vec!["03 Penawaran"])
+        );
+        assert_eq!(
+            portal_document_folder_path("Surat PO"),
+            Some(vec!["04 PO dan Legalitas", "Surat PO"])
+        );
+        assert_eq!(
+            portal_document_folder_path("Akte Pendirian"),
+            Some(vec!["04 PO dan Legalitas", "Akte Pendirian"])
+        );
+        assert_eq!(
+            portal_document_folder_path("Izin Pelanggan"),
+            Some(vec!["04 PO dan Legalitas", "Izin Pelanggan"])
+        );
+        assert_eq!(
+            portal_document_folder_path("Bukti Pembayaran"),
+            Some(vec!["09 Pembayaran"])
+        );
+        assert_eq!(portal_document_folder_path("Kategori Tidak Ada"), None);
+    }
 }

@@ -20,6 +20,125 @@ pub async fn ensure_application_schema(
     // migrasi yang tersedia di repo ini dimulai dari versi 17.
     migrator.set_ignore_missing(true);
     migrator.run(database).await?;
+
+    // Setelah tabel SOP ada, selaraskan tipe id-nya (lihat catatan di fungsi).
+    reconcile_sop_id_types(database).await?;
+    Ok(())
+}
+
+/// Selaraskan tipe kolom id tabel SOP menjadi BIGINT UNSIGNED.
+///
+/// Migrasi awal membuat `sop_workflows`, `sop_step_history`, `sop_documents`, dan
+/// `registration_tokens` dengan id **signed** BIGINT, sedangkan seluruh model Rust
+/// memakai `u64` (BIGINT UNSIGNED) seperti tabel lain. Ketidakcocokan ini membuat
+/// sqlx gagal mendekode kolom id/workflow_id. Fungsi ini idempoten: hanya melakukan
+/// ALTER bila kolom masih signed, jadi aman dijalankan setiap startup.
+async fn reconcile_sop_id_types(database: &MySqlPool) -> Result<(), sqlx::Error> {
+    // (tabel, kolom, definisi target). Kolom pk/fk yang saling mereferensi harus
+    // sama-sama UNSIGNED; FK anak (workflow_id) diselaraskan bersama pk induknya.
+    let columns = [
+        (
+            "sop_workflows",
+            "id",
+            "BIGINT UNSIGNED NOT NULL AUTO_INCREMENT",
+        ),
+        (
+            "sop_step_history",
+            "id",
+            "BIGINT UNSIGNED NOT NULL AUTO_INCREMENT",
+        ),
+        (
+            "sop_step_history",
+            "workflow_id",
+            "BIGINT UNSIGNED NOT NULL",
+        ),
+        (
+            "sop_documents",
+            "id",
+            "BIGINT UNSIGNED NOT NULL AUTO_INCREMENT",
+        ),
+        ("sop_documents", "workflow_id", "BIGINT UNSIGNED NOT NULL"),
+        (
+            "registration_tokens",
+            "id",
+            "BIGINT UNSIGNED NOT NULL AUTO_INCREMENT",
+        ),
+    ];
+
+    // Cek apakah ada kolom yang masih signed. Bila tidak ada, lewati semuanya
+    // (termasuk manipulasi FK) agar startup normal tidak menyentuh skema.
+    let signed_count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM information_schema.columns \
+         WHERE table_schema = DATABASE() \
+           AND ((table_name = 'sop_workflows' AND column_name = 'id') \
+             OR (table_name = 'sop_step_history' AND column_name IN ('id','workflow_id')) \
+             OR (table_name = 'sop_documents' AND column_name IN ('id','workflow_id')) \
+             OR (table_name = 'registration_tokens' AND column_name = 'id')) \
+           AND column_type = 'bigint'",
+    )
+    .fetch_one(database)
+    .await?;
+    if signed_count == 0 {
+        return Ok(());
+    }
+
+    // FK yang mereferensi sop_workflows(id) harus dilepas dulu sebelum MODIFY,
+    // lalu dibuat ulang. Nama constraint mengikuti default InnoDB dari migrasi.
+    sqlx::query("SET FOREIGN_KEY_CHECKS = 0")
+        .execute(database)
+        .await?;
+
+    for (constraint_table, constraint_name) in [
+        ("sop_documents", "sop_documents_ibfk_1"),
+        ("sop_step_history", "sop_step_history_ibfk_1"),
+    ] {
+        let exists: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM information_schema.table_constraints \
+             WHERE table_schema = DATABASE() AND table_name = ? AND constraint_name = ?",
+        )
+        .bind(constraint_table)
+        .bind(constraint_name)
+        .fetch_one(database)
+        .await?;
+        if exists > 0 {
+            sqlx::query(&format!(
+                "ALTER TABLE `{}` DROP FOREIGN KEY `{}`",
+                sanitize_identifier(constraint_table),
+                sanitize_identifier(constraint_name)
+            ))
+            .execute(database)
+            .await?;
+        }
+    }
+
+    for (table, column, definition) in columns {
+        sqlx::query(&format!(
+            "ALTER TABLE `{}` MODIFY `{}` {}",
+            sanitize_identifier(table),
+            sanitize_identifier(column),
+            definition
+        ))
+        .execute(database)
+        .await?;
+    }
+
+    sqlx::query(
+        "ALTER TABLE sop_step_history ADD CONSTRAINT sop_step_history_ibfk_1 \
+         FOREIGN KEY (workflow_id) REFERENCES sop_workflows(id) ON DELETE CASCADE",
+    )
+    .execute(database)
+    .await?;
+    sqlx::query(
+        "ALTER TABLE sop_documents ADD CONSTRAINT sop_documents_ibfk_1 \
+         FOREIGN KEY (workflow_id) REFERENCES sop_workflows(id) ON DELETE CASCADE",
+    )
+    .execute(database)
+    .await?;
+
+    sqlx::query("SET FOREIGN_KEY_CHECKS = 1")
+        .execute(database)
+        .await?;
+
     Ok(())
 }
 

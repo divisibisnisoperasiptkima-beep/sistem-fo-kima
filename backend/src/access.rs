@@ -8,7 +8,7 @@ pub async fn assert_pelanggan_access(
     role: &str,
     pelanggan_id: u64,
 ) -> Result<(), ApiError> {
-    if role != "isp" {
+    if !matches!(role, "isp" | "pelanggan") {
         return Ok(());
     }
     let allowed: i64 = sqlx::query_scalar(

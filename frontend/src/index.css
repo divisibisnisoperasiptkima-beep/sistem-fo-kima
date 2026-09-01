@@ -210,6 +210,39 @@
     will-change: width;
   }
 
+  /* Long sidebar labels reveal their full text while the menu item is hovered. */
+  .sidebar-menu-label-track {
+    display: inline-flex;
+    width: max-content;
+  }
+
+  .sidebar-menu-label-copy {
+    flex: 0 0 auto;
+    padding-right: 2.5rem;
+  }
+
+  .sidebar-menu-item:hover .sidebar-menu-label-track--long,
+  .sidebar-menu-item:focus-visible .sidebar-menu-label-track--long {
+    animation: sidebar-label-marquee 8s linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes sidebar-label-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-menu-item:hover .sidebar-menu-label-track--long,
+    .sidebar-menu-item:focus-visible .sidebar-menu-label-track--long {
+      animation: none;
+    }
+  }
+
   .anim-popover {
     will-change: opacity, transform;
   }
@@ -590,6 +623,17 @@ a.bg-white:hover {
   -webkit-appearance: none !important;
 }
 
+/* Keep the native date picker visible on dark form surfaces. */
+.date-field::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  width: 2rem;
+  cursor: pointer;
+}
+
+.date-field::-webkit-datetime-edit {
+  color: #f8fafc;
+}
+
 /* Custom Leaflet Map Popup Styling */
 .custom-map-popup .leaflet-popup-content-wrapper {
   background: #ffffff !important;
@@ -650,5 +694,3 @@ a.bg-white:hover {
 .leaflet-bottom {
   z-index: 40 !important;
 }
-
-
