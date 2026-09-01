@@ -21,7 +21,10 @@ env:
 jobs:
   build:
     name: Build release artifacts
-    runs-on: ubuntu-latest
+    # Build against the same glibc generation as the production VPS.
+    # ubuntu-latest currently produces binaries requiring GLIBC_2.39,
+    # which cannot run on the Ubuntu 22.04 VPS.
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -136,7 +139,9 @@ jobs:
             cp -a "${rollback_dir}/dist" "${DEPLOY_ROOT}/frontend/dist"
             sudo -n /usr/bin/systemctl restart fo-kima-backend || true
           }
-          trap rollback ERR
+          # Preserve the original failing status. Without this, a successful
+          # rollback masks the deployment error and GitHub reports success.
+          trap 'status=$?; rollback; exit "$status"' ERR
 
           install -m 0755 "${release_dir}/backend/fo-kima-backend" "${DEPLOY_ROOT}/backend/target/release/fo-kima-backend"
           rm -rf "${DEPLOY_ROOT}/frontend/dist"
