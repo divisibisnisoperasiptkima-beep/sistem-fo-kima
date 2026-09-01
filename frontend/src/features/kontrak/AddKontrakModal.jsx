@@ -89,7 +89,7 @@ export default function AddKontrakModal({ isOpen, onClose, onSuccess, session })
   const fetchReadyRegistrations = async () => {
     setRegistrationLoading(true);
     try {
-      const data = await listPortalRegistrations(session.token, 1, 200);
+      const data = await listPortalRegistrations(session.token);
       const rows = Array.isArray(data) ? data : data?.data || data?.items || [];
       setRegistrationList(rows.filter((row) => (
         row.status === "disetujui"

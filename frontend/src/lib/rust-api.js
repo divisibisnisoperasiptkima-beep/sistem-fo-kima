@@ -498,7 +498,7 @@ export const completeServiceChangeStep = (token, id, catatan = "", action = null
 /**
  * List portal registrations awaiting admin review
  */
-export const listPortalRegistrations = (token, _page = 1, _pageSize = 20, _search = "", status = "") => {
+export const listPortalRegistrations = (token, status = "") => {
   const query = new URLSearchParams();
   if (["menunggu", "disetujui", "ditolak", "dibatalkan"].includes(status)) query.set("status", status);
   else if (status === "negosiasi") query.set("penawaran_status", status);
