@@ -145,9 +145,13 @@ jobs:
           curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/readyz
           trap - ERR
 
-      - name: Verify public endpoints
+      - name: Verify production routes through local Nginx
         shell: bash
         run: |
           set -Eeuo pipefail
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 "${PUBLIC_ORIGIN}/healthz" >/dev/null
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 "${PUBLIC_ORIGIN}/" >/dev/null
+          public_host="${PUBLIC_ORIGIN#https://}"
+          public_host="${public_host%%/*}"
+          curl --fail --silent --show-error --connect-timeout 5 --max-time 15 --retry 3 --retry-all-errors --retry-delay 2 \
+            --resolve "${public_host}:443:127.0.0.1" "${PUBLIC_ORIGIN}/healthz" >/dev/null
+          curl --fail --silent --show-error --connect-timeout 5 --max-time 15 --retry 3 --retry-all-errors --retry-delay 2 \
+            --resolve "${public_host}:443:127.0.0.1" "${PUBLIC_ORIGIN}/" >/dev/null
