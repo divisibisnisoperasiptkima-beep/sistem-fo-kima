@@ -151,8 +151,10 @@ jobs:
           sudo -n /usr/bin/systemctl restart fo-kima-backend
           sudo -n /usr/sbin/nginx -t
           sudo -n /usr/bin/systemctl reload nginx
-          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/healthz
-          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/readyz
+          # First starts can apply database migrations, which may take longer
+          # than the default 20-second retry window on the VPS.
+          curl --fail --silent --show-error --retry 30 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/healthz
+          curl --fail --silent --show-error --retry 30 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/readyz
           trap - ERR
 
       - name: Verify production routes through local Nginx
