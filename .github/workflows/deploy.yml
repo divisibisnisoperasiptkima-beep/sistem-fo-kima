@@ -1,0 +1,153 @@
+name: Deploy production
+
+on:
+  # A manual run is the safe default for the first production rollout.
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  DEPLOY_ROOT: /var/www/fo
+  PUBLIC_ORIGIN: https://fo.ptkimamakassar.co.id
+
+jobs:
+  build:
+    name: Build release artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build backend release
+        working-directory: backend
+        run: cargo build --release --locked --bin fo-kima-backend
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build frontend production bundle
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: https://fo.ptkimamakassar.co.id
+        run: npm run build
+
+      - name: Package release
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          release_dir="${RUNNER_TEMP}/fo-kima-release"
+          mkdir -p "${release_dir}/backend" "${release_dir}/frontend"
+          install -m 0755 backend/target/release/fo-kima-backend "${release_dir}/backend/fo-kima-backend"
+          cp -a frontend/dist "${release_dir}/frontend/dist"
+          tar -C "${release_dir}" -czf "${RUNNER_TEMP}/fo-kima-release.tgz" .
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fo-kima-release
+          path: ${{ runner.temp }}/fo-kima-release.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy on KIMA VPS
+    needs: build
+    # Push deployments are opt-in until the repository variable is enabled.
+    if: github.event_name == 'workflow_dispatch' || vars.DEPLOY_ENABLED == 'true'
+    environment:
+      name: production
+      url: https://fo.ptkimamakassar.co.id
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 20
+    steps:
+      - name: Download release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fo-kima-release
+          path: ${{ runner.temp }}/fo-kima-artifact
+
+      - name: Verify VPS prerequisites
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -x "${DEPLOY_ROOT}/backend/target/release/fo-kima-backend"
+          test -d "${DEPLOY_ROOT}/frontend/dist"
+          test -r "${DEPLOY_ROOT}/backend/.env"
+          test -w "${DEPLOY_ROOT}/backend/target/release"
+          test -w "${DEPLOY_ROOT}/frontend"
+          sudo -n /usr/bin/systemctl is-active fo-kima-backend >/dev/null
+          sudo -n /usr/sbin/nginx -t >/dev/null
+
+          latest_backup="$(find /var/backups/vps -maxdepth 1 -type f -name 'mysql_all_*.sql.gz' -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          test -n "${latest_backup}"
+          backup_epoch="$(stat -c '%Y' "${latest_backup}")"
+          now_epoch="$(date +%s)"
+          if (( now_epoch - backup_epoch > 172800 )); then
+            echo "Backup database terakhir lebih lama dari 48 jam: ${latest_backup}" >&2
+            exit 1
+          fi
+
+      - name: Install release with rollback guard
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          artifact="${RUNNER_TEMP}/fo-kima-artifact/fo-kima-release.tgz"
+          release_dir="${DEPLOY_ROOT}/.deploy/${GITHUB_SHA}"
+          rollback_dir="${DEPLOY_ROOT}/.deploy/rollback/${GITHUB_SHA}"
+          mkdir -p "${release_dir}" "${rollback_dir}"
+          tar -xzf "${artifact}" -C "${release_dir}"
+          test -x "${release_dir}/backend/fo-kima-backend"
+          test -f "${release_dir}/frontend/dist/index.html"
+
+          cp -a "${DEPLOY_ROOT}/backend/target/release/fo-kima-backend" "${rollback_dir}/fo-kima-backend"
+          cp -a "${DEPLOY_ROOT}/frontend/dist" "${rollback_dir}/dist"
+
+          rollback() {
+            set +e
+            install -m 0755 "${rollback_dir}/fo-kima-backend" "${DEPLOY_ROOT}/backend/target/release/fo-kima-backend"
+            rm -rf "${DEPLOY_ROOT}/frontend/dist"
+            cp -a "${rollback_dir}/dist" "${DEPLOY_ROOT}/frontend/dist"
+            sudo -n /usr/bin/systemctl restart fo-kima-backend || true
+          }
+          trap rollback ERR
+
+          install -m 0755 "${release_dir}/backend/fo-kima-backend" "${DEPLOY_ROOT}/backend/target/release/fo-kima-backend"
+          rm -rf "${DEPLOY_ROOT}/frontend/dist"
+          mv "${release_dir}/frontend/dist" "${DEPLOY_ROOT}/frontend/dist"
+
+          sudo -n /usr/bin/systemctl restart fo-kima-backend
+          sudo -n /usr/sbin/nginx -t
+          sudo -n /usr/bin/systemctl reload nginx
+          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/healthz
+          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/readyz
+          trap - ERR
+
+      - name: Verify public endpoints
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 "${PUBLIC_ORIGIN}/healthz" >/dev/null
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 "${PUBLIC_ORIGIN}/" >/dev/null
