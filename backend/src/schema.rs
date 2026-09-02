@@ -15,14 +15,50 @@ pub async fn ensure_application_schema(
         ensure_operational_columns(database).await?;
     }
 
+    // Empat tabel ini berasal dari migrasi legacy sebelum migrasi SQLx backend
+    // dimulai pada versi 17. Snapshot produksi tidak memilikinya, padahal migrasi
+    // 29 sudah membuat FK ke sop_workflows. Bootstrap secara idempoten terlebih
+    // dahulu agar migrasi 29 dan seterusnya dapat dijalankan dari snapshot lama.
+    ensure_sop_base_schema(database).await?;
+
+    // Migrasi legacy memakai BIGINT signed, sedangkan migrasi baru dan model Rust
+    // memakai u64. Samakan sebelum SQLx membuat FK baru pada migrasi 29.
+    reconcile_sop_id_types(database).await?;
+
     let mut migrator = sqlx::migrate!("./migrations");
     // Snapshot produksi masih menyimpan histori versi 1–16, sedangkan source
     // migrasi yang tersedia di repo ini dimulai dari versi 17.
     migrator.set_ignore_missing(true);
     migrator.run(database).await?;
 
-    // Setelah tabel SOP ada, selaraskan tipe id-nya (lihat catatan di fungsi).
+    // Pertahankan pemeriksaan setelah migrasi sebagai pengaman untuk instalasi
+    // lama yang mungkin mempunyai sebagian tabel dengan tipe yang berbeda.
     reconcile_sop_id_types(database).await?;
+    Ok(())
+}
+
+async fn ensure_sop_base_schema(database: &MySqlPool) -> Result<(), sqlx::Error> {
+    let existing_tables: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM information_schema.tables \
+         WHERE table_schema = DATABASE() \
+           AND table_name IN (\
+             'sop_workflows',\
+             'sop_step_history',\
+             'sop_documents',\
+             'registration_tokens'\
+           )",
+    )
+    .fetch_one(database)
+    .await?;
+
+    if existing_tables < 4 {
+        sqlx::raw_sql(include_str!(
+            "../../migrations/001_create_sop_workflow_tables.sql"
+        ))
+        .execute(database)
+        .await?;
+    }
+
     Ok(())
 }
 
