@@ -62,6 +62,9 @@ export async function request(path, { method = "GET", body, token, signal } = {}
   const response = await fetch(`${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`, {
     method,
     headers: { Accept: "application/json", ...(body ? { "Content-Type": "application/json" } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    // Tables are refreshed after map edits; never reuse a previous GET
+    // response that could still contain the old coordinate.
+    ...(method === "GET" ? { cache: "no-store" } : {}),
     ...(body ? { body: JSON.stringify(body) } : {}),
     ...(signal ? { signal } : {}),
   });

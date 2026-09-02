@@ -369,8 +369,8 @@ pub async fn list_contracts(
                     CAST(l.periode_awal AS CHAR) AS periode_awal,
                     CAST(l.periode_berakhir AS CHAR) AS periode_berakhir,
                     DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi,
-                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude,
-                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude,
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude,
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude,
                     CAST(l.power AS DOUBLE) AS power,
                     l.vlan_id, l.mac_modem, l.alamat_user,
                     l.kategori AS jalur, l.link_folder_berkas,
@@ -502,8 +502,8 @@ pub async fn list_contracts(
                             CAST(l.periode_awal AS CHAR) AS periode_awal, \
                             CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
                             DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
-                            COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
-                            COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                            COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                            COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
                             CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                             l.kategori AS jalur, l.link_folder_berkas, \
                             l.core, l.sharing_core, l.durasi_kontrak_bulan, \
@@ -547,8 +547,8 @@ pub async fn list_contracts(
                         CAST(l.periode_awal AS CHAR) AS periode_awal, \
                         CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
                         DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
-                        COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
-                        COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                        COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                        COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
                         CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                         l.kategori AS jalur, l.link_folder_berkas, \
                         l.core, l.sharing_core, l.durasi_kontrak_bulan, \
@@ -589,8 +589,8 @@ pub async fn list_contracts(
                     CAST(l.periode_awal AS CHAR) AS periode_awal, \
                     CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
                     DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
-                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
-                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
                     CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                     l.kategori AS jalur, l.link_folder_berkas, \
                     l.core, l.sharing_core, l.durasi_kontrak_bulan, \
@@ -622,8 +622,8 @@ pub async fn list_contracts(
                     CAST(l.periode_awal AS CHAR) AS periode_awal, \
                     CAST(l.periode_berakhir AS CHAR) AS periode_berakhir, \
                     DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
-                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
-                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
                     CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, \
                     l.kategori AS jalur, l.link_folder_berkas, \
                     l.core, l.sharing_core, l.durasi_kontrak_bulan, \

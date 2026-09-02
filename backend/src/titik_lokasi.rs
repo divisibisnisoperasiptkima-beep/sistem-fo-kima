@@ -35,9 +35,9 @@ fn validate_coordinates(latitude: f64, longitude: f64) -> Result<(), ApiError> {
     Ok(())
 }
 
-/// Keep the denormalized coordinates on `lokasi` in sync with the first
-/// location point managed by the GIS module. The contract list reads from
-/// this fallback column for legacy records that do not yet have a map point.
+/// Keep the denormalized coordinates on `lokasi` in sync with the most
+/// recently configured location point. The contract list reads from this
+/// fallback column for legacy records that do not yet have a map point.
 pub async fn sync_lokasi_coordinates(
     database: &MySqlPool,
     lokasi_id: u64,
@@ -46,7 +46,7 @@ pub async fn sync_lokasi_coordinates(
         "SELECT CAST(latitude AS DOUBLE) AS latitude, \
                 CAST(longitude AS DOUBLE) AS longitude \
          FROM titik_lokasi_detail \
-         WHERE lokasi_id = ? ORDER BY id LIMIT 1",
+         WHERE lokasi_id = ? ORDER BY updated_at DESC, id DESC LIMIT 1",
     )
     .bind(lokasi_id)
     .fetch_optional(database)
@@ -104,7 +104,9 @@ pub async fn list_location_points(
                 CAST(longitude AS DOUBLE) AS longitude, \
                 CAST(created_at AS CHAR) AS created_at, \
                 CAST(updated_at AS CHAR) AS updated_at \
-         FROM titik_lokasi_detail WHERE lokasi_id = ? ORDER BY id",
+         FROM titik_lokasi_detail
+         WHERE lokasi_id = ?
+         ORDER BY updated_at DESC, id DESC",
     )
     .bind(query.lokasi_id)
     .fetch_all(&state.database)
@@ -170,7 +172,7 @@ pub async fn update_location_point(
         return Err(ApiError::bad_request("Label titik lokasi wajib diisi."));
     }
     let result = sqlx::query(
-        "UPDATE titik_lokasi_detail SET label = ?, latitude = ?, longitude = ? WHERE id = ?",
+        "UPDATE titik_lokasi_detail SET label = ?, latitude = ?, longitude = ?, updated_at = CURRENT_TIMESTAMP(6) WHERE id = ?",
     )
     .bind(input.label.trim())
     .bind(input.latitude)

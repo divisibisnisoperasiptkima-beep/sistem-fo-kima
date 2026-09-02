@@ -208,7 +208,17 @@ const KontrakPage = forwardRef(function KontrakPage({ session }, ref) {
     );
     const rows = rowsFrom(contracts).map((contract) => {
       const mapRow = baaByLocation.get(String(contract.id));
-      return mapRow ? { ...contract, ...mapRow } : { ...contract, lokasi_id: contract.id };
+      // Only merge BAA metadata. The contract endpoint is the source of
+      // truth for coordinates and already selects the most recently
+      // configured location point. Spreading the entire map row here could
+      // overwrite fresh coordinates with a stale/cached map response.
+      return mapRow ? {
+        ...contract,
+        baa_document_id: mapRow.baa_document_id,
+        baa_document_name: mapRow.baa_document_name,
+        baa_document_mime_type: mapRow.baa_document_mime_type,
+        baa_created_at: mapRow.baa_created_at,
+      } : { ...contract, lokasi_id: contract.id };
     });
     return { ...contracts, data: rows, rows };
   }, []);
