@@ -21,6 +21,25 @@ use crate::{
     util::{pagination, require_staff},
 };
 
+fn normalize_coordinate_lines(value: &str) -> Vec<String> {
+    value
+        .lines()
+        .map(str::trim)
+        .map(|line| line.trim_start_matches('•').trim())
+        .map(|line| line.strip_prefix("- ").unwrap_or(line).trim())
+        .filter(|line| !line.is_empty())
+        .map(ToOwned::to_owned)
+        .collect()
+}
+
+fn coordinate_bullet_text(value: &str) -> String {
+    normalize_coordinate_lines(value)
+        .into_iter()
+        .map(|line| format!("• {line}"))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 pub async fn list_map_points(
     State(state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthUser>,
@@ -61,12 +80,12 @@ pub async fn list_map_points(
             "SELECT l.id AS lokasi_id, l.nama_lokasi, l.pelanggan_id, \
                     p.nama_pelanggan, p.pic, p.telepon, \
                     COALESCE((SELECT JSON_OBJECT('latitude', tld.latitude, 'longitude', tld.longitude, 'label', tld.label) \
-                              FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), tp.points, \
+                              FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), tp.points, \
                              CASE WHEN l.latitude IS NOT NULL AND l.longitude IS NOT NULL \
                                   THEN JSON_OBJECT('latitude', l.latitude, 'longitude', l.longitude, 'label', l.nama_lokasi) END) AS points, \
                     DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
-                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
-                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
                     CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, l.core, \
                     tp.approval_status, tp.updated_at, \
                     (SELECT d.id FROM dokumen d WHERE d.lokasi_id = l.id AND d.kategori = 'BAA' ORDER BY d.id DESC LIMIT 1) AS baa_document_id, \
@@ -93,12 +112,12 @@ pub async fn list_map_points(
             "SELECT l.id AS lokasi_id, l.nama_lokasi, l.pelanggan_id, \
                     p.nama_pelanggan, p.pic, p.telepon, \
                     COALESCE((SELECT JSON_OBJECT('latitude', tld.latitude, 'longitude', tld.longitude, 'label', tld.label) \
-                              FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), tp.points, \
+                              FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), tp.points, \
                              CASE WHEN l.latitude IS NOT NULL AND l.longitude IS NOT NULL \
                                   THEN JSON_OBJECT('latitude', l.latitude, 'longitude', l.longitude, 'label', l.nama_lokasi) END) AS points, \
                     DATE_FORMAT(l.tanggal_aktivasi, '%Y-%m-%d') AS tanggal_aktivasi, \
-                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
-                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.id LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
+                    COALESCE((SELECT CAST(tld.latitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.latitude AS DOUBLE)) AS latitude, \
+                    COALESCE((SELECT CAST(tld.longitude AS DOUBLE) FROM titik_lokasi_detail tld WHERE tld.lokasi_id = l.id ORDER BY tld.updated_at DESC, tld.id DESC LIMIT 1), CAST(l.longitude AS DOUBLE)) AS longitude, \
                     CAST(l.power AS DOUBLE) AS power, l.vlan_id, l.mac_modem, l.alamat_user, l.core, \
                     tp.approval_status, tp.updated_at, \
                     (SELECT d.id FROM dokumen d WHERE d.lokasi_id = l.id AND d.kategori = 'BAA' ORDER BY d.id DESC LIMIT 1) AS baa_document_id, \
@@ -326,17 +345,41 @@ pub async fn create_location_baa(
         .unwrap_or_else(|| chrono::Local::now().format("%Y-%m-%d").to_string());
     let latitude: Option<f64> = row.try_get("latitude").unwrap_or(None);
     let longitude: Option<f64> = row.try_get("longitude").unwrap_or(None);
-    let koordinat = input
+    let titik_lokasi = sqlx::query(
+        "SELECT CAST(latitude AS DOUBLE) AS latitude, CAST(longitude AS DOUBLE) AS longitude \
+         FROM titik_lokasi_detail WHERE lokasi_id = ? \
+         ORDER BY updated_at DESC, id DESC",
+    )
+    .bind(lokasi_id)
+    .fetch_all(&state.database)
+    .await
+    .map_err(ApiError::database)?;
+    let koordinat_lokasi = titik_lokasi
+        .into_iter()
+        .filter_map(|point| {
+            let latitude = point.try_get::<Option<f64>, _>("latitude").ok().flatten()?;
+            let longitude = point
+                .try_get::<Option<f64>, _>("longitude")
+                .ok()
+                .flatten()?;
+            Some(format!("{latitude:.6}, {longitude:.6}"))
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let koordinat_tersimpan = input
         .koordinat
         .as_deref()
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-        .map(ToOwned::to_owned)
-        .or_else(|| match (latitude, longitude) {
-            (Some(lat), Some(lon)) => Some(format!("{lat:.6}, {lon:.6}")),
-            _ => None,
+        .map(normalize_coordinate_lines)
+        .filter(|values| !values.is_empty())
+        .map(|values| values.join("\n"))
+        .or_else(|| (!koordinat_lokasi.is_empty()).then_some(koordinat_lokasi))
+        .or_else(|| {
+            latitude
+                .zip(longitude)
+                .map(|(lat, lon)| format!("{lat:.6}, {lon:.6}"))
         })
         .unwrap_or_default();
+    let koordinat = coordinate_bullet_text(&koordinat_tersimpan);
     let nomor_baa = input
         .nomor_baa
         .as_deref()
@@ -412,7 +455,9 @@ pub async fn create_location_baa(
     stored_form.fiber_outlet_otb = Some(data.fiber_outlet_otb.clone());
     stored_form.patch_core = Some(data.patch_core.clone());
     stored_form.kabel_drop_wire_fo = Some(data.kabel_drop_wire_fo.clone());
-    stored_form.koordinat = Some(data.koordinat.clone());
+    // Simpan nilai mentah per baris. Bullet hanya dibuat saat dokumen
+    // dirender, sehingga form tetap mudah diedit pada pembuatan berikutnya.
+    stored_form.koordinat = Some(koordinat_tersimpan);
     stored_form.signal_input_cpe = Some(data.signal_input_cpe.clone());
     stored_form.vlan = Some(data.vlan.clone());
     stored_form.core = Some(data.core.clone());
