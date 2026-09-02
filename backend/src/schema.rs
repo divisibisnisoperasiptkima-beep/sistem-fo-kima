@@ -52,11 +52,9 @@ async fn ensure_sop_base_schema(database: &MySqlPool) -> Result<(), sqlx::Error>
     .await?;
 
     if existing_tables < 4 {
-        sqlx::raw_sql(include_str!(
-            "../../migrations/001_create_sop_workflow_tables.sql"
-        ))
-        .execute(database)
-        .await?;
+        sqlx::raw_sql(include_str!("../sql/legacy_sop_base.sql"))
+            .execute(database)
+            .await?;
     }
 
     Ok(())
