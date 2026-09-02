@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, AlertCircle, CheckCircle, Loader2, UserPlus } from "lucide-react";
+import { X, AlertCircle, CheckCircle, Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 import { createUser } from "../../lib/rust-api";
 
 const ROLE_OPTIONS = [
@@ -15,6 +15,7 @@ export default function AddUserModal({ isOpen, onClose, onSuccess, session }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -75,6 +76,7 @@ export default function AddUserModal({ isOpen, onClose, onSuccess, session }) {
 
   const handleClose = () => {
     setFormData({ email: "", password: "", role: "teknisi" });
+    setShowPassword(false);
     setErrors({});
     setError(null);
     setSuccess(false);
@@ -145,15 +147,27 @@ export default function AddUserModal({ isOpen, onClose, onSuccess, session }) {
               <label className="block text-sm font-medium text-slate-300">
                 {formData.role === "pelanggan" ? "Password sementara" : "Password"} <span className="text-red-400">*</span>
               </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={loading}
-                placeholder={formData.role === "pelanggan" ? "Password sementara, minimal 6 karakter" : "Minimal 6 karakter"}
-                className={inputClass("password")}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={loading}
+                  placeholder={formData.role === "pelanggan" ? "Password sementara, minimal 6 karakter" : "Minimal 6 karakter"}
+                  className={`${inputClass("password")} pr-11`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  disabled={loading}
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                  title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors disabled:opacity-50"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {errors.password && <p className="text-xs text-red-400">{errors.password}</p>}
               {formData.role === "pelanggan" && <p className="text-xs leading-5 text-sky-200/75">Pelanggan wajib mengganti password ini saat login pertama.</p>}
             </div>
